@@ -1,0 +1,57 @@
+{
+  "name": "mdskill",
+  "version": "1.0.0",
+  "description": "Modern Markdown Editor for Mac - AI-powered editing and beautiful rendering",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "build": "electron-builder",
+    "build:mac": "electron-builder --mac"
+  },
+  "keywords": ["markdown", "editor", "mac", "electron", "ai"],
+  "author": "Andy",
+  "license": "MIT",
+  "dependencies": {
+    "electron-store": "^8.1.0",
+    "marked": "^12.0.0",
+    "highlight.js": "^11.9.0",
+    "github-markdown-css": "^5.5.1",
+    "katex": "^0.16.9"
+  },
+  "devDependencies": {
+    "electron": "^28.1.0",
+    "electron-builder": "^24.9.1"
+  },
+  "build": {
+    "appId": "com.mdskill.app",
+    "productName": "MDSKILL",
+    "mac": {
+      "category": "public.app-category.productivity",
+      "target": ["dmg", "zip"],
+      "fileAssociations": [
+        {
+          "ext": "md",
+          "name": "Markdown Document",
+          "role": "Editor"
+        },
+        {
+          "ext": "markdown",
+          "name": "Markdown Document",
+          "role": "Editor"
+        },
+        {
+          "ext": "txt",
+          "name": "Text Document",
+          "role": "Editor"
+        }
+      ]
+    },
+    "files": [
+      "main.js",
+      "renderer/**/*",
+      "assets/**/*",
+      "node_modules/**/*"
+    ]
+  }
+}

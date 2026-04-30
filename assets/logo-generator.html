@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>MDSKILL Logo Generator</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #1a1a1a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+        .container {
+            text-align: center;
+        }
+        canvas {
+            border: 2px solid #333;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+        .info {
+            color: #fff;
+            margin-top: 20px;
+        }
+        button {
+            margin-top: 20px;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <canvas id="logoCanvas" width="512" height="512"></canvas>
+        <div class="info">
+            <h2 style="background: linear-gradient(135deg, #667eea 0%, #f5576c 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">MDSKILL Logo</h2>
+            <p>右键点击图片 → 保存为 PNG</p>
+        </div>
+        <button onclick="downloadLogo()">下载 Logo</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('logoCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // 创建渐变
+        const grad1 = ctx.createLinearGradient(0, 0, 512, 512);
+        grad1.addColorStop(0, '#667eea');
+        grad1.addColorStop(1, '#764ba2');
+
+        const grad2 = ctx.createLinearGradient(0, 0, 512, 512);
+        grad2.addColorStop(0, '#f093fb');
+        grad2.addColorStop(1, '#f5576c');
+
+        // 背景
+        ctx.fillStyle = '#1a1a1a';
+        ctx.fillRect(0, 0, 512, 512);
+
+        // 外圈光晕
+        const gradient = ctx.createRadialGradient(256, 256, 100, 256, 256, 240);
+        gradient.addColorStop(0, 'rgba(102, 126, 234, 0.2)');
+        gradient.addColorStop(1, 'rgba(102, 126, 234, 0)');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, 512, 512);
+
+        // 绘制 M
+        ctx.strokeStyle = grad1;
+        ctx.lineWidth = 32;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.shadowBlur = 20;
+        ctx.shadowColor = '#667eea';
+
+        ctx.beginPath();
+        ctx.moveTo(100, 340);
+        ctx.lineTo(100, 180);
+        ctx.lineTo(180, 280);
+        ctx.lineTo(260, 180);
+        ctx.lineTo(260, 340);
+        ctx.stroke();
+
+        // 绘制 D
+        ctx.strokeStyle = grad2;
+        ctx.shadowColor = '#f5576c';
+
+        ctx.beginPath();
+        ctx.moveTo(300, 180);
+        ctx.lineTo(300, 340);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(300, 180);
+        ctx.quadraticCurveTo(420, 180, 420, 260);
+        ctx.quadraticCurveTo(420, 340, 300, 340);
+        ctx.stroke();
+
+        // 装饰点
+        ctx.shadowBlur = 15;
+        const dots = [
+            {x: 180, y: 140, color: '#667eea'},
+            {x: 360, y: 140, color: '#f5576c'},
+            {x: 180, y: 380, color: '#667eea'},
+            {x: 360, y: 380, color: '#f5576c'}
+        ];
+
+        dots.forEach(dot => {
+            ctx.fillStyle = dot.color;
+            ctx.shadowColor = dot.color;
+            ctx.beginPath();
+            ctx.arc(dot.x, dot.y, 10, 0, Math.PI * 2);
+            ctx.fill();
+        });
+
+        // Markdown # 符号
+        ctx.shadowBlur = 10;
+        ctx.fillStyle = 'rgba(245, 87, 108, 0.4)';
+        ctx.font = 'bold 60px monospace';
+        ctx.fillText('#', 430, 150);
+
+        function downloadLogo() {
+            const link = document.createElement('a');
+            link.download = 'mdskill-logo.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+    </script>
+</body>
+</html>
