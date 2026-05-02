@@ -59,9 +59,16 @@ const fileStatus = document.getElementById('fileStatus');
 let currentFilePath = null;
 let isModified = false;
 let previewVisible = true;
+let currentTemplate = null;
 
 // 初始化
 async function init() {
+  // 加载保存的模板
+  const savedTemplateId = localStorage.getItem('mdskill_template') || 'github-dark';
+  currentTemplate = getTemplateById(savedTemplateId);
+  document.getElementById('templateSelect').value = savedTemplateId;
+  applyTemplate(currentTemplate);
+
   // 尝试加载上次打开的文件
   const lastFile = await ipcRenderer.invoke('get-last-file');
   if (lastFile) {
@@ -76,6 +83,19 @@ async function init() {
 
   // 初始预览
   updatePreview();
+}
+
+// 应用模板
+function applyTemplate(template) {
+  const css = generateTemplateCSS(template.styles);
+  document.getElementById('dynamicStyles').textContent = css;
+
+  // 更新编辑器背景色
+  const editorBg = template.styles.backgroundColor === '#ffffff' ? '#fafafa' : '#1e1e1e';
+  document.querySelector('.editor-pane').style.background = editorBg;
+
+  // 更新预览背景色
+  document.querySelector('.preview-pane').style.background = template.styles.backgroundColor;
 }
 
 // 更新预览
@@ -146,6 +166,36 @@ document.getElementById('togglePreviewBtn').addEventListener('click', () => {
   } else {
     editorContainer.classList.add('editor-only');
   }
+});
+
+// 模板选择器
+document.getElementById('templateSelect').addEventListener('change', (e) => {
+  const templateId = e.target.value;
+  currentTemplate = getTemplateById(templateId);
+  applyTemplate(currentTemplate);
+  localStorage.setItem('mdskill_template', templateId);
+  updatePreview();
+});
+
+// 主题切换按钮（快速切换亮/暗）
+document.getElementById('themeBtn').addEventListener('click', () => {
+  const currentId = currentTemplate.id;
+  let newId;
+
+  if (currentId === 'github-dark') {
+    newId = 'github-light';
+  } else if (currentId === 'github-light') {
+    newId = 'github-dark';
+  } else {
+    // 其他主题切换到 GitHub Dark
+    newId = 'github-dark';
+  }
+
+  currentTemplate = getTemplateById(newId);
+  document.getElementById('templateSelect').value = newId;
+  applyTemplate(currentTemplate);
+  localStorage.setItem('mdskill_template', newId);
+  updatePreview();
 });
 
 // Markdown 格式化按钮

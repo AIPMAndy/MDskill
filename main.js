@@ -82,6 +82,45 @@ function createWindow() {
         { type: 'separator' },
         { role: 'togglefullscreen' }
       ]
+    },
+    {
+      label: 'Help',
+      submenu: [
+        {
+          label: 'About MDSKILL',
+          click: () => {
+            const { dialog } = require('electron');
+            dialog.showMessageBox(mainWindow, {
+              type: 'info',
+              title: 'About MDSKILL',
+              message: 'MDSKILL v1.1.0',
+              detail: 'Modern Markdown Editor for Mac\n\n' +
+                      'AI酋长Andy 出品\n' +
+                      '合作微信: AIPMAndy\n\n' +
+                      '© 2026 AI酋长Andy. All rights reserved.\n' +
+                      'Licensed under MIT License',
+              buttons: ['OK']
+            });
+          }
+        },
+        { type: 'separator' },
+        {
+          label: 'Contact Developer',
+          click: () => {
+            const { dialog } = require('electron');
+            dialog.showMessageBox(mainWindow, {
+              type: 'info',
+              title: 'Contact',
+              message: '联系开发者',
+              detail: 'AI酋长Andy\n\n' +
+                      '微信: AIPMAndy\n' +
+                      'GitHub: @AIPMAndy\n\n' +
+                      '欢迎合作交流！',
+              buttons: ['OK']
+            });
+          }
+        }
+      ]
     }
   ];
 

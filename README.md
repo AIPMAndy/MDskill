@@ -2,15 +2,17 @@
 
 <div align="center">
 
-![MDSKILL Logo](https://via.placeholder.com/128x128/1a1a1a/ffffff?text=MD)
+<img src="assets/logo-new.svg" width="128" height="128" alt="MDSKILL Logo">
 
 **为 macOS 打造的优雅 Markdown 编辑器**
 
-[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.1.0-blue.svg)](CHANGELOG.md)
 [![Platform](https://img.shields.io/badge/platform-macOS-lightgrey.svg)](https://www.apple.com/macos/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-[快速开始](QUICKSTART.md) • [功能特性](FEATURES.md) • [安装指南](INSTALL.md) • [更新日志](CHANGELOG.md)
+[快速开始](#-安装) • [功能特性](#-特性) • [主题预览](#-8-种精美主题) • [更新日志](CHANGELOG.md)
+
+<img src="https://via.placeholder.com/800x450/1e1e1e/ffffff?text=MDSKILL+Screenshot" alt="MDSKILL Screenshot">
 
 </div>
 
@@ -18,11 +20,17 @@
 
 ## ✨ 特性
 
+### 🎨 8 种精美主题 ⭐️ NEW in v1.1.0
+- **多样化主题**：GitHub Dark/Light、Minimal、Literary、Tech Blue、Business、Warm、Purple
+- **一键切换**：快速切换亮/暗模式
+- **自动保存**：记住您的主题偏好
+- **流畅动画**：平滑的切换过渡效果
+
 ### 🎨 优雅界面
-- 暗色主题，护眼舒适
-- GitHub 风格渲染
-- 流畅的动画效果
 - 现代化设计语言
+- GitHub 风格渲染
+- 全新渐变色 Logo
+- 精致的视觉效果
 
 ### ⚡️ 实时预览
 - 边写边看，所见即所得
@@ -56,6 +64,51 @@
 
 ---
 
+## 🎨 8 种精美主题
+
+<table>
+  <tr>
+    <td align="center" width="25%">
+      <img src="https://img.shields.io/badge/🌙-GitHub_Dark-667eea?style=for-the-badge" alt="GitHub Dark"><br>
+      <sub>经典暗色</sub>
+    </td>
+    <td align="center" width="25%">
+      <img src="https://img.shields.io/badge/☀️-GitHub_Light-2563eb?style=for-the-badge" alt="GitHub Light"><br>
+      <sub>清爽亮色</sub>
+    </td>
+    <td align="center" width="25%">
+      <img src="https://img.shields.io/badge/✨-Minimal-111827?style=for-the-badge" alt="Minimal"><br>
+      <sub>极简现代</sub>
+    </td>
+    <td align="center" width="25%">
+      <img src="https://img.shields.io/badge/🌿-Literary-92400e?style=for-the-badge" alt="Literary"><br>
+      <sub>文艺清新</sub>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" width="25%">
+      <img src="https://img.shields.io/badge/🔷-Tech_Blue-38bdf8?style=for-the-badge" alt="Tech Blue"><br>
+      <sub>科技蓝</sub>
+    </td>
+    <td align="center" width="25%">
+      <img src="https://img.shields.io/badge/💼-Business-1e40af?style=for-the-badge" alt="Business"><br>
+      <sub>商务经典</sub>
+    </td>
+    <td align="center" width="25%">
+      <img src="https://img.shields.io/badge/🌅-Warm-d97706?style=for-the-badge" alt="Warm"><br>
+      <sub>暖色温馨</sub>
+    </td>
+    <td align="center" width="25%">
+      <img src="https://img.shields.io/badge/💜-Purple-c084fc?style=for-the-badge" alt="Purple"><br>
+      <sub>紫色梦幻</sub>
+    </td>
+  </tr>
+</table>
+
+查看 [主题使用指南](THEMES.md) 了解更多
+
+---
+
 ## 📦 安装
 
 ### 系统要求
@@ -64,10 +117,11 @@
 - 至少 100 MB 可用空间
 
 ### 下载安装
-1. 下载 `MDSKILL-1.0.0-arm64.dmg`
+
+1. 下载最新版本：[MDSKILL-1.1.0-arm64.dmg](https://github.com/yourusername/MDSKILL/releases)
 2. 双击打开 DMG 文件
 3. 拖拽到 Applications 文件夹
-4. 右键点击选择"打开"
+4. **右键点击**选择"打开"（首次需要）
 
 详细安装说明请查看 [安装指南](INSTALL.md)
 
@@ -80,10 +134,9 @@
 Cmd+N 或点击"新建"按钮
 ```
 
-### 打开现有文档
-```
-Cmd+O 或点击"打开"按钮
-```
+### 切换主题
+- **快速切换**：点击工具栏左侧的 🌙/☀️ 图标
+- **选择主题**：点击工具栏右侧的主题下拉菜单
 
 ### 编辑 Markdown
 在左侧编辑器中输入内容，右侧实时预览效果。
@@ -178,38 +231,47 @@ $$
 
 ## 🗺️ 路线图
 
-### v1.1.0（计划中）
-- [ ] 亮色主题
-- [ ] 导出 PDF/HTML
-- [ ] 自定义样式
+### ✅ v1.1.0（已完成）
+- [x] 8 种精美主题
+- [x] 主题切换功能
+- [x] 全新 Logo 设计
+- [x] 品牌信息展示
 
 ### v1.2.0（计划中）
+- [ ] 导出 PDF/HTML
+- [ ] 自定义主题编辑器
 - [ ] 多标签页
 - [ ] 全文搜索
-- [ ] 文件历史
 
 ### v2.0.0（计划中）
 - [ ] Git 集成
 - [ ] 云同步
 - [ ] 插件系统
+- [ ] 协作编辑
 
 ---
 
 ## 🐛 问题反馈
 
-如果遇到问题或有功能建议，请联系开发者。
+如果遇到问题或有功能建议，欢迎联系开发者。
+
+**AI酋长Andy**  
+微信：**AIPMAndy**
 
 ---
 
 ## 📄 许可证
 
-MIT License
+MIT License - 可自由使用、修改和分发
 
 ---
 
 ## 👨‍💻 开发者
 
-**Andy**
+**AI酋长Andy 出品**
+
+- 微信：**AIPMAndy**
+- GitHub: [@AIPMAndy](https://github.com/AIPMAndy)
 
 ---
 
@@ -217,6 +279,8 @@ MIT License
 
 **享受写作！** ✨
 
-Made with ❤️ for macOS
+Made with ❤️ by AI酋长Andy
+
+合作微信：**AIPMAndy**
 
 </div>

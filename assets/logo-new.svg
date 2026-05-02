@@ -1,0 +1,101 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- 主渐变 - 蓝紫色 -->
+    <linearGradient id="mainGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#764ba2;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f093fb;stop-opacity:1" />
+    </linearGradient>
+
+    <!-- 辅助渐变 - 粉红色 -->
+    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f093fb;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f5576c;stop-opacity:1" />
+    </linearGradient>
+
+    <!-- 发光效果 -->
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="8" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- 内阴影 -->
+    <filter id="innerShadow">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="4"/>
+      <feOffset dx="0" dy="2" result="offsetblur"/>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"/>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- 背景圆形 -->
+  <circle cx="512" cy="512" r="480" fill="url(#mainGrad)" opacity="0.08"/>
+  <circle cx="512" cy="512" r="460" fill="none" stroke="url(#mainGrad)" stroke-width="3" opacity="0.2"/>
+
+  <!-- 装饰圆环 -->
+  <circle cx="512" cy="512" r="420" fill="none" stroke="url(#mainGrad)" stroke-width="2" opacity="0.15" stroke-dasharray="10 20"/>
+
+  <!-- M 字母 - 左侧 -->
+  <g filter="url(#glow)">
+    <path d="M 220 640 L 220 360 L 340 520 L 460 360 L 460 640"
+          fill="none"
+          stroke="url(#mainGrad)"
+          stroke-width="56"
+          stroke-linecap="round"
+          stroke-linejoin="round"/>
+  </g>
+
+  <!-- D 字母 - 右侧 -->
+  <g filter="url(#glow)">
+    <path d="M 540 360 L 540 640"
+          fill="none"
+          stroke="url(#accentGrad)"
+          stroke-width="56"
+          stroke-linecap="round"/>
+    <path d="M 540 360 Q 740 360 740 500 Q 740 640 540 640"
+          fill="none"
+          stroke="url(#accentGrad)"
+          stroke-width="56"
+          stroke-linecap="round"
+          stroke-linejoin="round"/>
+  </g>
+
+  <!-- Markdown 符号装饰 -->
+  <g opacity="0.3">
+    <!-- # 号 -->
+    <text x="820" y="240"
+          font-family="'SF Mono', 'Monaco', monospace"
+          font-size="80"
+          font-weight="bold"
+          fill="url(#accentGrad)">#</text>
+
+    <!-- 小点装饰 -->
+    <circle cx="340" cy="260" r="12" fill="url(#mainGrad)" opacity="0.6"/>
+    <circle cx="660" cy="260" r="12" fill="url(#accentGrad)" opacity="0.6"/>
+    <circle cx="340" cy="740" r="12" fill="url(#mainGrad)" opacity="0.6"/>
+    <circle cx="660" cy="740" r="12" fill="url(#accentGrad)" opacity="0.6"/>
+
+    <!-- 星星装饰 -->
+    <path d="M 180 200 l 8 24 l 25 0 l -20 15 l 8 24 l -21 -15 l -21 15 l 8 -24 l -20 -15 l 25 0 z"
+          fill="url(#mainGrad)" opacity="0.4"/>
+    <path d="M 844 780 l 6 18 l 19 0 l -15 11 l 6 18 l -16 -11 l -16 11 l 6 -18 l -15 -11 l 19 0 z"
+          fill="url(#accentGrad)" opacity="0.4"/>
+  </g>
+
+  <!-- 底部文字 -->
+  <text x="512" y="880"
+        font-family="'SF Pro Display', -apple-system, sans-serif"
+        font-size="48"
+        font-weight="600"
+        fill="url(#mainGrad)"
+        text-anchor="middle"
+        letter-spacing="4">MDSKILL</text>
+</svg>

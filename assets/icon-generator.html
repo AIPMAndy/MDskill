@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>MDSKILL Icon Generator</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+        .container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 {
+            background: linear-gradient(135deg, #667eea 0%, #f5576c 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 30px;
+            font-size: 32px;
+        }
+        .canvas-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+            margin: 30px 0;
+        }
+        .canvas-item {
+            text-align: center;
+        }
+        canvas {
+            border: 2px solid #e0e0e0;
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+            background: white;
+        }
+        .size-label {
+            margin-top: 12px;
+            font-size: 14px;
+            color: #666;
+            font-weight: 600;
+        }
+        button {
+            margin: 10px 5px;
+            padding: 14px 28px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px rgba(102, 126, 234, 0.4);
+        }
+        .info {
+            color: #666;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 MDSKILL Icon Generator</h1>
+        <p class="info">生成多种尺寸的应用图标</p>
+
+        <div class="canvas-grid">
+            <div class="canvas-item">
+                <canvas id="icon1024" width="1024" height="1024"></canvas>
+                <div class="size-label">1024×1024 (App Store)</div>
+                <button onclick="downloadIcon('icon1024', 1024)">下载</button>
+            </div>
+            <div class="canvas-item">
+                <canvas id="icon512" width="512" height="512"></canvas>
+                <div class="size-label">512×512 (macOS)</div>
+                <button onclick="downloadIcon('icon512', 512)">下载</button>
+            </div>
+            <div class="canvas-item">
+                <canvas id="icon256" width="256" height="256"></canvas>
+                <div class="size-label">256×256</div>
+                <button onclick="downloadIcon('icon256', 256)">下载</button>
+            </div>
+            <div class="canvas-item">
+                <canvas id="icon128" width="128" height="128"></canvas>
+                <div class="size-label">128×128</div>
+                <button onclick="downloadIcon('icon128', 128)">下载</button>
+            </div>
+        </div>
+
+        <button onclick="downloadAll()" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+            📦 下载全部
+        </button>
+    </div>
+
+    <script>
+        const sizes = [1024, 512, 256, 128];
+
+        function drawIcon(canvasId, size) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+            const scale = size / 1024;
+
+            // 清空画布
+            ctx.clearRect(0, 0, size, size);
+
+            // 背景渐变
+            const bgGrad = ctx.createLinearGradient(0, 0, size, size);
+            bgGrad.addColorStop(0, '#667eea');
+            bgGrad.addColorStop(0.5, '#764ba2');
+            bgGrad.addColorStop(1, '#f093fb');
+
+            // 圆角矩形背景
+            const radius = size * 0.18;
+            ctx.fillStyle = bgGrad;
+            roundRect(ctx, 0, 0, size, size, radius);
+            ctx.fill();
+
+            // 主渐变
+            const mainGrad = ctx.createLinearGradient(0, 0, size, size);
+            mainGrad.addColorStop(0, '#ffffff');
+            mainGrad.addColorStop(1, '#f0f0f0');
+
+            // 辅助渐变
+            const accentGrad = ctx.createLinearGradient(0, 0, size, size);
+            accentGrad.addColorStop(0, '#ffffff');
+            accentGrad.addColorStop(1, '#ffd6e8');
+
+            // 设置发光效果
+            ctx.shadowBlur = 20 * scale;
+            ctx.shadowColor = 'rgba(255, 255, 255, 0.5)';
+
+            // 绘制 M
+            ctx.strokeStyle = mainGrad;
+            ctx.lineWidth = 56 * scale;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+
+            ctx.beginPath();
+            ctx.moveTo(220 * scale, 640 * scale);
+            ctx.lineTo(220 * scale, 360 * scale);
+            ctx.lineTo(340 * scale, 520 * scale);
+            ctx.lineTo(460 * scale, 360 * scale);
+            ctx.lineTo(460 * scale, 640 * scale);
+            ctx.stroke();
+
+            // 绘制 D
+            ctx.strokeStyle = accentGrad;
+
+            ctx.beginPath();
+            ctx.moveTo(540 * scale, 360 * scale);
+            ctx.lineTo(540 * scale, 640 * scale);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(540 * scale, 360 * scale);
+            ctx.quadraticCurveTo(740 * scale, 360 * scale, 740 * scale, 500 * scale);
+            ctx.quadraticCurveTo(740 * scale, 640 * scale, 540 * scale, 640 * scale);
+            ctx.stroke();
+
+            // Markdown # 符号
+            ctx.shadowBlur = 10 * scale;
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+            ctx.font = `bold ${80 * scale}px "SF Mono", Monaco, monospace`;
+            ctx.fillText('#', 820 * scale, 240 * scale);
+
+            // 装饰点
+            ctx.shadowBlur = 15 * scale;
+            const dots = [
+                {x: 340, y: 260, color: 'rgba(255, 255, 255, 0.6)'},
+                {x: 660, y: 260, color: 'rgba(255, 255, 255, 0.5)'},
+                {x: 340, y: 740, color: 'rgba(255, 255, 255, 0.6)'},
+                {x: 660, y: 740, color: 'rgba(255, 255, 255, 0.5)'}
+            ];
+
+            dots.forEach(dot => {
+                ctx.fillStyle = dot.color;
+                ctx.shadowColor = dot.color;
+                ctx.beginPath();
+                ctx.arc(dot.x * scale, dot.y * scale, 12 * scale, 0, Math.PI * 2);
+                ctx.fill();
+            });
+        }
+
+        function roundRect(ctx, x, y, width, height, radius) {
+            ctx.beginPath();
+            ctx.moveTo(x + radius, y);
+            ctx.lineTo(x + width - radius, y);
+            ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+            ctx.lineTo(x + width, y + height - radius);
+            ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+            ctx.lineTo(x + radius, y + height);
+            ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+            ctx.lineTo(x, y + radius);
+            ctx.quadraticCurveTo(x, y, x + radius, y);
+            ctx.closePath();
+        }
+
+        function downloadIcon(canvasId, size) {
+            const canvas = document.getElementById(canvasId);
+            const link = document.createElement('a');
+            link.download = `mdskill-icon-${size}x${size}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+
+        function downloadAll() {
+            sizes.forEach((size, index) => {
+                setTimeout(() => {
+                    downloadIcon(`icon${size}`, size);
+                }, index * 200);
+            });
+        }
+
+        // 初始化所有图标
+        sizes.forEach(size => {
+            drawIcon(`icon${size}`, size);
+        });
+    </script>
+</body>
+</html>

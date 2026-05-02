@@ -1,7 +1,7 @@
 {
   "name": "mdskill",
-  "version": "1.0.0",
-  "description": "Modern Markdown Editor for Mac - AI-powered editing and beautiful rendering",
+  "version": "1.1.0",
+  "description": "Modern Markdown Editor for Mac - AI-powered editing and beautiful rendering with multiple themes",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
@@ -10,7 +10,7 @@
     "build:mac": "electron-builder --mac"
   },
   "keywords": ["markdown", "editor", "mac", "electron", "ai"],
-  "author": "Andy",
+  "author": "AI酋长Andy <AIPMAndy>",
   "license": "MIT",
   "dependencies": {
     "electron-store": "^8.1.0",
@@ -28,6 +28,7 @@
     "productName": "MDSKILL",
     "mac": {
       "category": "public.app-category.productivity",
+      "icon": "assets/icon.png",
       "target": ["dmg", "zip"],
       "fileAssociations": [
         {
