@@ -208,11 +208,22 @@ app.on('open-file', (event, filePath) => {
 // 加载文件到窗口
 async function loadFileIntoWindow(filePath) {
   try {
+    // 确保窗口存在且已准备好
+    if (!mainWindow) return;
+
+    // 激活窗口到前台
+    if (mainWindow.isMinimized()) {
+      mainWindow.restore();
+    }
+    mainWindow.focus();
+    app.focus({ steal: true });
+
     const content = await fs.readFile(filePath, 'utf-8');
     mainWindow.webContents.send('file-opened', { path: filePath, content });
     store.set('lastOpenedFile', filePath);
   } catch (error) {
     console.error('Failed to open file:', error);
+    dialog.showErrorBox('Error', `Failed to open file: ${error.message}`);
   }
 }
 
