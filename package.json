@@ -30,21 +30,52 @@
       "category": "public.app-category.productivity",
       "icon": "assets/icon.png",
       "target": ["dmg", "zip"],
+      "extendInfo": {
+        "CFBundleDocumentTypes": [
+          {
+            "CFBundleTypeName": "Markdown Document",
+            "CFBundleTypeRole": "Editor",
+            "LSHandlerRank": "Default",
+            "LSItemContentTypes": ["net.daringfireball.markdown"],
+            "CFBundleTypeExtensions": ["md", "markdown"]
+          },
+          {
+            "CFBundleTypeName": "Text Document",
+            "CFBundleTypeRole": "Editor",
+            "LSHandlerRank": "Alternate",
+            "LSItemContentTypes": ["public.plain-text"],
+            "CFBundleTypeExtensions": ["txt"]
+          }
+        ],
+        "UTImportedTypeDeclarations": [
+          {
+            "UTTypeIdentifier": "net.daringfireball.markdown",
+            "UTTypeConformsTo": ["public.plain-text"],
+            "UTTypeDescription": "Markdown Document",
+            "UTTypeTagSpecification": {
+              "public.filename-extension": ["md", "markdown"]
+            }
+          }
+        ]
+      },
       "fileAssociations": [
         {
           "ext": "md",
           "name": "Markdown Document",
-          "role": "Editor"
+          "role": "Editor",
+          "icon": "assets/icon.png"
         },
         {
           "ext": "markdown",
           "name": "Markdown Document",
-          "role": "Editor"
+          "role": "Editor",
+          "icon": "assets/icon.png"
         },
         {
           "ext": "txt",
           "name": "Text Document",
-          "role": "Editor"
+          "role": "Editor",
+          "icon": "assets/icon.png"
         }
       ]
     },
