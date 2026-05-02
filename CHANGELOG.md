@@ -1,4 +1,4 @@
-# MDSKILL 版本说明
+# MDskill 版本说明
 
 ## 版本 1.1.0 (2026-05-02)
 
@@ -54,7 +54,7 @@
 
 ### 🎉 首次发布
 
-这是 MDSKILL 的首个正式版本，专为 macOS 用户打造的现代化 Markdown 编辑器。
+这是 MDskill 的首个正式版本，专为 macOS 用户打造的现代化 Markdown 编辑器。
 
 ### ✨ 核心功能
 
@@ -142,9 +142,9 @@
 
 ### 📋 安装说明
 
-1. 下载 `MDSKILL-1.0.0-arm64.dmg`
+1. 下载 `MDskill-1.0.0-arm64.dmg`
 2. 双击打开 DMG 文件
-3. 拖拽 MDSKILL 到 Applications 文件夹
+3. 拖拽 MDskill 到 Applications 文件夹
 4. 右键点击应用，选择"打开"
 5. 在弹出的对话框中点击"打开"
 
@@ -156,10 +156,10 @@
 
 **方法 2：** 在终端运行：
 ```bash
-xattr -cr /Applications/MDSKILL.app
+xattr -cr /Applications/MDskill.app
 ```
 
-**方法 3：** 系统设置 → 隐私与安全性 → 找到 MDSKILL → 点击"仍要打开"
+**方法 3：** 系统设置 → 隐私与安全性 → 找到 MDskill → 点击"仍要打开"
 
 ---
 

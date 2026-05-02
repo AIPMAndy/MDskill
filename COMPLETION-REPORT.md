@@ -1,4 +1,4 @@
-# MDSKILL v1.1.0 优化完成报告
+# MDskill v1.1.0 优化完成报告
 
 ## ✅ 完成的任务
 
@@ -145,7 +145,7 @@ renderer/
 
 ### 启动应用
 ```bash
-cd /Users/andy/Desktop/04\ AICode/MDSKILL
+cd /Users/andy/Desktop/04\ AICode/MDskill
 npm start
 ```
 
@@ -247,7 +247,7 @@ templates.js
 3. **CSS 生成机制** - 动态生成完整 CSS
 4. **主题命名** - 直观的主题名称和图标
 
-### MDSKILL 的创新
+### MDskill 的创新
 1. **快速切换按钮** - 一键切换亮/暗模式
 2. **主题记忆** - 自动保存和恢复
 3. **原生应用集成** - macOS 原生体验

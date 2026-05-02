@@ -1,4 +1,4 @@
-# MDSKILL v1.1.0 - 快速预览指南
+# MDskill v1.1.0 - 快速预览指南
 
 ## 🎯 核心更新一览
 
@@ -13,7 +13,7 @@
 ```
 
 **Help 菜单**：
-- About MDSKILL - 显示版本和开发者信息
+- About MDskill - 显示版本和开发者信息
 - Contact Developer - 显示联系方式
 
 ---
@@ -64,7 +64,7 @@
 
 ### 启动应用
 ```bash
-cd /Users/andy/Desktop/04\ AICode/MDSKILL
+cd /Users/andy/Desktop/04\ AICode/MDskill
 npm start
 ```
 
@@ -72,7 +72,7 @@ npm start
 1. 应用启动后，注意工具栏右上角的品牌信息
 2. 尝试点击主题选择器，切换不同主题
 3. 点击 🌙/☀️ 图标快速切换亮/暗模式
-4. 查看 Help → About MDSKILL 了解更多
+4. 查看 Help → About MDskill 了解更多
 
 ---
 
@@ -105,7 +105,7 @@ npm start
 - 效果：渐变色 + hover 高亮
 
 ### ⭐⭐⭐⭐ Help 菜单
-- About MDSKILL - 完整信息
+- About MDskill - 完整信息
 - Contact Developer - 联系方式
 
 ### ⭐⭐⭐ 文档
@@ -158,7 +158,7 @@ npm start
 - [ ] 重启后是否加载上次主题
 
 ### 3. Help 菜单
-- [ ] About MDSKILL 是否显示完整信息
+- [ ] About MDskill 是否显示完整信息
 - [ ] Contact Developer 是否显示联系方式
 
 ### 4. 视觉效果

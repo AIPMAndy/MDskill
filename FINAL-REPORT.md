@@ -1,4 +1,4 @@
-# MDSKILL v1.1.0 - 最终完成报告
+# MDskill v1.1.0 - 最终完成报告
 
 ## ✅ 全部完成
 
@@ -52,9 +52,9 @@ AI酋长Andy出品 | 微信: AIPMAndy
 
 **两个菜单项**:
 
-1. **About MDSKILL**
+1. **About MDskill**
 ```
-MDSKILL v1.1.0
+MDskill v1.1.0
 Modern Markdown Editor for Mac
 
 AI酋长Andy 出品
@@ -148,7 +148,7 @@ renderer/
 ### 菜单栏
 ```
 File  Edit  View  Help
-                   ├─ About MDSKILL        ← 显示版本和开发者信息
+                   ├─ About MDskill        ← 显示版本和开发者信息
                    ├─ ─────────────
                    └─ Contact Developer    ← 显示联系方式
 ```
@@ -202,7 +202,7 @@ File  Edit  View  Help
 
 ### 1. 启动应用
 ```bash
-cd /Users/andy/Desktop/04\ AICode/MDSKILL
+cd /Users/andy/Desktop/04\ AICode/MDskill
 npm start
 ```
 
@@ -212,7 +212,7 @@ npm start
 - ✅ Hover 微信号是否变蓝
 
 ### 3. 检查菜单
-- ✅ Help → About MDSKILL 是否显示完整信息
+- ✅ Help → About MDskill 是否显示完整信息
 - ✅ Help → Contact Developer 是否显示联系方式
 
 ### 4. 检查主题功能

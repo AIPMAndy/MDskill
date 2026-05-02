@@ -1,4 +1,4 @@
-# MDSKILL 安装指南
+# MDskill 安装指南
 
 ## 系统要求
 
@@ -9,18 +9,18 @@
 
 ### 方法 1：使用 DMG 安装包（推荐）
 
-1. 双击 `MDSKILL-1.0.0-arm64.dmg` 文件
-2. 将 MDSKILL 图标拖拽到 Applications 文件夹
-3. 打开 Applications 文件夹，双击 MDSKILL 启动应用
+1. 双击 `MDskill-1.0.0-arm64.dmg` 文件
+2. 将 MDskill 图标拖拽到 Applications 文件夹
+3. 打开 Applications 文件夹，双击 MDskill 启动应用
 4. 首次打开时，如果提示"无法验证开发者"，请：
    - 打开 系统设置 > 隐私与安全性
-   - 找到 MDSKILL，点击"仍要打开"
-   - 或者在终端运行：`xattr -cr /Applications/MDSKILL.app`
+   - 找到 MDskill，点击"仍要打开"
+   - 或者在终端运行：`xattr -cr /Applications/MDskill.app`
 
 ### 方法 2：从源码运行
 
 ```bash
-cd /Users/andy/Desktop/MDSKILL
+cd /Users/andy/Desktop/MDskill
 npm install
 npm run dev
 ```
@@ -50,7 +50,7 @@ npm run dev
 
 \`\`\`javascript
 function hello() {
-  console.log('Hello MDSKILL!');
+  console.log('Hello MDskill!');
 }
 \`\`\`
 
@@ -84,7 +84,7 @@ function hello() {
 ### Q: 应用无法打开，提示"已损坏"
 A: 在终端运行以下命令：
 ```bash
-xattr -cr /Applications/MDSKILL.app
+xattr -cr /Applications/MDskill.app
 ```
 
 ### Q: 如何更改主题？

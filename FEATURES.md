@@ -1,4 +1,4 @@
-# MDSKILL 功能特性
+# MDskill 功能特性
 
 ## 核心功能
 

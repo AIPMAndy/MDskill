@@ -1,18 +1,18 @@
-# MDSKILL 快速开始
+# MDskill 快速开始
 
 ## 🚀 安装
 
 ### 方式一：使用 DMG 安装包（推荐）
 
-1. 双击 `MDSKILL-1.0.0-arm64.dmg`
-2. 将 MDSKILL 图标拖拽到 Applications 文件夹
-3. 在启动台或应用程序文件夹中找到 MDSKILL
+1. 双击 `MDskill-1.0.0-arm64.dmg`
+2. 将 MDskill 图标拖拽到 Applications 文件夹
+3. 在启动台或应用程序文件夹中找到 MDskill
 4. 首次打开时，右键点击选择"打开"（绕过安全检查）
 
 ### 方式二：从源码运行
 
 ```bash
-cd /Users/andy/Desktop/MDSKILL
+cd /Users/andy/Desktop/MDskill
 npm install
 npm start
 ```

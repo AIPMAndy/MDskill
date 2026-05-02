@@ -1,4 +1,4 @@
-# MDSKILL - 品牌信息展示位置
+# MDskill - 品牌信息展示位置
 
 ## ✅ 已添加品牌信息的位置
 
@@ -16,12 +16,12 @@
 
 ### 2. 应用菜单
 **位置**: Help 菜单
-- ✅ "About MDSKILL" - 显示版本和开发者信息
+- ✅ "About MDskill" - 显示版本和开发者信息
 - ✅ "Contact Developer" - 显示联系方式
 
 **内容**:
 ```
-MDSKILL v1.1.0
+MDskill v1.1.0
 Modern Markdown Editor for Mac
 
 AI酋长Andy 出品
@@ -125,7 +125,7 @@ AI酋长Andy出品 | 微信: AIPMAndy
 工具栏始终显示，无论用户在编辑还是预览。
 
 ### 查看关于
-Help → About MDSKILL 显示完整信息。
+Help → About MDskill 显示完整信息。
 
 ### 查看文档
 README、CHANGELOG 等文档都包含品牌信息。

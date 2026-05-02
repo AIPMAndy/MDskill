@@ -1,8 +1,8 @@
-# MDSKILL - 现代化 Markdown 编辑器
+# MDskill - 现代化 Markdown 编辑器
 
 <div align="center">
 
-<img src="assets/logo-new.svg" width="128" height="128" alt="MDSKILL Logo">
+<img src="assets/logo-new.svg" width="128" height="128" alt="MDskill Logo">
 
 **为 macOS 打造的优雅 Markdown 编辑器**
 
@@ -116,7 +116,7 @@
 
 ### 下载安装
 
-1. 下载最新版本：[MDSKILL-1.1.0-arm64.dmg](https://github.com/yourusername/MDSKILL/releases)
+1. 下载最新版本：[MDskill-1.1.0-arm64.dmg](https://github.com/yourusername/MDskill/releases)
 2. 双击打开 DMG 文件
 3. 拖拽到 Applications 文件夹
 4. **右键点击**选择"打开"（首次需要）
@@ -162,7 +162,7 @@ Cmd+S 或点击"保存"按钮
 ````markdown
 ```javascript
 function hello() {
-  console.log('Hello, MDSKILL!');
+  console.log('Hello, MDskill!');
 }
 ```
 ````

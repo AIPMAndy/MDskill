@@ -1,4 +1,4 @@
-# MDSKILL v1.1.0 - 更新摘要
+# MDskill v1.1.0 - 更新摘要
 
 ## 🎉 主要更新
 
@@ -45,7 +45,7 @@
 ## 📁 新增文件
 
 ```
-MDSKILL/
+MDskill/
 ├── assets/
 │   ├── logo-new.svg          # 新版 Logo
 │   └── icon-generator.html   # 图标生成器
@@ -94,7 +94,7 @@ MDSKILL/
 
 ## 📊 对比 pageSKILL
 
-| 特性 | MDSKILL | pageSKILL |
+| 特性 | MDskill | pageSKILL |
 |------|---------|-----------|
 | 平台 | macOS 原生应用 | Web 应用 |
 | 主题数量 | 8 种 | 6 种 |

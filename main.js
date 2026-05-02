@@ -135,18 +135,18 @@ function createWindow(filePath = null) {
       label: 'Help',
       submenu: [
         {
-          label: 'About MDSKILL',
+          label: 'About MDskill',
           click: () => {
             const focusedWindow = BrowserWindow.getFocusedWindow();
             dialog.showMessageBox(focusedWindow, {
               type: 'info',
-              title: 'About MDSKILL',
-              message: 'MDSKILL v1.1.0',
+              title: 'About MDskill',
+              message: 'MDskill v1.1.0',
               detail: 'Modern Markdown Editor for Mac\n\n' +
                       'AI酋长Andy 出品\n' +
                       '合作微信: AIPMAndy\n\n' +
                       '© 2026 AI酋长Andy. All rights reserved.\n' +
-                      'Licensed under MIT License',
+                      'Licensed under GPL-3.0 License',
               buttons: ['OK']
             });
           }
