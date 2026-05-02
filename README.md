@@ -12,8 +12,6 @@
 
 [快速开始](#-安装) • [功能特性](#-特性) • [主题预览](#-8-种精美主题) • [更新日志](CHANGELOG.md)
 
-<img src="https://via.placeholder.com/800x450/1e1e1e/ffffff?text=MDSKILL+Screenshot" alt="MDSKILL Screenshot">
-
 </div>
 
 ---
