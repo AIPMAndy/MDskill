@@ -11,7 +11,7 @@
   },
   "keywords": ["markdown", "editor", "mac", "electron", "ai"],
   "author": "AI酋长Andy <AIPMAndy>",
-  "license": "MIT",
+  "license": "GPL-3.0",
   "dependencies": {
     "electron-store": "^8.1.0",
     "marked": "^12.0.0",
