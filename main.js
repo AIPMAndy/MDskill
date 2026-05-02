@@ -82,6 +82,17 @@ function createWindow(filePath = null) {
           }
         },
         { type: 'separator' },
+        {
+          label: 'Export as PDF',
+          accelerator: 'CmdOrCtrl+E',
+          click: () => {
+            const focusedWindow = BrowserWindow.getFocusedWindow();
+            if (focusedWindow) {
+              focusedWindow.webContents.send('export-pdf');
+            }
+          }
+        },
+        { type: 'separator' },
         { role: 'close' },
         { role: 'quit' }
       ]
@@ -239,6 +250,37 @@ ipcMain.handle('save-file-as', async (event, content) => {
 
 ipcMain.handle('get-last-file', () => {
   return store.get('lastOpenedFile');
+});
+
+ipcMain.handle('export-pdf', async (event, { defaultPath }) => {
+  const win = BrowserWindow.fromWebContents(event.sender);
+  const result = await dialog.showSaveDialog(win, {
+    defaultPath: defaultPath,
+    filters: [
+      { name: 'PDF', extensions: ['pdf'] }
+    ]
+  });
+
+  if (!result.canceled && result.filePath) {
+    try {
+      // 使用 Electron 的 printToPDF API
+      const data = await win.webContents.printToPDF({
+        printBackground: true,
+        pageSize: 'A4',
+        margins: {
+          top: 0,
+          bottom: 0,
+          left: 0,
+          right: 0
+        }
+      });
+      await fs.writeFile(result.filePath, data);
+      return { success: true, filePath: result.filePath };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+  return { success: false, canceled: true };
 });
 
 // 监听渲染进程的打开文件请求

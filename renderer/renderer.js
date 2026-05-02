@@ -334,5 +334,52 @@ ipcRenderer.on('toggle-preview', () => {
   document.getElementById('togglePreviewBtn').click();
 });
 
+ipcRenderer.on('export-pdf', async () => {
+  // 获取当前文件名作为默认 PDF 名称
+  let defaultName = 'document.pdf';
+  if (currentFilePath) {
+    const fileName = currentFilePath.split('/').pop().replace(/\.(md|markdown|txt)$/i, '');
+    defaultName = `${fileName}.pdf`;
+  }
+
+  // 临时隐藏编辑器，只显示预览区域用于导出
+  const container = document.querySelector('.container');
+  const editor = document.getElementById('editor');
+  const preview = document.getElementById('preview');
+
+  const originalDisplay = container.style.display;
+  const originalEditorDisplay = editor.style.display;
+  const originalPreviewWidth = preview.style.width;
+
+  // 设置为只显示预览
+  container.style.display = 'block';
+  editor.style.display = 'none';
+  preview.style.width = '100%';
+  preview.style.maxWidth = '210mm'; // A4 宽度
+  preview.style.margin = '0 auto';
+  preview.style.padding = '20mm'; // A4 边距
+
+  // 等待布局更新
+  await new Promise(resolve => setTimeout(resolve, 100));
+
+  // 调用主进程导出 PDF
+  const result = await ipcRenderer.invoke('export-pdf', { defaultPath: defaultName });
+
+  // 恢复原始布局
+  container.style.display = originalDisplay;
+  editor.style.display = originalEditorDisplay;
+  preview.style.width = originalPreviewWidth;
+  preview.style.maxWidth = '';
+  preview.style.margin = '';
+  preview.style.padding = '';
+
+  if (result.success) {
+    // 可以显示成功提示
+    console.log('PDF exported successfully:', result.filePath);
+  } else if (!result.canceled) {
+    console.error('Failed to export PDF:', result.error);
+  }
+});
+
 // 初始化应用
 init();
