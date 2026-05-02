@@ -5,10 +5,10 @@ const Store = require('electron-store');
 
 const store = new Store();
 
-let mainWindow;
+let windows = []; // 存储所有窗口
 
-function createWindow() {
-  mainWindow = new BrowserWindow({
+function createWindow(filePath = null) {
+  const win = new BrowserWindow({
     width: 1400,
     height: 900,
     minWidth: 800,
@@ -21,7 +21,30 @@ function createWindow() {
     }
   });
 
-  mainWindow.loadFile('renderer/index.html');
+  windows.push(win);
+
+  win.loadFile('renderer/index.html');
+
+  // 窗口关闭时从数组中移除
+  win.on('closed', () => {
+    const index = windows.indexOf(win);
+    if (index > -1) {
+      windows.splice(index, 1);
+    }
+  });
+
+  // 如果指定了文件路径，等待窗口加载完成后打开文件
+  if (filePath) {
+    win.webContents.on('did-finish-load', async () => {
+      try {
+        const content = await fs.readFile(filePath, 'utf-8');
+        win.webContents.send('file-opened', { path: filePath, content });
+        store.set('lastOpenedFile', filePath);
+      } catch (error) {
+        console.error('Failed to open file:', error);
+      }
+    });
+  }
 
   // 创建菜单
   const template = [
@@ -29,26 +52,37 @@ function createWindow() {
       label: 'File',
       submenu: [
         {
-          label: 'New',
+          label: 'New Window',
           accelerator: 'CmdOrCtrl+N',
-          click: () => mainWindow.webContents.send('file-new')
+          click: () => createWindow()
         },
         {
           label: 'Open',
           accelerator: 'CmdOrCtrl+O',
-          click: () => openFile()
+          click: () => openFile(BrowserWindow.getFocusedWindow())
         },
         {
           label: 'Save',
           accelerator: 'CmdOrCtrl+S',
-          click: () => mainWindow.webContents.send('file-save')
+          click: () => {
+            const focusedWindow = BrowserWindow.getFocusedWindow();
+            if (focusedWindow) {
+              focusedWindow.webContents.send('file-save');
+            }
+          }
         },
         {
           label: 'Save As',
           accelerator: 'CmdOrCtrl+Shift+S',
-          click: () => mainWindow.webContents.send('file-save-as')
+          click: () => {
+            const focusedWindow = BrowserWindow.getFocusedWindow();
+            if (focusedWindow) {
+              focusedWindow.webContents.send('file-save-as');
+            }
+          }
         },
         { type: 'separator' },
+        { role: 'close' },
         { role: 'quit' }
       ]
     },
@@ -70,7 +104,12 @@ function createWindow() {
         {
           label: 'Toggle Preview',
           accelerator: 'CmdOrCtrl+P',
-          click: () => mainWindow.webContents.send('toggle-preview')
+          click: () => {
+            const focusedWindow = BrowserWindow.getFocusedWindow();
+            if (focusedWindow) {
+              focusedWindow.webContents.send('toggle-preview');
+            }
+          }
         },
         { type: 'separator' },
         { role: 'reload' },
@@ -84,13 +123,22 @@ function createWindow() {
       ]
     },
     {
+      label: 'Window',
+      submenu: [
+        { role: 'minimize' },
+        { role: 'zoom' },
+        { type: 'separator' },
+        { role: 'front' }
+      ]
+    },
+    {
       label: 'Help',
       submenu: [
         {
           label: 'About MDSKILL',
           click: () => {
-            const { dialog } = require('electron');
-            dialog.showMessageBox(mainWindow, {
+            const focusedWindow = BrowserWindow.getFocusedWindow();
+            dialog.showMessageBox(focusedWindow, {
               type: 'info',
               title: 'About MDSKILL',
               message: 'MDSKILL v1.1.0',
@@ -107,8 +155,8 @@ function createWindow() {
         {
           label: 'Contact Developer',
           click: () => {
-            const { dialog } = require('electron');
-            dialog.showMessageBox(mainWindow, {
+            const focusedWindow = BrowserWindow.getFocusedWindow();
+            dialog.showMessageBox(focusedWindow, {
               type: 'info',
               title: 'Contact',
               message: '联系开发者',
@@ -126,10 +174,13 @@ function createWindow() {
 
   const menu = Menu.buildFromTemplate(template);
   Menu.setApplicationMenu(menu);
+
+  return win;
 }
 
-async function openFile() {
-  const result = await dialog.showOpenDialog(mainWindow, {
+async function openFile(targetWindow) {
+  const win = targetWindow || BrowserWindow.getFocusedWindow();
+  const result = await dialog.showOpenDialog(win, {
     properties: ['openFile'],
     filters: [
       { name: 'Markdown', extensions: ['md', 'markdown', 'txt'] },
@@ -140,7 +191,7 @@ async function openFile() {
   if (!result.canceled && result.filePaths.length > 0) {
     const filePath = result.filePaths[0];
     const content = await fs.readFile(filePath, 'utf-8');
-    mainWindow.webContents.send('file-opened', { path: filePath, content });
+    win.webContents.send('file-opened', { path: filePath, content });
     store.set('lastOpenedFile', filePath);
   }
 }
@@ -166,7 +217,8 @@ ipcMain.handle('save-file', async (event, { filePath, content }) => {
 });
 
 ipcMain.handle('save-file-as', async (event, content) => {
-  const result = await dialog.showSaveDialog(mainWindow, {
+  const win = BrowserWindow.fromWebContents(event.sender);
+  const result = await dialog.showSaveDialog(win, {
     filters: [
       { name: 'Markdown', extensions: ['md'] },
       { name: 'All Files', extensions: ['*'] }
@@ -190,53 +242,20 @@ ipcMain.handle('get-last-file', () => {
 });
 
 // 监听渲染进程的打开文件请求
-ipcMain.on('file-open', () => {
-  openFile();
+ipcMain.on('file-open', (event) => {
+  const win = BrowserWindow.fromWebContents(event.sender);
+  openFile(win);
 });
 
 // 处理通过 Finder 打开文件（macOS）
 app.on('open-file', (event, filePath) => {
   event.preventDefault();
-  if (mainWindow) {
-    loadFileIntoWindow(filePath);
-  } else {
-    // 如果窗口还未创建，保存路径待窗口创建后加载
-    app.fileToOpen = filePath;
-  }
+  // 总是在新窗口中打开文件
+  createWindow(filePath);
 });
-
-// 加载文件到窗口
-async function loadFileIntoWindow(filePath) {
-  try {
-    // 确保窗口存在且已准备好
-    if (!mainWindow) return;
-
-    // 激活窗口到前台
-    if (mainWindow.isMinimized()) {
-      mainWindow.restore();
-    }
-    mainWindow.focus();
-    app.focus({ steal: true });
-
-    const content = await fs.readFile(filePath, 'utf-8');
-    mainWindow.webContents.send('file-opened', { path: filePath, content });
-    store.set('lastOpenedFile', filePath);
-  } catch (error) {
-    console.error('Failed to open file:', error);
-    dialog.showErrorBox('Error', `Failed to open file: ${error.message}`);
-  }
-}
 
 app.whenReady().then(() => {
   createWindow();
-
-  // 如果有待打开的文件，加载它
-  if (app.fileToOpen) {
-    setTimeout(() => {
-      loadFileIntoWindow(app.fileToOpen);
-      app.fileToOpen = null;
-    }, 500);
-  }
 });
 
 app.on('window-all-closed', () => {
@@ -246,7 +265,7 @@ app.on('window-all-closed', () => {
 });
 
 app.on('activate', () => {
-  if (BrowserWindow.getAllWindows().length === 0) {
+  if (windows.length === 0) {
     createWindow();
   }
 });
