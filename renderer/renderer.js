@@ -91,9 +91,24 @@ function applyTemplate(template) {
   const css = generateTemplateCSS(template.styles);
   document.getElementById('dynamicStyles').textContent = css;
 
-  // 更新编辑器背景色
-  const editorBg = template.styles.backgroundColor === '#ffffff' ? '#fafafa' : '#1e1e1e';
-  document.querySelector('.editor-pane').style.background = editorBg;
+  // 判断是亮色还是暗色主题
+  const isLight = ['#ffffff', '#fafafa', '#fefdf8', '#fef3c7'].some(
+    color => template.styles.backgroundColor.toLowerCase() === color.toLowerCase()
+  );
+
+  // 更新编辑器背景色和文字颜色
+  const editorPane = document.querySelector('.editor-pane');
+  const editorTextarea = document.getElementById('editor');
+
+  if (isLight) {
+    editorPane.style.background = '#fafafa';
+    editorTextarea.style.color = '#1a1a1a';
+    editorTextarea.style.caretColor = '#1a1a1a';
+  } else {
+    editorPane.style.background = '#1e1e1e';
+    editorTextarea.style.color = '#d4d4d4';
+    editorTextarea.style.caretColor = '#d4d4d4';
+  }
 
   // 更新预览背景色
   document.querySelector('.preview-pane').style.background = template.styles.backgroundColor;
