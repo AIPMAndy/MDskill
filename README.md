@@ -8,7 +8,7 @@
 
 [![Version](https://img.shields.io/badge/version-1.1.0-blue.svg)](CHANGELOG.md)
 [![Platform](https://img.shields.io/badge/platform-macOS-lightgrey.svg)](https://www.apple.com/macos/)
-[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![License](https://img.shields.io/badge/license-GPL--3.0-green.svg)](LICENSE)
 
 [快速开始](#-安装) • [功能特性](#-特性) • [主题预览](#-8-种精美主题) • [更新日志](CHANGELOG.md)
 
@@ -262,7 +262,18 @@ $$
 
 ## 📄 许可证
 
-MIT License - 可自由使用、修改和分发
+本项目采用 **GPL-3.0** 许可证：
+
+- ✅ **个人使用**：完全免费
+- ✅ **学习研究**：自由修改和学习
+- ✅ **开源项目**：可用于其他开源项目
+- ⚠️ **商业使用**：需获得作者授权
+
+**商业授权联系方式：**
+- 微信：**AIPMAndy**
+- 邮箱：通过 GitHub 联系
+
+详见 [LICENSE](LICENSE) 文件
 
 ---
 
