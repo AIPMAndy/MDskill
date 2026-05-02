@@ -60,6 +60,7 @@ let currentFilePath = null;
 let isModified = false;
 let previewVisible = true;
 let currentTemplate = null;
+let updateTimer = null; // 防抖定时器
 
 // 初始化
 async function init() {
@@ -98,10 +99,28 @@ function applyTemplate(template) {
   document.querySelector('.preview-pane').style.background = template.styles.backgroundColor;
 }
 
-// 更新预览
+// 更新预览（防抖优化）
 function updatePreview() {
   const markdown = editor.value;
-  preview.innerHTML = marked.parse(markdown);
+  const html = marked.parse(markdown);
+
+  // 只在内容真正变化时才更新 DOM
+  if (preview.innerHTML !== html) {
+    requestAnimationFrame(() => {
+      preview.innerHTML = html;
+    });
+  }
+}
+
+// 防抖更新预览
+function debouncedUpdatePreview() {
+  if (updateTimer) {
+    clearTimeout(updateTimer);
+  }
+
+  updateTimer = setTimeout(() => {
+    updatePreview();
+  }, 300); // 300ms 延迟，减少抖动
 }
 
 // 更新文件状态
@@ -118,7 +137,7 @@ function updateFileStatus() {
 editor.addEventListener('input', () => {
   isModified = true;
   updateFileStatus();
-  updatePreview();
+  debouncedUpdatePreview(); // 使用防抖更新
 });
 
 // 工具栏按钮

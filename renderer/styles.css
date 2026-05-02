@@ -192,7 +192,8 @@ body {
   padding: 20px;
   max-width: 900px;
   margin: 0 auto;
-  transition: all 0.3s ease;
+  transition: none; /* 移除过渡动画，避免闪烁 */
+  will-change: contents; /* 优化渲染性能 */
 }
 
 .markdown-body h1,
@@ -201,7 +202,7 @@ body {
 .markdown-body h4,
 .markdown-body h5,
 .markdown-body h6 {
-  transition: color 0.3s ease;
+  transition: none; /* 移除标题过渡 */
 }
 
 .markdown-body a {
@@ -209,24 +210,24 @@ body {
 }
 
 .markdown-body code {
-  transition: all 0.3s ease;
+  transition: none; /* 移除代码过渡 */
 }
 
 .markdown-body pre {
-  transition: all 0.3s ease;
+  transition: none; /* 移除代码块过渡 */
 }
 
 .markdown-body blockquote {
-  transition: all 0.3s ease;
+  transition: none; /* 移除引用块过渡 */
 }
 
 .markdown-body table tr {
-  transition: background 0.3s ease;
+  transition: none; /* 移除表格过渡 */
 }
 
 .markdown-body table th,
 .markdown-body table td {
-  transition: all 0.3s ease;
+  transition: none; /* 移除表格单元格过渡 */
 }
 
 .markdown-body img {
