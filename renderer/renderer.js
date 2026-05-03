@@ -249,6 +249,11 @@ document.getElementById('linkBtn').addEventListener('click', () => {
   insertMarkdown('[', '](url)', 'link text');
 });
 
+// 导出 PDF 按钮
+document.getElementById('exportPdfBtn').addEventListener('click', async () => {
+  await exportToPDF();
+});
+
 // 插入 Markdown 语法
 function insertMarkdown(before, after, placeholder) {
   const start = editor.selectionStart;
@@ -334,51 +339,79 @@ ipcRenderer.on('toggle-preview', () => {
   document.getElementById('togglePreviewBtn').click();
 });
 
+// 导出 PDF 函数
+async function exportToPDF() {
+  console.log('PDF export triggered');
+
+  try {
+    // 获取当前文件名作为默认 PDF 名称
+    let defaultName = 'document.pdf';
+    if (currentFilePath) {
+      const fileName = currentFilePath.split('/').pop().replace(/\.(md|markdown|txt)$/i, '');
+      defaultName = `${fileName}.pdf`;
+    }
+    console.log('Default PDF name:', defaultName);
+
+    // 获取 DOM 元素
+    const editorContainer = document.querySelector('.editor-container');
+    const editorPane = document.getElementById('editorPane');
+    const previewPane = document.getElementById('previewPane');
+
+    if (!editorContainer || !editorPane || !previewPane) {
+      throw new Error('Required DOM elements not found');
+    }
+
+    // 保存原始样式
+    const originalContainerDisplay = editorContainer.style.display;
+    const originalEditorDisplay = editorPane.style.display;
+    const originalPreviewWidth = previewPane.style.width;
+    const originalPreviewMaxWidth = previewPane.style.maxWidth;
+    const originalPreviewMargin = previewPane.style.margin;
+    const originalPreviewPadding = previewPane.style.padding;
+
+    // 设置为只显示预览
+    editorContainer.style.display = 'flex';
+    editorPane.style.display = 'none';
+    previewPane.style.width = '100%';
+    previewPane.style.maxWidth = '210mm'; // A4 宽度
+    previewPane.style.margin = '0 auto';
+    previewPane.style.padding = '20mm'; // A4 边距
+
+    console.log('Layout adjusted for PDF export');
+
+    // 等待布局更新
+    await new Promise(resolve => setTimeout(resolve, 200));
+
+    console.log('Calling main process to export PDF...');
+    // 调用主进程导出 PDF
+    const result = await ipcRenderer.invoke('export-pdf', { defaultPath: defaultName });
+    console.log('Export result:', result);
+
+    // 恢复原始布局
+    editorContainer.style.display = originalContainerDisplay;
+    editorPane.style.display = originalEditorDisplay;
+    previewPane.style.width = originalPreviewWidth;
+    previewPane.style.maxWidth = originalPreviewMaxWidth;
+    previewPane.style.margin = originalPreviewMargin;
+    previewPane.style.padding = originalPreviewPadding;
+
+    if (result.success) {
+      console.log('PDF exported successfully:', result.filePath);
+      alert(`PDF 导出成功！\n保存位置: ${result.filePath}`);
+    } else if (result.canceled) {
+      console.log('PDF export canceled by user');
+    } else {
+      console.error('Failed to export PDF:', result.error);
+      alert(`PDF 导出失败: ${result.error}`);
+    }
+  } catch (error) {
+    console.error('Error during PDF export:', error);
+    alert(`PDF 导出出错: ${error.message}`);
+  }
+}
+
 ipcRenderer.on('export-pdf', async () => {
-  // 获取当前文件名作为默认 PDF 名称
-  let defaultName = 'document.pdf';
-  if (currentFilePath) {
-    const fileName = currentFilePath.split('/').pop().replace(/\.(md|markdown|txt)$/i, '');
-    defaultName = `${fileName}.pdf`;
-  }
-
-  // 临时隐藏编辑器，只显示预览区域用于导出
-  const container = document.querySelector('.container');
-  const editor = document.getElementById('editor');
-  const preview = document.getElementById('preview');
-
-  const originalDisplay = container.style.display;
-  const originalEditorDisplay = editor.style.display;
-  const originalPreviewWidth = preview.style.width;
-
-  // 设置为只显示预览
-  container.style.display = 'block';
-  editor.style.display = 'none';
-  preview.style.width = '100%';
-  preview.style.maxWidth = '210mm'; // A4 宽度
-  preview.style.margin = '0 auto';
-  preview.style.padding = '20mm'; // A4 边距
-
-  // 等待布局更新
-  await new Promise(resolve => setTimeout(resolve, 100));
-
-  // 调用主进程导出 PDF
-  const result = await ipcRenderer.invoke('export-pdf', { defaultPath: defaultName });
-
-  // 恢复原始布局
-  container.style.display = originalDisplay;
-  editor.style.display = originalEditorDisplay;
-  preview.style.width = originalPreviewWidth;
-  preview.style.maxWidth = '';
-  preview.style.margin = '';
-  preview.style.padding = '';
-
-  if (result.success) {
-    // 可以显示成功提示
-    console.log('PDF exported successfully:', result.filePath);
-  } else if (!result.canceled) {
-    console.error('Failed to export PDF:', result.error);
-  }
+  await exportToPDF();
 });
 
 // 初始化应用

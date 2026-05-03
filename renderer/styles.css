@@ -66,6 +66,16 @@ body {
   transform: translateY(0);
 }
 
+.toolbar-btn-primary {
+  background: #667eea;
+  color: #ffffff;
+}
+
+.toolbar-btn-primary:hover {
+  background: #5568d3;
+  color: #ffffff;
+}
+
 .toolbar-divider {
   width: 1px;
   height: 20px;

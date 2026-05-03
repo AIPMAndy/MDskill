@@ -6,6 +6,7 @@ const Store = require('electron-store');
 const store = new Store();
 
 let windows = []; // 存储所有窗口
+let pendingFilePath = null; // 缓存 app ready 前的文件路径
 
 function createWindow(filePath = null) {
   const win = new BrowserWindow({
@@ -253,6 +254,7 @@ ipcMain.handle('get-last-file', () => {
 });
 
 ipcMain.handle('export-pdf', async (event, { defaultPath }) => {
+  console.log('PDF export handler called with defaultPath:', defaultPath);
   const win = BrowserWindow.fromWebContents(event.sender);
   const result = await dialog.showSaveDialog(win, {
     defaultPath: defaultPath,
@@ -261,8 +263,11 @@ ipcMain.handle('export-pdf', async (event, { defaultPath }) => {
     ]
   });
 
+  console.log('Save dialog result:', result);
+
   if (!result.canceled && result.filePath) {
     try {
+      console.log('Starting PDF generation...');
       // 使用 Electron 的 printToPDF API
       const data = await win.webContents.printToPDF({
         printBackground: true,
@@ -274,9 +279,12 @@ ipcMain.handle('export-pdf', async (event, { defaultPath }) => {
           right: 0
         }
       });
+      console.log('PDF data generated, size:', data.length, 'bytes');
       await fs.writeFile(result.filePath, data);
+      console.log('PDF file written successfully to:', result.filePath);
       return { success: true, filePath: result.filePath };
     } catch (error) {
+      console.error('Error generating PDF:', error);
       return { success: false, error: error.message };
     }
   }
@@ -292,12 +300,24 @@ ipcMain.on('file-open', (event) => {
 // 处理通过 Finder 打开文件（macOS）
 app.on('open-file', (event, filePath) => {
   event.preventDefault();
-  // 总是在新窗口中打开文件
-  createWindow(filePath);
+
+  if (app.isReady()) {
+    // App 已经 ready，直接创建窗口
+    createWindow(filePath);
+  } else {
+    // App 还未 ready，缓存文件路径
+    pendingFilePath = filePath;
+  }
 });
 
 app.whenReady().then(() => {
-  createWindow();
+  // 如果有待打开的文件，用该文件创建窗口
+  if (pendingFilePath) {
+    createWindow(pendingFilePath);
+    pendingFilePath = null;
+  } else {
+    createWindow();
+  }
 });
 
 app.on('window-all-closed', () => {
