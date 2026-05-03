@@ -24,3 +24,9 @@ Thumbs.db
 # Temporary files
 *.tmp
 *.temp
+
+# License system (private)
+license-private-key.pem
+license-*.txt
+get-device-fingerprint.js
+license-generator.js
