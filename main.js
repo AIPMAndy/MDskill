@@ -2,6 +2,7 @@ const { app, BrowserWindow, ipcMain, dialog, Menu } = require('electron');
 const path = require('path');
 const fs = require('fs').promises;
 const Store = require('electron-store');
+const licenseManager = require('./license-manager');
 
 const store = new Store();
 
@@ -150,16 +151,50 @@ function createWindow(filePath = null) {
           label: 'About MDskill',
           click: () => {
             const focusedWindow = BrowserWindow.getFocusedWindow();
+            const licenseInfo = licenseManager.getLicenseInfo();
+            const versionInfo = licenseInfo && licenseInfo.isPro ? 'v1.2.0 专业版' : 'v1.2.0 免费版';
+
             dialog.showMessageBox(focusedWindow, {
               type: 'info',
               title: 'About MDskill',
-              message: 'MDskill v1.1.0',
+              message: `MDskill ${versionInfo}`,
               detail: 'Modern Markdown Editor for Mac\n\n' +
                       'AI酋长Andy 出品\n' +
                       '合作微信: AIPMAndy\n\n' +
                       '© 2026 AI酋长Andy. All rights reserved.\n' +
                       'Licensed under GPL-3.0 License',
               buttons: ['OK']
+            });
+          }
+        },
+        { type: 'separator' },
+        {
+          label: 'Activate Pro Version',
+          click: () => {
+            showActivationDialog();
+          }
+        },
+        {
+          label: 'Get Device Fingerprint',
+          click: () => {
+            const deviceId = licenseManager.getDeviceFingerprint();
+            const focusedWindow = BrowserWindow.getFocusedWindow();
+            dialog.showMessageBox(focusedWindow, {
+              type: 'info',
+              title: '设备指纹',
+              message: '您的设备指纹',
+              detail: `设备指纹：${deviceId}\n\n` +
+                      '请将此设备指纹发送给开发者以获取授权码。\n\n' +
+                      '联系方式：\n' +
+                      '微信: AIPMAndy',
+              buttons: ['复制', '关闭'],
+              defaultId: 0
+            }).then(result => {
+              if (result.response === 0) {
+                // 复制到剪贴板
+                const { clipboard } = require('electron');
+                clipboard.writeText(deviceId);
+              }
             });
           }
         },
@@ -188,6 +223,32 @@ function createWindow(filePath = null) {
   Menu.setApplicationMenu(menu);
 
   return win;
+}
+
+// 显示激活对话框
+async function showActivationDialog() {
+  const focusedWindow = BrowserWindow.getFocusedWindow();
+
+  // 创建激活窗口
+  const activationWin = new BrowserWindow({
+    width: 500,
+    height: 400,
+    parent: focusedWindow,
+    modal: true,
+    resizable: false,
+    minimizable: false,
+    maximizable: false,
+    webPreferences: {
+      nodeIntegration: true,
+      contextIsolation: false
+    }
+  });
+
+  // 加载激活页面
+  activationWin.loadFile('renderer/activation.html');
+
+  // 移除菜单栏
+  activationWin.setMenu(null);
 }
 
 async function openFile(targetWindow) {
@@ -289,6 +350,17 @@ ipcMain.handle('export-pdf', async (event, { defaultPath }) => {
     }
   }
   return { success: false, canceled: true };
+});
+
+// 激活授权码
+ipcMain.handle('activate-license', async (event, licenseKey) => {
+  const result = licenseManager.activateLicense(licenseKey);
+  return result;
+});
+
+// 获取设备指纹
+ipcMain.handle('get-device-fingerprint', () => {
+  return licenseManager.getDeviceFingerprint();
 });
 
 // 监听渲染进程的打开文件请求
