@@ -69,25 +69,27 @@ const baseStyles = {
 // ============== 模板定义 ==============
 
 const templates = {
-  // GitHub Dark - 默认主题
+  // GitHub Dark - 默认主题（免费）
   githubDark: {
     id: 'github-dark',
     name: 'GitHub Dark',
     description: '经典 GitHub 暗色主题，适合代码文档',
     category: 'tech',
     icon: '🌙',
+    isPremium: false, // 免费主题
     styles: {
       ...baseStyles,
     }
   },
 
-  // GitHub Light - 亮色主题
+  // GitHub Light - 亮色主题（专业版）
   githubLight: {
     id: 'github-light',
     name: 'GitHub Light',
     description: '清爽的亮色主题，护眼舒适',
     category: 'minimal',
     icon: '☀️',
+    isPremium: true, // 专业版功能
     styles: {
       ...baseStyles,
       backgroundColor: '#ffffff',
@@ -116,13 +118,14 @@ const templates = {
     }
   },
 
-  // 极简主义
+  // 极简主义（专业版）
   minimal: {
     id: 'minimal',
     name: '极简现代',
     description: '极简设计，专注内容',
     category: 'minimal',
     icon: '✨',
+    isPremium: true,
     styles: {
       ...baseStyles,
       backgroundColor: '#fafafa',
@@ -153,13 +156,14 @@ const templates = {
     }
   },
 
-  // 文艺清新
+  // 文艺清新（专业版）
   literary: {
     id: 'literary',
     name: '文艺清新',
     description: '优雅字体，适合随笔写作',
     category: 'creative',
     icon: '🌿',
+    isPremium: true,
     styles: {
       ...baseStyles,
       backgroundColor: '#fefdf8',
@@ -188,13 +192,14 @@ const templates = {
     }
   },
 
-  // 科技蓝
+  // 科技蓝（专业版）
   techBlue: {
     id: 'tech-blue',
     name: '科技蓝',
     description: '深蓝配色，科技感十足',
     category: 'tech',
     icon: '🔷',
+    isPremium: true,
     styles: {
       ...baseStyles,
       backgroundColor: '#0f172a',
@@ -219,13 +224,14 @@ const templates = {
     }
   },
 
-  // 商务经典
+  // 商务经典（专业版）
   business: {
     id: 'business',
     name: '商务经典',
     description: '专业严谨，适合商业文档',
     category: 'business',
     icon: '💼',
+    isPremium: true,
     styles: {
       ...baseStyles,
       backgroundColor: '#ffffff',
@@ -251,13 +257,14 @@ const templates = {
     }
   },
 
-  // 暖色调
+  // 暖色调（专业版）
   warm: {
     id: 'warm',
     name: '暖色温馨',
     description: '温暖配色，舒适阅读',
     category: 'creative',
     icon: '🌅',
+    isPremium: true,
     styles: {
       ...baseStyles,
       backgroundColor: '#fef3c7',
@@ -282,13 +289,14 @@ const templates = {
     }
   },
 
-  // 紫色梦幻
+  // 紫色梦幻（专业版）
   purple: {
     id: 'purple',
     name: '紫色梦幻',
     description: '优雅紫色，创意设计',
     category: 'creative',
     icon: '💜',
+    isPremium: true,
     styles: {
       ...baseStyles,
       backgroundColor: '#1e1b4b',

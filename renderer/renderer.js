@@ -2,6 +2,7 @@ const { ipcRenderer } = require('electron');
 const { marked } = require('marked');
 const hljs = require('highlight.js');
 const katex = require('katex');
+const licenseManager = require('../license-manager');
 
 // 配置 marked
 marked.setOptions({
@@ -64,11 +65,27 @@ let updateTimer = null; // 防抖定时器
 
 // 初始化
 async function init() {
+  // 检查授权状态
+  const isPro = licenseManager.isPro();
+
   // 加载保存的模板
   const savedTemplateId = localStorage.getItem('mdskill_template') || 'github-dark';
   currentTemplate = getTemplateById(savedTemplateId);
-  document.getElementById('templateSelect').value = savedTemplateId;
+
+  // 如果保存的模板是专业版但用户不是专业版，回退到免费主题
+  if (currentTemplate.isPremium && !isPro) {
+    currentTemplate = getTemplateById('github-dark');
+    localStorage.setItem('mdskill_template', 'github-dark');
+  }
+
+  document.getElementById('templateSelect').value = currentTemplate.id;
   applyTemplate(currentTemplate);
+
+  // 更新主题选择器，标记专业版主题
+  updateThemeSelector(isPro);
+
+  // 更新 PDF 按钮状态
+  updatePdfButtonState(isPro);
 
   // 不自动加载上次打开的文件，让用户主动选择
   // 如果是通过双击文件打开，会通过 'file-opened' 事件加载
@@ -187,10 +204,61 @@ document.getElementById('togglePreviewBtn').addEventListener('click', () => {
   }
 });
 
+// 更新主题选择器，标记专业版主题
+function updateThemeSelector(isPro) {
+  const select = document.getElementById('templateSelect');
+  const allTemplates = getAllTemplates();
+
+  // 清空现有选项
+  select.innerHTML = '';
+
+  // 重新生成选项
+  allTemplates.forEach(template => {
+    const option = document.createElement('option');
+    option.value = template.id;
+
+    if (template.isPremium) {
+      option.textContent = `${template.icon} ${template.name} 🔒`;
+      if (!isPro) {
+        option.disabled = true;
+        option.style.color = '#888';
+      }
+    } else {
+      option.textContent = `${template.icon} ${template.name}`;
+    }
+
+    select.appendChild(option);
+  });
+}
+
+// 更新 PDF 按钮状态
+function updatePdfButtonState(isPro) {
+  const pdfBtn = document.getElementById('exportPdfBtn');
+  if (!isPro) {
+    pdfBtn.style.opacity = '0.5';
+    pdfBtn.title = '导出 PDF (专业版功能 🔒)';
+  } else {
+    pdfBtn.style.opacity = '1';
+    pdfBtn.title = '导出 PDF (Cmd+E)';
+  }
+}
+
 // 模板选择器
 document.getElementById('templateSelect').addEventListener('change', (e) => {
   const templateId = e.target.value;
-  currentTemplate = getTemplateById(templateId);
+  const template = getTemplateById(templateId);
+  const isPro = licenseManager.isPro();
+
+  // 检查是否是专业版主题
+  if (template.isPremium && !isPro) {
+    // 显示激活提示
+    showActivationPrompt('主题');
+    // 恢复到当前主题
+    e.target.value = currentTemplate.id;
+    return;
+  }
+
+  currentTemplate = template;
   applyTemplate(currentTemplate);
   localStorage.setItem('mdskill_template', templateId);
   updatePreview();
@@ -236,6 +304,13 @@ document.getElementById('linkBtn').addEventListener('click', () => {
 
 // 导出 PDF 按钮
 document.getElementById('exportPdfBtn').addEventListener('click', async () => {
+  const isPro = licenseManager.isPro();
+
+  if (!isPro) {
+    showActivationPrompt('PDF 导出');
+    return;
+  }
+
   await exportToPDF();
 });
 
@@ -396,8 +471,28 @@ async function exportToPDF() {
 }
 
 ipcRenderer.on('export-pdf', async () => {
+  const isPro = licenseManager.isPro();
+
+  if (!isPro) {
+    showActivationPrompt('PDF 导出');
+    return;
+  }
+
   await exportToPDF();
 });
+
+// 显示激活提示
+function showActivationPrompt(featureName) {
+  const deviceId = licenseManager.getDeviceFingerprint();
+
+  const message = `${featureName}是专业版功能 🔒\n\n` +
+    `您的设备指纹：${deviceId}\n\n` +
+    `请联系开发者获取授权码：\n` +
+    `微信: AIPMAndy\n\n` +
+    `获取授权码后，请在"帮助"菜单中选择"激活专业版"进行激活。`;
+
+  alert(message);
+}
 
 // 初始化应用
 init();
