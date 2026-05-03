@@ -157,14 +157,8 @@ editor.addEventListener('input', () => {
 
 // 工具栏按钮
 document.getElementById('newBtn').addEventListener('click', () => {
-  if (isModified) {
-    if (!confirm('You have unsaved changes. Continue?')) return;
-  }
-  editor.value = '';
-  currentFilePath = null;
-  isModified = false;
-  updateFileStatus();
-  updatePreview();
+  // 创建新窗口
+  ipcRenderer.send('new-window');
 });
 
 document.getElementById('openBtn').addEventListener('click', async () => {

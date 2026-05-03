@@ -297,6 +297,11 @@ ipcMain.on('file-open', (event) => {
   openFile(win);
 });
 
+// 监听渲染进程的新建窗口请求
+ipcMain.on('new-window', () => {
+  createWindow();
+});
+
 // 处理通过 Finder 打开文件（macOS）
 app.on('open-file', (event, filePath) => {
   event.preventDefault();
