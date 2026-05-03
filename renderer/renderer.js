@@ -70,17 +70,8 @@ async function init() {
   document.getElementById('templateSelect').value = savedTemplateId;
   applyTemplate(currentTemplate);
 
-  // 尝试加载上次打开的文件
-  const lastFile = await ipcRenderer.invoke('get-last-file');
-  if (lastFile) {
-    const result = await ipcRenderer.invoke('read-file', lastFile);
-    if (result.success) {
-      editor.value = result.content;
-      currentFilePath = lastFile;
-      updateFileStatus();
-      updatePreview();
-    }
-  }
+  // 不自动加载上次打开的文件，让用户主动选择
+  // 如果是通过双击文件打开，会通过 'file-opened' 事件加载
 
   // 初始预览
   updatePreview();
