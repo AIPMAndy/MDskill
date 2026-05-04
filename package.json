@@ -81,6 +81,8 @@
     },
     "files": [
       "main.js",
+      "license-manager.js",
+      "license-public-key.pem",
       "renderer/**/*",
       "assets/**/*",
       "node_modules/**/*"
