@@ -4,6 +4,8 @@ const hljs = require('highlight.js');
 const katex = require('katex');
 const licenseManager = require('../license-manager');
 
+// 工具函数将在脚本加载后从全局对象获取
+
 // 配置 marked
 marked.setOptions({
   highlight: function(code, lang) {
@@ -65,6 +67,13 @@ let updateTimer = null; // 防抖定时器
 
 // 初始化
 async function init() {
+  // 调试：检查模块是否加载
+  console.log('=== 模块加载检查 ===');
+  console.log('window.copyUtils:', window.copyUtils);
+  console.log('window.themePreview:', window.themePreview);
+  console.log('window.getAllTemplates:', typeof window.getAllTemplates);
+  console.log('window.getTemplateById:', typeof window.getTemplateById);
+
   // 检查授权状态
   const isPro = licenseManager.isPro();
 
@@ -78,8 +87,15 @@ async function init() {
     localStorage.setItem('mdskill_template', 'github-dark');
   }
 
-  document.getElementById('templateSelect').value = currentTemplate.id;
+  // 暴露为全局变量
+  window.currentTemplate = currentTemplate;
+
   applyTemplate(currentTemplate);
+
+  // 初始化主题预览面板（确保 window.themePreview 已加载）
+  if (window.themePreview && window.themePreview.initThemePreview) {
+    window.themePreview.initThemePreview();
+  }
 
   // 更新主题选择器，标记专业版主题
   updateThemeSelector(isPro);
@@ -121,6 +137,10 @@ function applyTemplate(template) {
   // 更新预览背景色
   document.querySelector('.preview-pane').style.background = template.styles.backgroundColor;
 }
+
+// 暴露为全局函数供 theme-preview.js 使用
+window.applyTemplate = applyTemplate;
+window.currentTemplate = currentTemplate;
 
 // 更新预览（防抖优化）
 function updatePreview() {
@@ -207,6 +227,12 @@ document.getElementById('togglePreviewBtn').addEventListener('click', () => {
 // 更新主题选择器，标记专业版主题
 function updateThemeSelector(isPro) {
   const select = document.getElementById('templateSelect');
+
+  // 如果选择器不存在（已被按钮替换），则跳过
+  if (!select) {
+    return;
+  }
+
   const allTemplates = getAllTemplates();
 
   // 清空现有选项
@@ -229,6 +255,11 @@ function updateThemeSelector(isPro) {
 
     select.appendChild(option);
   });
+
+  // 设置当前值
+  if (currentTemplate) {
+    select.value = currentTemplate.id;
+  }
 }
 
 // 更新 PDF 按钮状态
@@ -244,32 +275,75 @@ function updatePdfButtonState(isPro) {
 }
 
 // 模板选择器
-document.getElementById('templateSelect').addEventListener('change', (e) => {
-  const templateId = e.target.value;
-  const template = getTemplateById(templateId);
-  const isPro = licenseManager.isPro();
+const templateSelect = document.getElementById('templateSelect');
+if (templateSelect) {
+  templateSelect.addEventListener('change', (e) => {
+    const templateId = e.target.value;
+    const template = getTemplateById(templateId);
+    const isPro = licenseManager.isPro();
 
-  // 检查是否是专业版主题
-  if (template.isPremium && !isPro) {
-    // 显示激活提示
-    showActivationPrompt('主题');
-    // 恢复到当前主题
-    e.target.value = currentTemplate.id;
-    return;
-  }
+    // 检查是否是专业版主题
+    if (template.isPremium && !isPro) {
+      // 显示激活提示
+      showActivationPrompt('主题');
+      // 恢复到当前主题
+      e.target.value = currentTemplate.id;
+      return;
+    }
 
-  currentTemplate = template;
-  applyTemplate(currentTemplate);
-  localStorage.setItem('mdskill_template', templateId);
-  updatePreview();
-});
+    currentTemplate = template;
+    window.currentTemplate = currentTemplate;
+    applyTemplate(currentTemplate);
+    localStorage.setItem('mdskill_template', templateId);
+    updatePreview();
+  });
+}
+
+// 主题选择器（下拉列表）
+const themeSelector = document.getElementById('themeSelector');
+if (themeSelector) {
+  // 填充主题选项
+  const templates = getAllTemplates();
+  templates.forEach(template => {
+    const option = document.createElement('option');
+    option.value = template.id;
+    option.textContent = template.name + (template.isPremium ? ' 🔒' : '');
+    if (template.id === currentTemplate.id) {
+      option.selected = true;
+    }
+    themeSelector.appendChild(option);
+  });
+
+  // 监听主题切换
+  themeSelector.addEventListener('change', (e) => {
+    const templateId = e.target.value;
+    if (!templateId) return;
+
+    const template = getTemplateById(templateId);
+    const isPro = licenseManager.isPro();
+
+    // 检查是否是专业版主题
+    if (template.isPremium && !isPro) {
+      showActivationPrompt('主题');
+      // 恢复到当前主题
+      e.target.value = currentTemplate.id;
+      return;
+    }
+
+    currentTemplate = template;
+    window.currentTemplate = currentTemplate;
+    applyTemplate(currentTemplate);
+    localStorage.setItem('mdskill_template', templateId);
+    updatePreview();
+  });
+}
 
 // 主题切换按钮（快速切换亮/暗）
 document.getElementById('themeBtn').addEventListener('click', () => {
   const currentId = currentTemplate.id;
   let newId;
 
-  if (currentId === 'github-dark') {
+  if (currentId === 'github-dark' || currentId === 'default') {
     newId = 'github-light';
   } else if (currentId === 'github-light') {
     newId = 'github-dark';
@@ -279,7 +353,7 @@ document.getElementById('themeBtn').addEventListener('click', () => {
   }
 
   currentTemplate = getTemplateById(newId);
-  document.getElementById('templateSelect').value = newId;
+  window.currentTemplate = currentTemplate;
   applyTemplate(currentTemplate);
   localStorage.setItem('mdskill_template', newId);
   updatePreview();
@@ -312,6 +386,90 @@ document.getElementById('exportPdfBtn').addEventListener('click', async () => {
   }
 
   await exportToPDF();
+});
+
+// 复制到微信公众号按钮
+document.getElementById('copyWeChatBtn')?.addEventListener('click', async () => {
+  const isPro = licenseManager.isPro();
+
+  if (!isPro) {
+    showActivationPrompt('复制到微信公众号');
+    return;
+  }
+
+  if (!window.copyUtils) {
+    alert('复制功能模块未加载，请刷新页面重试');
+    return;
+  }
+
+  try {
+    const html = preview.innerHTML;
+    const success = await window.copyUtils.copyForWeChat(html, currentTemplate);
+    if (success) {
+      window.copyUtils.showToast('已复制到剪贴板，可直接粘贴到微信公众号编辑器', 'success');
+    } else {
+      window.copyUtils.showToast('复制失败，请重试', 'error');
+    }
+  } catch (error) {
+    console.error('WeChat copy error:', error);
+    window.copyUtils.showToast('复制失败: ' + error.message, 'error');
+  }
+});
+
+// 复制到博客按钮
+document.getElementById('copyBlogBtn')?.addEventListener('click', async () => {
+  const isPro = licenseManager.isPro();
+
+  if (!isPro) {
+    showActivationPrompt('复制到博客');
+    return;
+  }
+
+  if (!window.copyUtils) {
+    alert('复制功能模块未加载，请刷新页面重试');
+    return;
+  }
+
+  try {
+    const html = preview.innerHTML;
+    const success = await window.copyUtils.copyForBlog(html, currentTemplate);
+    if (success) {
+      window.copyUtils.showToast('已复制到剪贴板，可粘贴到知乎、简书等博客平台', 'success');
+    } else {
+      window.copyUtils.showToast('复制失败，请重试', 'error');
+    }
+  } catch (error) {
+    console.error('Blog copy error:', error);
+    window.copyUtils.showToast('复制失败: ' + error.message, 'error');
+  }
+});
+
+// 复制 HTML 源码按钮
+document.getElementById('copyHTMLBtn')?.addEventListener('click', async () => {
+  const isPro = licenseManager.isPro();
+
+  if (!isPro) {
+    showActivationPrompt('复制 HTML 源码');
+    return;
+  }
+
+  if (!window.copyUtils) {
+    alert('复制功能模块未加载，请刷新页面重试');
+    return;
+  }
+
+  try {
+    const html = preview.innerHTML;
+    const success = await window.copyUtils.copyHTMLSource(html, currentTemplate);
+    if (success) {
+      window.copyUtils.showToast('HTML 源码已复制到剪贴板', 'success');
+    } else {
+      window.copyUtils.showToast('复制失败，请重试', 'error');
+    }
+  } catch (error) {
+    console.error('HTML copy error:', error);
+    window.copyUtils.showToast('复制失败: ' + error.message, 'error');
+  }
 });
 
 // 插入 Markdown 语法
@@ -366,6 +524,24 @@ editor.addEventListener('keydown', (e) => {
   if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
     e.preventDefault();
     insertMarkdown('[', '](url)', 'link text');
+  }
+
+  // Cmd+Shift+W 复制到微信
+  if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === 'W') {
+    e.preventDefault();
+    document.getElementById('copyWeChatBtn')?.click();
+  }
+
+  // Cmd+Shift+B 复制到博客
+  if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === 'B') {
+    e.preventDefault();
+    document.getElementById('copyBlogBtn')?.click();
+  }
+
+  // Cmd+Shift+H 复制 HTML
+  if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === 'H') {
+    e.preventDefault();
+    document.getElementById('copyHTMLBtn')?.click();
   }
 });
 
@@ -479,6 +655,19 @@ ipcRenderer.on('export-pdf', async () => {
   }
 
   await exportToPDF();
+});
+
+// IPC 监听器 - 复制功能
+ipcRenderer.on('copy-wechat', () => {
+  document.getElementById('copyWeChatBtn')?.click();
+});
+
+ipcRenderer.on('copy-blog', () => {
+  document.getElementById('copyBlogBtn')?.click();
+});
+
+ipcRenderer.on('copy-html', () => {
+  document.getElementById('copyHTMLBtn')?.click();
 });
 
 // 显示激活提示

@@ -85,14 +85,50 @@ function createWindow(filePath = null) {
         },
         { type: 'separator' },
         {
-          label: 'Export as PDF',
-          accelerator: 'CmdOrCtrl+E',
-          click: () => {
-            const focusedWindow = BrowserWindow.getFocusedWindow();
-            if (focusedWindow) {
-              focusedWindow.webContents.send('export-pdf');
+          label: 'Export',
+          submenu: [
+            {
+              label: 'Copy for WeChat',
+              accelerator: 'CmdOrCtrl+Shift+W',
+              click: () => {
+                const focusedWindow = BrowserWindow.getFocusedWindow();
+                if (focusedWindow) {
+                  focusedWindow.webContents.send('copy-wechat');
+                }
+              }
+            },
+            {
+              label: 'Copy for Blog',
+              accelerator: 'CmdOrCtrl+Shift+B',
+              click: () => {
+                const focusedWindow = BrowserWindow.getFocusedWindow();
+                if (focusedWindow) {
+                  focusedWindow.webContents.send('copy-blog');
+                }
+              }
+            },
+            {
+              label: 'Copy HTML Source',
+              accelerator: 'CmdOrCtrl+Shift+H',
+              click: () => {
+                const focusedWindow = BrowserWindow.getFocusedWindow();
+                if (focusedWindow) {
+                  focusedWindow.webContents.send('copy-html');
+                }
+              }
+            },
+            { type: 'separator' },
+            {
+              label: 'Export as PDF',
+              accelerator: 'CmdOrCtrl+E',
+              click: () => {
+                const focusedWindow = BrowserWindow.getFocusedWindow();
+                if (focusedWindow) {
+                  focusedWindow.webContents.send('export-pdf');
+                }
+              }
             }
-          }
+          ]
         },
         { type: 'separator' },
         { role: 'close' },

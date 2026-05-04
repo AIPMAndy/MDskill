@@ -66,6 +66,17 @@ body {
   transform: translateY(0);
 }
 
+/* 复制按钮样式 */
+.copy-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.copy-btn:disabled:hover {
+  background: transparent;
+  transform: none;
+}
+
 .toolbar-btn-primary {
   background: #667eea;
   color: #ffffff;
@@ -352,4 +363,38 @@ body {
   #editor {
     padding: 16px;
   }
+}
+
+/* 主题选择器 */
+.theme-selector {
+  background: #3c3c3c;
+  border: 1px solid #555;
+  color: #cccccc;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 13px;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s;
+  min-width: 180px;
+}
+
+.theme-selector:hover {
+  background: #4a4a4a;
+  border-color: #667eea;
+}
+
+.theme-selector:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+}
+
+.theme-selector option {
+  background: #3c3c3c;
+  color: #cccccc;
+  padding: 8px;
+}
+
+.theme-selector option:disabled {
+  color: #888;
 }

@@ -44,6 +44,25 @@
           </svg>
         </button>
         <div class="toolbar-divider"></div>
+        <button class="toolbar-btn copy-btn" id="copyWeChatBtn" title="复制到微信公众号 (Cmd+Shift+W)">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M11.176 14.429c-2.665 0-4.826-1.8-4.826-4.018 0-2.22 2.159-4.02 4.824-4.02S16 8.191 16 10.411c0 1.21-.65 2.301-1.666 3.036a.324.324 0 0 0-.12.366l.218.81a.616.616 0 0 1-.858.705l-1.162-.574a.793.793 0 0 0-.585-.047c-.35.1-.748.152-1.651.152zm.706-2.224c.335 0 .607-.272.607-.607s-.272-.607-.607-.607-.607.272-.607.607.272.607.607.607zm-2.118 0c.335 0 .607-.272.607-.607s-.272-.607-.607-.607-.607.272-.607.607.272.607.607.607z"/>
+            <path d="M5.118 1.59c-3.23 0-5.85 2.196-5.85 4.903 0 1.473.787 2.798 2.02 3.693a.393.393 0 0 1 .146.445l-.265.986a.748.748 0 0 0 1.042.856l1.412-.697a.963.963 0 0 1 .71-.057c.425.122.908.186 1.785.186 3.23 0 5.85-2.196 5.85-4.902S8.348 1.59 5.118 1.59zm.706 6.903c-.407 0-.737-.33-.737-.737s.33-.737.737-.737.737.33.737.737-.33.737-.737.737zm2.824 0c-.407 0-.737-.33-.737-.737s.33-.737.737-.737.737.33.737.737-.33.737-.737.737z"/>
+          </svg>
+        </button>
+        <button class="toolbar-btn copy-btn" id="copyBlogBtn" title="复制到博客 (Cmd+Shift+B)">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M5 0h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2 2 2 0 0 1-2 2H3a2 2 0 0 1-2-2h1a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1H1a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v9a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1H3a2 2 0 0 1 2-2z"/>
+            <path d="M1 6v-.5a.5.5 0 0 1 1 0V6h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1H1zm0 3v-.5a.5.5 0 0 1 1 0V9h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1H1zm0 2.5v.5H.5a.5.5 0 0 0 0 1h2a.5.5 0 0 0 0-1H2v-.5a.5.5 0 0 0-1 0z"/>
+          </svg>
+        </button>
+        <button class="toolbar-btn copy-btn" id="copyHTMLBtn" title="复制HTML源码 (Cmd+Shift+H)">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>
+            <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>
+          </svg>
+        </button>
+        <div class="toolbar-divider"></div>
         <button class="toolbar-btn" id="boldBtn" title="Bold (Cmd+B)">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
             <path d="M8.21 13c2.106 0 3.412-1.087 3.412-2.823 0-1.306-.984-2.283-2.324-2.386v-.055a2.176 2.176 0 0 0 1.852-2.14c0-1.51-1.162-2.46-3.014-2.46H3.843V13H8.21zM5.908 4.674h1.696c.963 0 1.517.451 1.517 1.244 0 .834-.629 1.32-1.73 1.32H5.908V4.673zm0 6.788V8.598h1.73c1.217 0 1.88.492 1.88 1.415 0 .943-.643 1.449-1.832 1.449H5.907z"/>
@@ -67,11 +86,9 @@
         </button>
       </div>
       <div class="toolbar-right">
-        <div class="template-selector">
-          <select id="templateSelect" class="template-dropdown" title="Select Theme">
-            <!-- 主题选项将由 JavaScript 动态生成 -->
-          </select>
-        </div>
+        <select class="theme-selector" id="templateSelect" title="选择主题">
+          <!-- 主题选项将由 JavaScript 动态生成 -->
+        </select>
         <button class="toolbar-btn" id="togglePreviewBtn" title="Toggle Preview (Cmd+P)">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
             <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z"/>
@@ -81,8 +98,6 @@
         <span class="file-status" id="fileStatus">Untitled</span>
         <div class="branding">
           <span class="brand-text">AI酋长Andy出品</span>
-          <span class="brand-divider">|</span>
-          <span class="brand-wechat">微信: AIPMAndy</span>
         </div>
       </div>
     </div>
@@ -101,7 +116,298 @@
   <!-- 动态样式注入 -->
   <style id="dynamicStyles"></style>
 
+  <!-- 主题预览模态框 -->
+  <div id="theme-preview-modal" class="theme-modal">
+    <div class="theme-modal-overlay"></div>
+    <div class="theme-modal-content">
+      <div class="theme-modal-header">
+        <h2>选择主题</h2>
+        <button id="closeThemePreview" class="theme-close-btn">
+          <svg width="20" height="20" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/>
+          </svg>
+        </button>
+      </div>
+      <div class="theme-modal-body">
+        <div class="theme-categories" id="categoryTabs">
+          <!-- 分类标签将由 JavaScript 动态生成 -->
+        </div>
+        <div class="theme-grid" id="themeGrid">
+          <!-- 主题卡片将由 JavaScript 动态生成 -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    /* 主题预览模态框样式 */
+    .theme-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 9999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .theme-modal.active {
+      display: flex;
+    }
+
+    .theme-modal-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(4px);
+    }
+
+    .theme-modal-content {
+      position: relative;
+      background: #1e1e1e;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 1200px;
+      max-height: 85vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+      animation: modalSlideIn 0.3s ease-out;
+    }
+
+    @keyframes modalSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .theme-modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 24px;
+      border-bottom: 1px solid #333;
+    }
+
+    .theme-modal-header h2 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .theme-close-btn {
+      background: none;
+      border: none;
+      color: #999;
+      cursor: pointer;
+      padding: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+      transition: all 0.2s;
+    }
+
+    .theme-close-btn:hover {
+      background: #333;
+      color: #fff;
+    }
+
+    .theme-modal-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px;
+    }
+
+    .theme-categories {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+
+    .category-tab {
+      padding: 8px 16px;
+      background: #2a2a2a;
+      border: 1px solid #333;
+      border-radius: 20px;
+      color: #999;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .category-tab:hover {
+      background: #333;
+      color: #fff;
+      border-color: #444;
+    }
+
+    .category-tab.active {
+      background: #667eea;
+      color: #fff;
+      border-color: #667eea;
+    }
+
+    .theme-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    .theme-card {
+      background: #2a2a2a;
+      border: 2px solid #333;
+      border-radius: 8px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+    }
+
+    .theme-card:hover {
+      border-color: #667eea;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 16px rgba(102, 126, 234, 0.2);
+    }
+
+    .theme-card.selected {
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
+    }
+
+    .theme-card.pro-locked {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .theme-card.pro-locked:hover {
+      transform: none;
+      border-color: #333;
+    }
+
+    .pro-lock-overlay {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: rgba(0, 0, 0, 0.8);
+      color: #fbbf24;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 16px;
+      z-index: 10;
+    }
+
+    .theme-preview {
+      height: 180px;
+      padding: 16px;
+      overflow: hidden;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .theme-preview h1 {
+      font-size: 16px;
+      margin: 0 0 8px 0;
+    }
+
+    .theme-preview h2 {
+      font-size: 14px;
+      margin: 8px 0 6px 0;
+    }
+
+    .theme-preview p {
+      font-size: 12px;
+      margin: 6px 0;
+    }
+
+    .theme-preview code {
+      font-size: 11px;
+      padding: 2px 4px;
+    }
+
+    .theme-preview blockquote {
+      font-size: 11px;
+      margin: 8px 0;
+      padding: 6px 10px;
+    }
+
+    .theme-info {
+      padding: 12px 16px;
+      background: #1e1e1e;
+      border-top: 1px solid #333;
+    }
+
+    .theme-name {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .theme-icon {
+      font-size: 18px;
+    }
+
+    .theme-name-text {
+      font-size: 15px;
+      font-weight: 600;
+      color: #fff;
+      flex: 1;
+    }
+
+    .pro-badge {
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      color: #000;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .theme-description {
+      font-size: 13px;
+      color: #999;
+      margin: 0;
+      line-height: 1.4;
+    }
+
+    /* 滚动条样式 */
+    .theme-modal-body::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .theme-modal-body::-webkit-scrollbar-track {
+      background: #1e1e1e;
+    }
+
+    .theme-modal-body::-webkit-scrollbar-thumb {
+      background: #444;
+      border-radius: 4px;
+    }
+
+    .theme-modal-body::-webkit-scrollbar-thumb:hover {
+      background: #555;
+    }
+  </style>
+
   <script src="templates.js"></script>
+  <script src="copy-utils.js"></script>
+  <script src="theme-preview.js"></script>
   <script src="renderer.js"></script>
 </body>
 </html>

@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MDskill 授权码生成器</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      max-width: 600px;
+      width: 100%;
+      padding: 40px;
+    }
+
+    h1 {
+      color: #333;
+      margin-bottom: 10px;
+      font-size: 28px;
+      text-align: center;
+    }
+
+    .subtitle {
+      color: #666;
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 14px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      color: #333;
+      font-weight: 600;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: border-color 0.3s;
+    }
+
+    input[type="text"]:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      margin-top: 10px;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .result {
+      margin-top: 30px;
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      display: none;
+    }
+
+    .result.show {
+      display: block;
+    }
+
+    .result h3 {
+      color: #333;
+      margin-bottom: 15px;
+      font-size: 18px;
+    }
+
+    .license-info {
+      background: white;
+      padding: 15px;
+      border-radius: 6px;
+      margin-bottom: 15px;
+      border-left: 4px solid #667eea;
+    }
+
+    .license-info p {
+      margin: 8px 0;
+      color: #555;
+      font-size: 14px;
+    }
+
+    .license-info strong {
+      color: #333;
+    }
+
+    .license-code {
+      background: white;
+      padding: 15px;
+      border-radius: 6px;
+      word-break: break-all;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      color: #333;
+      border: 2px dashed #667eea;
+      position: relative;
+    }
+
+    .copy-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      padding: 6px 12px;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .copy-btn:hover {
+      background: #5568d3;
+    }
+
+    .copy-btn.copied {
+      background: #28a745;
+    }
+
+    .error {
+      color: #dc3545;
+      font-size: 14px;
+      margin-top: 10px;
+      display: none;
+    }
+
+    .error.show {
+      display: block;
+    }
+
+    .note {
+      background: #fff3cd;
+      border-left: 4px solid #ffc107;
+      padding: 12px;
+      margin-top: 20px;
+      border-radius: 4px;
+      font-size: 13px;
+      color: #856404;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 30px;
+      color: #999;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔐 MDskill 授权码生成器</h1>
+    <p class="subtitle">为用户生成专业版激活码</p>
+
+    <form id="licenseForm">
+      <div class="form-group">
+        <label for="userId">用户 ID</label>
+        <input type="text" id="userId" placeholder="例如：USER001 或用户名" required>
+      </div>
+
+      <div class="form-group">
+        <label for="deviceId">设备指纹</label>
+        <input type="text" id="deviceId" placeholder="例如：5A45D83528646DCE" required>
+      </div>
+
+      <button type="submit" class="btn">生成授权码</button>
+    </form>
+
+    <div class="error" id="error"></div>
+
+    <div class="result" id="result">
+      <h3>✅ 授权码生成成功</h3>
+
+      <div class="license-info">
+        <p><strong>用户ID：</strong><span id="resultUserId"></span></p>
+        <p><strong>设备指纹：</strong><span id="resultDeviceId"></span></p>
+        <p><strong>生成时间：</strong><span id="resultTime"></span></p>
+        <p><strong>版本：</strong>1.0</p>
+      </div>
+
+      <div class="license-code" id="licenseCode">
+        <button class="copy-btn" id="copyBtn">复制</button>
+        <div id="codeText"></div>
+      </div>
+
+      <div class="note">
+        💡 <strong>使用说明：</strong>将此授权码发送给用户，用户在 MDskill 应用中点击"帮助 → 激活专业版"，粘贴授权码即可激活。
+      </div>
+    </div>
+
+    <div class="footer">
+      MDskill v1.3.0 | 授权系统 v1.0
+    </div>
+  </div>
+
+  <script>
+    // 从 Node.js 的 license-generator.js 移植的核心逻辑
+    const crypto = window.crypto || window.msCrypto;
+
+    // 将字符串转换为 ArrayBuffer
+    function str2ab(str) {
+      const buf = new ArrayBuffer(str.length);
+      const bufView = new Uint8Array(buf);
+      for (let i = 0; i < str.length; i++) {
+        bufView[i] = str.charCodeAt(i);
+      }
+      return buf;
+    }
+
+    // 将 ArrayBuffer 转换为 Base64
+    function arrayBufferToBase64(buffer) {
+      let binary = '';
+      const bytes = new Uint8Array(buffer);
+      for (let i = 0; i < bytes.byteLength; i++) {
+        binary += String.fromCharCode(bytes[i]);
+      }
+      return btoa(binary);
+    }
+
+    // Base64 转 ArrayBuffer
+    function base64ToArrayBuffer(base64) {
+      const binary = atob(base64);
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i++) {
+        bytes[i] = binary.charCodeAt(i);
+      }
+      return bytes.buffer;
+    }
+
+    // PEM 格式私钥（需要替换为实际的私钥）
+    const PRIVATE_KEY_PEM = `-----BEGIN PRIVATE KEY-----
+MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDGxvLZ8F3qJ7Ks
+xvYQN5hF3mK8wP0jR9vXzH4nB2tL5kM8pQ6rY3sW1fN4jK7mT9xH2vL8pQ6rY3sW
+1fN4jK7mT9xH2vL8pQ6rY3sW1fN4jK7mT9xH2vL8pQ6rY3sW1fN4jK7mT9xH2vL8
+pQ6rY3sW1fN4jK7mT9xH2vL8pQ6rY3sW1fN4jK7mT9xH2vL8pQ6rY3sW1fN4jK7m
+T9xH2vL8pQ6rY3sW1fN4jK7mT9xH2vL8pQ6rY3sW1fN4jK7mT9xH2vL8pQ6rY3sW
+1fN4jK7mT9xH2vL8pQ6rY3sW1fN4jK7mT9xH2vL8pQ6rY3sW1fN4jK7mT9xH2vL8
+pQ6rY3sWAgMBAAECggEABqJ8F3qJ7KsxvYQN5hF3mK8wP0jR9vXzH4nB2tL5kM8p
+Q6rY3sW1fN4jK7mT9xH2vL8pQ6rY3sW1fN4jK7mT9xH2vL8pQ6rY3sW1fN4jK7m
+T9xH2vL8pQ6rY3sW1fN4jK7mT9xH2vL8pQ6rY3sW1fN4jK7mT9xH2vL8pQ6rY3sW
+1fN4jK7mT9xH2vL8pQ6rY3sW1fN4jK7mT9xH2vL8pQ6rY3sW1fN4jK7mT9xH2vL8
+pQ6rY3sW1fN4jK7mT9xH2vL8pQ6rY3sW1fN4jK7mT9xH2vL8pQ6rY3sW1fN4jK7m
+T9xH2vL8pQ6rY3sW1fN4jK7mT9xH2vL8pQ6rY3sW1fN4jK7mT9xH2vL8pQ6rY3sW
+1fN4jK7mQKBgQDxH2vL8pQ6rY3sW1fN4jK7mT9xH2vL8pQ6rY3sW1fN4jK7mT9xH
+2vL8pQ6rY3sW1fN4jK7mT9xH2vL8pQ6rY3sW1fN4jK7mT9xH2vL8pQ6rY3sW1fN4
+jK7mT9xH2vL8pQ6rY3sW1fN4jK7mT9xH2vL8pQ6rY3sW1fN4jK7mT9xH2vL8pQ6r
+Y3sW1fN4jK7mQKBgQDSxvLZ8F3qJ7KsxvYQN5hF3mK8wP0jR9vXzH4nB2tL5kM8
+pQ6rY3sW1fN4jK7mT9xH2vL8pQ6rY3sW1fN4jK7mT9xH2vL8pQ6rY3sW1fN4jK7m
+T9xH2vL8pQ6rY3sW1fN4jK7mT9xH2vL8pQ6rY3sW1fN4jK7mT9xH2vL8pQ6rY3sW
+1fN4jK7mT9xH2vL8pQ6rY3sW1fN4jK7mQKBgQCxvLZ8F3qJ7KsxvYQN5hF3mK8w
+P0jR9vXzH4nB2tL5kM8pQ6rY3sW1fN4jK7mT9xH2vL8pQ6rY3sW1fN4jK7mT9xH
+2vL8pQ6rY3sW1fN4jK7mT9xH2vL8pQ6rY3sW1fN4jK7mT9xH2vL8pQ6rY3sW1fN4
+jK7mT9xH2vL8pQ6rY3sW1fN4jK7mT9xH2vL8pQ6rY3sW1fN4jK7mT9xH2vL8pQ6r
+Y3sW1fN4jK7mQKBgFxvLZ8F3qJ7KsxvYQN5hF3mK8wP0jR9vXzH4nB2tL5kM8pQ
+6rY3sW1fN4jK7mT9xH2vL8pQ6rY3sW1fN4jK7mT9xH2vL8pQ6rY3sW1fN4jK7mT
+9xH2vL8pQ6rY3sW1fN4jK7mT9xH2vL8pQ6rY3sW1fN4jK7mT9xH2vL8pQ6rY3sW
+1fN4jK7mT9xH2vL8pQ6rY3sW1fN4jK7mT9xH2vL8pQ6rY3sW1fN4jK7mQKBgDxv
+LZ8F3qJ7KsxvYQN5hF3mK8wP0jR9vXzH4nB2tL5kM8pQ6rY3sW1fN4jK7mT9xH2
+vL8pQ6rY3sW1fN4jK7mT9xH2vL8pQ6rY3sW1fN4jK7mT9xH2vL8pQ6rY3sW1fN4
+jK7mT9xH2vL8pQ6rY3sW1fN4jK7mT9xH2vL8pQ6rY3sW1fN4jK7mT9xH2vL8pQ6r
+Y3sW1fN4jK7mT9xH2vL8pQ6rY3sW1fN4jK7m
+-----END PRIVATE KEY-----`;
+
+    // 注意：浏览器环境无法直接使用 Node.js 的 crypto 模块
+    // 这里需要调用后端 API 来生成签名
+    async function generateLicense(userId, deviceId) {
+      // 创建授权数据
+      const licenseData = {
+        userId: userId,
+        deviceId: deviceId,
+        timestamp: Date.now(),
+        version: '1.0'
+      };
+
+      // 将数据转换为 Base64
+      const dataStr = JSON.stringify(licenseData);
+      const dataBase64 = btoa(unescape(encodeURIComponent(dataStr)));
+
+      // 由于浏览器无法直接进行 RSA 签名，这里调用 Node.js 后端
+      // 实际部署时需要创建一个后端 API
+      // 这里我们直接返回格式，让用户使用命令行工具生成
+
+      return {
+        userId: licenseData.userId,
+        deviceId: licenseData.deviceId,
+        timestamp: licenseData.timestamp,
+        dataBase64: dataBase64,
+        needsBackend: true
+      };
+    }
+
+    // 表单提交处理
+    document.getElementById('licenseForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const userId = document.getElementById('userId').value.trim();
+      const deviceId = document.getElementById('deviceId').value.trim();
+      const errorEl = document.getElementById('error');
+      const resultEl = document.getElementById('result');
+
+      // 验证输入
+      if (!userId || !deviceId) {
+        errorEl.textContent = '请填写所有字段';
+        errorEl.classList.add('show');
+        return;
+      }
+
+      errorEl.classList.remove('show');
+
+      try {
+        // 由于浏览器限制，这里直接调用命令行工具
+        // 显示提示信息
+        const result = await generateLicense(userId, deviceId);
+
+        // 显示结果
+        document.getElementById('resultUserId').textContent = userId;
+        document.getElementById('resultDeviceId').textContent = deviceId;
+        document.getElementById('resultTime').textContent = new Date().toLocaleString('zh-CN');
+
+        // 提示用户使用命令行工具
+        document.getElementById('codeText').innerHTML = `
+          <p style="color: #dc3545; margin-bottom: 10px;">⚠️ 浏览器环境无法直接生成签名</p>
+          <p style="margin-bottom: 10px;">请在终端运行以下命令生成授权码：</p>
+          <code style="display: block; background: #f8f9fa; padding: 10px; border-radius: 4px; margin-top: 10px;">
+            cd /Users/andy/Desktop/04\\ AICode/MDSKILL<br>
+            node license-generator.js ${userId} ${deviceId}
+          </code>
+        `;
+
+        resultEl.classList.add('show');
+
+      } catch (error) {
+        errorEl.textContent = '生成失败：' + error.message;
+        errorEl.classList.add('show');
+      }
+    });
+
+    // 复制按钮
+    document.getElementById('copyBtn').addEventListener('click', () => {
+      const codeText = document.getElementById('codeText').textContent;
+      navigator.clipboard.writeText(codeText).then(() => {
+        const btn = document.getElementById('copyBtn');
+        btn.textContent = '已复制';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = '复制';
+          btn.classList.remove('copied');
+        }, 2000);
+      });
+    });
+  </script>
+</body>
+</html>

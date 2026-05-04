@@ -1,0 +1,311 @@
+<!-- 主题预览模态框 -->
+<div id="theme-preview-modal" class="theme-modal">
+  <div class="theme-modal-overlay"></div>
+  <div class="theme-modal-content">
+    <div class="theme-modal-header">
+      <h2>选择主题</h2>
+      <button class="theme-close-btn" id="closeThemePreview">&times;</button>
+    </div>
+    <div class="theme-modal-body">
+      <div class="category-tabs" id="categoryTabs">
+        <!-- 分类标签将由 JavaScript 动态生成 -->
+      </div>
+      <div class="theme-grid" id="themeGrid">
+        <!-- 主题卡片将由 JavaScript 动态生成 -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+/* 模态框样式 */
+.theme-modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9999;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.theme-modal.active {
+  display: block;
+}
+
+.theme-modal-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+}
+
+.theme-modal-content {
+  position: relative;
+  width: 90%;
+  max-width: 1200px;
+  max-height: 85vh;
+  margin: 5vh auto;
+  background: #1e1e1e;
+  border-radius: 12px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.theme-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid #3e3e42;
+  background: #252526;
+}
+
+.theme-modal-header h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.theme-close-btn {
+  background: none;
+  border: none;
+  font-size: 32px;
+  line-height: 1;
+  color: #cccccc;
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.theme-close-btn:hover {
+  background: #3e3e42;
+  color: #ffffff;
+}
+
+.theme-modal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+}
+
+/* 分类标签 */
+.category-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.category-tab {
+  padding: 8px 16px;
+  background: #2d2d30;
+  border: 1px solid #3e3e42;
+  border-radius: 6px;
+  color: #cccccc;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.category-tab:hover {
+  background: #3e3e42;
+  color: #ffffff;
+}
+
+.category-tab.active {
+  background: #0e639c;
+  border-color: #0e639c;
+  color: #ffffff;
+}
+
+/* 主题网格 */
+.theme-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+/* 主题卡片 */
+.theme-card {
+  background: #252526;
+  border: 2px solid #3e3e42;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.theme-card:hover {
+  border-color: #0e639c;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+}
+
+.theme-card.selected {
+  border-color: #0e639c;
+  box-shadow: 0 0 0 2px rgba(14, 99, 156, 0.3);
+}
+
+.theme-card.pro-locked {
+  opacity: 0.7;
+}
+
+.theme-card.pro-locked:hover {
+  opacity: 0.85;
+}
+
+/* 主题预览缩略图 */
+.theme-preview {
+  height: 180px;
+  overflow: hidden;
+  position: relative;
+  padding: 16px;
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.theme-preview h1 {
+  font-size: 16px;
+  margin: 0 0 8px 0;
+  font-weight: 600;
+}
+
+.theme-preview h2 {
+  font-size: 13px;
+  margin: 8px 0 4px 0;
+  font-weight: 600;
+}
+
+.theme-preview p {
+  margin: 4px 0;
+  font-size: 11px;
+}
+
+.theme-preview code {
+  padding: 1px 3px;
+  border-radius: 2px;
+  font-size: 10px;
+}
+
+/* 主题信息 */
+.theme-info {
+  padding: 12px 16px;
+  background: #1e1e1e;
+  border-top: 1px solid #3e3e42;
+}
+
+.theme-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.theme-name-text {
+  font-size: 15px;
+  font-weight: 600;
+  color: #ffffff;
+  flex: 1;
+}
+
+.theme-icon {
+  font-size: 18px;
+}
+
+.theme-description {
+  font-size: 12px;
+  color: #cccccc;
+  margin: 0;
+}
+
+/* Pro 徽章 */
+.pro-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 6px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 600;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.pro-lock-overlay {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(0, 0, 0, 0.8);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 20px;
+  backdrop-filter: blur(4px);
+}
+
+/* 动画 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .theme-modal-content {
+    width: 95%;
+    max-height: 90vh;
+  }
+
+  .theme-grid {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 16px;
+  }
+
+  .category-tabs {
+    gap: 6px;
+  }
+
+  .category-tab {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+}
+
+/* 滚动条样式 */
+.theme-modal-body::-webkit-scrollbar {
+  width: 8px;
+}
+
+.theme-modal-body::-webkit-scrollbar-track {
+  background: #1e1e1e;
+}
+
+.theme-modal-body::-webkit-scrollbar-thumb {
+  background: #3e3e42;
+  border-radius: 4px;
+}
+
+.theme-modal-body::-webkit-scrollbar-thumb:hover {
+  background: #4e4e52;
+}
+</style>
