@@ -30,3 +30,5 @@ license-private-key.pem
 license-*.txt
 get-device-fingerprint.js
 license-generator.js
+license-generator-web.html
+generate-license.sh
