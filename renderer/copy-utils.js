@@ -177,53 +177,68 @@ const UNSAFE_ATTRIBUTES = [
  * @returns {HTMLElement} 处理后的克隆元素
  */
 function inlineComputedStyles(element) {
+  // 先给原始元素树中的所有元素添加临时标记
+  const originalElements = [element, ...Array.from(element.querySelectorAll('*'))];
+  originalElements.forEach((el, index) => {
+    if (el.nodeType === Node.ELEMENT_NODE) {
+      el.setAttribute('data-inline-id', `temp-${index}`);
+    }
+  });
+
   // 深度克隆元素
   const cloned = element.cloneNode(true);
 
-  // 获取所有元素（包括根元素）
-  const elements = [cloned, ...Array.from(cloned.querySelectorAll('*'))];
+  // 获取克隆树中的所有元素
+  const clonedElements = [cloned, ...Array.from(cloned.querySelectorAll('*'))];
 
-  elements.forEach((el) => {
-    // 跳过文本节点和注释节点
-    if (el.nodeType !== Node.ELEMENT_NODE) return;
+  clonedElements.forEach((clonedEl) => {
+    // 跳过非元素节点
+    if (clonedEl.nodeType !== Node.ELEMENT_NODE) return;
 
-    // 获取原始元素（用于获取计算样式）
-    const originalEl = element.querySelector(`[data-inline-id="${el.dataset.inlineId}"]`) || element;
+    // 通过临时 ID 找到对应的原始元素
+    const tempId = clonedEl.getAttribute('data-inline-id');
+    if (!tempId) return;
 
-    // 临时标记元素以便查找
-    const tempId = `inline-${Math.random().toString(36).substr(2, 9)}`;
-    el.setAttribute('data-inline-id', tempId);
+    const originalEl = element.querySelector(`[data-inline-id="${tempId}"]`);
+    if (!originalEl) return;
 
-    // 获取计算样式
-    const computedStyles = window.getComputedStyle(el);
+    // 从原始元素获取计算样式
+    const computedStyles = window.getComputedStyle(originalEl);
 
-    // 内联样式
+    // 内联样式到克隆元素
     INLINE_STYLE_PROPERTIES.forEach((property) => {
       const value = computedStyles.getPropertyValue(property);
 
       // 只设置有效值
       if (value && value !== 'none' && value !== 'normal' && value !== 'auto') {
-        el.style.setProperty(property, value, 'important');
+        clonedEl.style.setProperty(property, value, 'important');
       }
     });
 
     // 特殊处理：pre 和 code 标签
-    if (el.tagName === 'PRE' || el.tagName === 'CODE') {
-      el.style.setProperty('white-space', 'pre-wrap', 'important');
-      el.style.setProperty('word-break', 'break-all', 'important');
-      el.style.setProperty('overflow-x', 'auto', 'important');
+    if (clonedEl.tagName === 'PRE' || clonedEl.tagName === 'CODE') {
+      clonedEl.style.setProperty('white-space', 'pre-wrap', 'important');
+      clonedEl.style.setProperty('word-break', 'break-all', 'important');
+      clonedEl.style.setProperty('overflow-x', 'auto', 'important');
     }
 
     // 特殊处理：table 标签
-    if (el.tagName === 'TABLE') {
-      el.style.setProperty('border-collapse', 'collapse', 'important');
-      el.style.setProperty('width', '100%', 'important');
+    if (clonedEl.tagName === 'TABLE') {
+      clonedEl.style.setProperty('border-collapse', 'collapse', 'important');
+      clonedEl.style.setProperty('width', '100%', 'important');
     }
 
     // 移除 class 和 id 属性
-    el.removeAttribute('class');
-    el.removeAttribute('id');
-    el.removeAttribute('data-inline-id');
+    clonedEl.removeAttribute('class');
+    clonedEl.removeAttribute('id');
+    clonedEl.removeAttribute('data-inline-id');
+  });
+
+  // 清理原始元素的临时标记
+  originalElements.forEach((el) => {
+    if (el.nodeType === Node.ELEMENT_NODE) {
+      el.removeAttribute('data-inline-id');
+    }
   });
 
   return cloned;
@@ -264,6 +279,114 @@ function filterWeChatStyles(element) {
 }
 
 /**
+ * 修复微信公众号特定样式问题
+ *
+ * 确保文字颜色在浅色背景下可读，修复常见样式冲突
+ *
+ * @param {HTMLElement} element - 要处理的 DOM 元素
+ */
+function fixWeChatStyles(element) {
+  const elements = [element, ...Array.from(element.querySelectorAll('*'))];
+
+  elements.forEach((el) => {
+    if (el.nodeType !== Node.ELEMENT_NODE) return;
+
+    const tagName = el.tagName.toLowerCase();
+    const computedStyle = el.style;
+
+    // 修复文字颜色：确保深色文字
+    const color = computedStyle.color;
+    if (!color || color === 'rgb(255, 255, 255)' || color === '#ffffff' || color === '#fff' ||
+        color === 'rgb(212, 212, 212)' || color === 'rgba(255, 255, 255, 1)') {
+      // 浅色文字改为深色
+      el.style.setProperty('color', '#333333', 'important');
+    }
+
+    // 修复背景色：确保白色或浅色背景
+    const bgColor = computedStyle.backgroundColor;
+    if (bgColor && (bgColor.includes('37, 37, 37') || bgColor.includes('30, 30, 30') ||
+        bgColor.includes('0, 0, 0') || bgColor === 'rgb(0, 0, 0)' || bgColor === '#000000')) {
+      // 深色背景改为浅色
+      if (tagName === 'pre' || tagName === 'code') {
+        el.style.setProperty('background-color', '#f6f8fa', 'important');
+      } else {
+        el.style.setProperty('background-color', '#ffffff', 'important');
+      }
+    }
+
+    // 特殊处理：标题
+    if (['h1', 'h2', 'h3', 'h4', 'h5', 'h6'].includes(tagName)) {
+      el.style.setProperty('color', '#24292e', 'important');
+      el.style.setProperty('font-weight', 'bold', 'important');
+    }
+
+    // 特殊处理：代码块
+    if (tagName === 'pre') {
+      el.style.setProperty('background-color', '#f6f8fa', 'important');
+      el.style.setProperty('border', '1px solid #e1e4e8', 'important');
+      el.style.setProperty('border-radius', '6px', 'important');
+      el.style.setProperty('padding', '16px', 'important');
+      el.style.setProperty('overflow-x', 'auto', 'important');
+
+      // 代码块内的文字
+      const codeEl = el.querySelector('code');
+      if (codeEl) {
+        codeEl.style.setProperty('color', '#24292e', 'important');
+        codeEl.style.setProperty('background-color', 'transparent', 'important');
+      }
+    }
+
+    // 特殊处理：行内代码
+    if (tagName === 'code' && el.parentElement?.tagName !== 'PRE') {
+      el.style.setProperty('background-color', '#f6f8fa', 'important');
+      el.style.setProperty('color', '#24292e', 'important');
+      el.style.setProperty('padding', '2px 6px', 'important');
+      el.style.setProperty('border-radius', '3px', 'important');
+    }
+
+    // 特殊处理：链接
+    if (tagName === 'a') {
+      el.style.setProperty('color', '#0366d6', 'important');
+      el.style.setProperty('text-decoration', 'none', 'important');
+    }
+
+    // 特殊处理：引用块
+    if (tagName === 'blockquote') {
+      el.style.setProperty('color', '#6a737d', 'important');
+      el.style.setProperty('border-left', '4px solid #dfe2e5', 'important');
+      el.style.setProperty('padding-left', '16px', 'important');
+      el.style.setProperty('background-color', '#ffffff', 'important');
+    }
+
+    // 特殊处理：表格
+    if (tagName === 'table') {
+      el.style.setProperty('border-collapse', 'collapse', 'important');
+      el.style.setProperty('width', '100%', 'important');
+      el.style.setProperty('background-color', '#ffffff', 'important');
+    }
+
+    if (tagName === 'th' || tagName === 'td') {
+      el.style.setProperty('border', '1px solid #dfe2e5', 'important');
+      el.style.setProperty('padding', '8px 12px', 'important');
+      el.style.setProperty('color', '#24292e', 'important');
+
+      if (tagName === 'th') {
+        el.style.setProperty('background-color', '#f6f8fa', 'important');
+        el.style.setProperty('font-weight', 'bold', 'important');
+      } else {
+        el.style.setProperty('background-color', '#ffffff', 'important');
+      }
+    }
+
+    // 移除可能导致冲突的样式
+    el.style.removeProperty('position');
+    el.style.removeProperty('transform');
+    el.style.removeProperty('z-index');
+    el.style.removeProperty('filter');
+  });
+}
+
+/**
  * 移除不安全的标签和属性
  *
  * @param {HTMLElement} element - 要处理的 DOM 元素
@@ -295,39 +418,49 @@ function sanitizeHTML(element) {
 /**
  * 复制到微信公众号
  *
- * 创建临时容器渲染 HTML，调用 inlineComputedStyles()，应用微信 CSS 白名单过滤，
+ * 从 #preview 容器获取已渲染的 HTML，内联计算样式，应用微信 CSS 白名单过滤，
  * 移除 script, style, 事件处理器，复制到剪贴板。
  *
- * @param {string} htmlContent - HTML 内容
+ * @param {HTMLElement|string} source - 源元素或 HTML 字符串
  * @param {string} themeName - 主题名称（用于日志）
  * @returns {Promise<{success: boolean, message: string}>} 复制结果
  */
-async function copyForWeChat(htmlContent, themeName = 'default') {
+async function copyForWeChat(source, themeName = 'default') {
   try {
+    // 获取源元素
+    let sourceElement;
+    if (typeof source === 'string') {
+      // 如果传入的是字符串，尝试从 #preview 获取
+      sourceElement = document.getElementById('preview');
+      if (!sourceElement) {
+        return {
+          success: false,
+          message: '⚠️ 未找到预览容器'
+        };
+      }
+    } else {
+      sourceElement = source;
+    }
+
     // 验证内容
-    if (!htmlContent || htmlContent.trim() === '') {
+    if (!sourceElement || !sourceElement.innerHTML || sourceElement.innerHTML.trim() === '') {
       return {
         success: false,
         message: '⚠️ 编辑器内容为空，无法复制'
       };
     }
 
-    // 创建临时容器
-    const container = document.createElement('div');
-    container.style.cssText = 'position: absolute; left: -9999px; top: -9999px;';
-    document.body.appendChild(container);
-
-    // 渲染 HTML
-    container.innerHTML = htmlContent;
-
-    // 内联计算样式
-    const styledElement = inlineComputedStyles(container);
+    // 从源元素内联计算样式（源元素有正确的样式）
+    const styledElement = inlineComputedStyles(sourceElement);
 
     // 应用微信 CSS 白名单过滤
     filterWeChatStyles(styledElement);
 
     // 移除不安全的标签和属性
     sanitizeHTML(styledElement);
+
+    // 修复微信公众号特定样式问题
+    fixWeChatStyles(styledElement);
 
     // 获取处理后的 HTML
     const processedHTML = styledElement.innerHTML;
@@ -337,9 +470,6 @@ async function copyForWeChat(htmlContent, themeName = 'default') {
 
     // 写入剪贴板
     const copied = await writeHTMLToClipboard(processedHTML, plainText);
-
-    // 清理临时容器
-    document.body.removeChild(container);
 
     if (copied) {
       console.log(`[Copy] WeChat format copied successfully (theme: ${themeName})`);
@@ -367,30 +497,40 @@ async function copyForWeChat(htmlContent, themeName = 'default') {
  *
  * 类似微信但限制更少，保留语义化 HTML 结构，仅内联关键样式，保留 class。
  *
- * @param {string} htmlContent - HTML 内容
+ * @param {HTMLElement|string} source - 源元素或 HTML 字符串
  * @param {string} themeName - 主题名称（用于日志）
  * @returns {Promise<{success: boolean, message: string}>} 复制结果
  */
-async function copyForBlog(htmlContent, themeName = 'default') {
+async function copyForBlog(source, themeName = 'default') {
   try {
+    // 获取源元素
+    let sourceElement;
+    if (typeof source === 'string') {
+      // 如果传入的是字符串，尝试从 #preview 获取
+      sourceElement = document.getElementById('preview');
+      if (!sourceElement) {
+        return {
+          success: false,
+          message: '⚠️ 未找到预览容器'
+        };
+      }
+    } else {
+      sourceElement = source;
+    }
+
     // 验证内容
-    if (!htmlContent || htmlContent.trim() === '') {
+    if (!sourceElement || !sourceElement.innerHTML || sourceElement.innerHTML.trim() === '') {
       return {
         success: false,
         message: '⚠️ 编辑器内容为空，无法复制'
       };
     }
 
-    // 创建临时容器
-    const container = document.createElement('div');
-    container.style.cssText = 'position: absolute; left: -9999px; top: -9999px;';
-    document.body.appendChild(container);
-
-    // 渲染 HTML
-    container.innerHTML = htmlContent;
+    // 克隆源元素
+    const cloned = sourceElement.cloneNode(true);
 
     // 部分内联样式（保留 class）
-    const elements = [container, ...Array.from(container.querySelectorAll('*'))];
+    const elements = [cloned, ...Array.from(cloned.querySelectorAll('*'))];
 
     // 关键样式列表（博客平台通常支持这些）
     const criticalStyles = [
@@ -407,35 +547,58 @@ async function copyForBlog(htmlContent, themeName = 'default') {
       'border-radius',
     ];
 
-    elements.forEach((el) => {
-      if (el.nodeType !== Node.ELEMENT_NODE) return;
+    // 为克隆元素添加临时标记
+    elements.forEach((el, index) => {
+      if (el.nodeType === Node.ELEMENT_NODE) {
+        el.setAttribute('data-blog-id', `blog-${index}`);
+      }
+    });
 
-      const computedStyles = window.getComputedStyle(el);
+    // 从源元素获取样式并应用到克隆元素
+    elements.forEach((clonedEl) => {
+      if (clonedEl.nodeType !== Node.ELEMENT_NODE) return;
+
+      const blogId = clonedEl.getAttribute('data-blog-id');
+      if (!blogId) return;
+
+      // 在源元素树中找到对应元素
+      const originalEl = sourceElement.querySelector(`[data-blog-id="${blogId}"]`);
+      if (!originalEl) return;
+
+      const computedStyles = window.getComputedStyle(originalEl);
 
       // 只内联关键样式
       criticalStyles.forEach((property) => {
         const value = computedStyles.getPropertyValue(property);
 
         if (value && value !== 'none' && value !== 'normal' && value !== 'auto') {
-          el.style.setProperty(property, value);
+          clonedEl.style.setProperty(property, value);
         }
       });
+
+      // 清理临时标记
+      clonedEl.removeAttribute('data-blog-id');
+    });
+
+    // 清理源元素的临时标记
+    const sourceElements = [sourceElement, ...Array.from(sourceElement.querySelectorAll('*'))];
+    sourceElements.forEach((el) => {
+      if (el.nodeType === Node.ELEMENT_NODE) {
+        el.removeAttribute('data-blog-id');
+      }
     });
 
     // 移除不安全的标签和属性
-    sanitizeHTML(container);
+    sanitizeHTML(cloned);
 
     // 获取处理后的 HTML
-    const processedHTML = container.innerHTML;
+    const processedHTML = cloned.innerHTML;
 
     // 生成纯文本
-    const plainText = container.textContent || '';
+    const plainText = cloned.textContent || '';
 
     // 写入剪贴板
     const copied = await writeHTMLToClipboard(processedHTML, plainText);
-
-    // 清理临时容器
-    document.body.removeChild(container);
 
     if (copied) {
       console.log(`[Copy] Blog format copied successfully (theme: ${themeName})`);
