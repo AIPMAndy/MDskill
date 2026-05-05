@@ -25,10 +25,15 @@ Thumbs.db
 *.tmp
 *.temp
 
-# License system (private)
+# License system (private - DO NOT COMMIT)
 license-private-key.pem
+license-public-key.pem
 license-*.txt
 get-device-fingerprint.js
 license-generator.js
 license-generator-web.html
 generate-license.sh
+
+# AI Config (contains API keys)
+ai-config.json
+ai-config.example.json
