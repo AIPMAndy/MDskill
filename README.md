@@ -1,406 +1,167 @@
-# MDskill - 专业的 Markdown 编辑器
+# MDskill
 
 <div align="center">
 
-![MDskill Logo](assets/icon.png)
+**专业的 Markdown 编辑与排版工具**
 
-**MDskill** 是一款专为 macOS 设计的现代化 Markdown 编辑器，提供流畅的编辑体验和强大的专业功能。
+一款为内容创作者打造的 Markdown 编辑器，让文档编辑更高效，排版更精美
 
-[![Version](https://img.shields.io/badge/version-1.2.0-blue.svg)](https://github.com/AIPMAndy/MDSKILL/releases/tag/v1.2.0)
-[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![Platform](https://img.shields.io/badge/platform-macOS-lightgrey.svg)](https://www.apple.com/macos)
-
-[📥 下载最新版本](https://github.com/AIPMAndy/MDSKILL/releases/latest) | [📖 使用文档](docs/) | [🐛 反馈问题](https://github.com/AIPMAndy/MDSKILL/issues)
+[下载安装](#下载安装) • [功能特性](#功能特性) • [专业版](#专业版功能)
 
 </div>
 
 ---
 
-## 📦 下载安装
+## ✨ 核心特性
 
-### 方式一：直接下载（推荐）
+### 🎯 智能编辑
+- **AI 文本转 Markdown** - 智能识别文本结构，一键转换为规范的 Markdown 格式
+- **实时预览** - 所见即所得，编辑与预览同步更新
+- **语法高亮** - 清晰的代码块语法高亮，支持多种编程语言
 
-从 GitHub Releases 下载最新版本：
+### 🎨 精美排版
+- **13 种精美主题** - 从简约到优雅，从技术到文艺，总有一款适合你
+  - GitHub 风格 - 经典简洁
+  - 掘金风格 - 现代清新
+  - 知乎风格 - 专业大气
+  - 少数派风格 - 优雅精致
+  - 极客黑风格 - 酷炫科技
+  - 橙心风格 - 温暖活力
+  - 科技蓝风格 - 商务专业
+  - 自然绿风格 - 清新自然
+  - 还有更多...
+- **自定义样式** - 支持 CSS 自定义，打造独特风格
 
-**[⬇️ 下载 MDskill v1.2.0 (Apple Silicon)](https://github.com/AIPMAndy/MDSKILL/releases/download/v1.2.0/MDskill-1.2.0-arm64.dmg)**
+### 📱 一键发布
+- **公众号一键复制** - 保留完整样式，直接粘贴到公众号编辑器，无需二次调整
+- **博客平台适配** - 支持掘金、知乎、CSDN、简书等主流博客平台格式
+- **多格式导出** - 支持 HTML、PDF、Markdown 等多种格式导出
 
-- **DMG 安装包**（94 MB）：双击安装，拖拽到应用程序文件夹
-- **ZIP 压缩包**（90 MB）：解压后直接运行
-
-### 方式二：从源码构建
-
-```bash
-# 克隆仓库
-git clone https://github.com/AIPMAndy/MDSKILL.git
-cd MDSKILL
-
-# 安装依赖
-npm install
-
-# 开发模式运行
-npm start
-
-# 打包应用
-npm run build:mac
-```
-
-### 安装说明
-
-1. 下载 DMG 文件后双击打开
-2. 将 MDskill 图标拖拽到"应用程序"文件夹
-3. 首次打开时，右键点击应用选择"打开"（macOS 安全限制）
-4. 如遇到"无法打开"提示，在"系统偏好设置" → "安全性与隐私"中允许运行
+### 📄 专业导出
+- **PDF 专业导出** - 完美保留样式和排版，适合打印和分享
+- **图片导出** - 将文档导出为高清图片，方便分享到社交媒体
+- **HTML 导出** - 生成独立的 HTML 文件，可直接部署
 
 ---
 
-## ✨ 特性
+## 🚀 专业版功能
 
-### 💎 免费版 vs 专业版
-
-MDskill 提供**免费版**和**专业版**两种版本：
+升级专业版，解锁全部高级功能，让创作更高效：
 
 | 功能 | 免费版 | 专业版 |
 |------|--------|--------|
-| Markdown 编辑 | ✅ | ✅ |
-| 实时预览 | ✅ | ✅ |
-| 代码高亮 | ✅ | ✅ |
-| 数学公式 | ✅ | ✅ |
-| 多窗口编辑 | ✅ | ✅ |
-| **AI 文本转 Markdown** | ❌ | ✅ |
-| **主题** | 1 个（GitHub Dark） | 13 个精美主题 |
-| **PDF 导出** | ❌ | ✅ |
-| **公众号/博客复制** | ❌ | ✅ |
+| **AI 文本转 Markdown** | ❌ | ✅ 智能格式化，一键美化文档 |
+| **精美主题** | 3 种基础主题 | ✅ 13 种精美主题，随心切换 |
+| **公众号一键复制** | ❌ | ✅ 保留样式，直接粘贴发布 |
+| **博客平台适配** | ❌ | ✅ 支持主流博客平台格式 |
+| **PDF 专业导出** | ❌ | ✅ 完美保留样式，适合打印 |
+| **无水印导出** | ❌ | ✅ 所有导出格式无水印 |
+| **优先技术支持** | ❌ | ✅ 专属技术支持通道 |
 
-**专业版价格：¥49 买断制，终身使用**
+### 💎 专业版特色
 
-**获取专业版授权：**
-1. 在应用中选择"帮助" → "获取设备指纹"
-2. 联系开发者（微信: **AIPMAndy**）获取授权码
-3. 在应用中选择"帮助" → "激活专业版"
-4. 输入授权码即可解锁所有功能
-
-**v1.2.0 新特性：深色高级风格激活页面** 🎨
-- 深色渐变背景 + 毛玻璃效果
-- 紫蓝渐变 Accent 色 + Pro 标签
-- 发光动画效果 + 流畅交互
+- **AI 智能转换** - 将任意文本智能转换为规范的 Markdown，自动识别标题、列表、代码块等结构
+- **13 种精美主题** - 覆盖各种使用场景，从技术文档到文学创作，总有适合你的风格
+- **公众号神器** - 一键复制保留样式，直接粘贴到公众号编辑器，告别繁琐的格式调整
+- **博客平台适配** - 针对掘金、知乎、CSDN 等平台优化，确保最佳显示效果
+- **PDF 专业导出** - 完美保留排版和样式，适合打印、分享和存档
 
 ---
 
-### 🎨 13 种精美主题（专业版）
-- **多样化主题**：GitHub Dark/Light、Minimal、Literary、Tech Blue、Business、Warm、Purple 等 13 种
-- **一键切换**：快速切换亮/暗模式
-- **自动保存**：记住您的主题偏好
-- **智能适配**：编辑器文字颜色自动适配主题
+## 📥 下载安装
 
-### 📄 PDF 导出（专业版）
-- **样式保留**：完美保留当前主题样式
-- **一键导出**：Cmd+E 快速导出
-- **智能命名**：自动使用文件名作为 PDF 名称
-- **A4 格式**：适合打印和分享
+### macOS
 
-### 🪟 多窗口编辑 ⭐️ NEW in v1.1.0
-- **独立窗口**：每个文件在独立窗口打开
-- **并行编辑**：同时编辑多个文档
-- **文件关联**：双击 .md 文件自动打开
-- **高效整合**：方便多文档对比和整合
+**最新版本：v1.2.0**
 
-### 🎨 优雅界面
-- 现代化设计语言
-- GitHub 风格渲染
-- 全新渐变色 Logo
-- 精致的视觉效果
+- [下载 DMG 安装包](https://github.com/AIPMAndy/MDSKILL/releases/download/v1.2.0/MDskill-1.2.0-arm64.dmg) (94 MB)
+- [下载 ZIP 压缩包](https://github.com/AIPMAndy/MDSKILL/releases/download/v1.2.0/MDskill-1.2.0-arm64-mac.zip) (90 MB)
 
-### ⚡️ 实时预览
-- 边写边看，所见即所得
-- 分屏编辑模式
-- 自动滚动同步
-- 防抖优化，流畅渲染
+**安装步骤：**
 
-### 💻 代码高亮
-- 支持 180+ 编程语言
-- 自动语言检测
-- GitHub 风格代码块
-- 清晰的语法着色
-
-### 🔢 数学公式
-- 完整的 LaTeX 支持
-- 行内和块级公式
-- KaTeX 高性能渲染
-- 丰富的数学符号
-
-### ⌨️ 快捷键
-- 全键盘操作
-- 符合 macOS 习惯
-- 快速格式化
-- 高效工作流
-
-### 🚀 高性能
-- 快速启动（< 1 秒）
-- 流畅渲染（60 FPS）
-- 低内存占用
-- Apple Silicon 原生支持
-
----
-
-## 🎨 13 种精美主题
-
-<table>
-  <tr>
-    <td align="center" width="25%">
-      <img src="https://img.shields.io/badge/🌙-GitHub_Dark-667eea?style=for-the-badge" alt="GitHub Dark"><br>
-      <sub>经典暗色</sub>
-    </td>
-    <td align="center" width="25%">
-      <img src="https://img.shields.io/badge/☀️-GitHub_Light-2563eb?style=for-the-badge" alt="GitHub Light"><br>
-      <sub>清爽亮色</sub>
-    </td>
-    <td align="center" width="25%">
-      <img src="https://img.shields.io/badge/✨-Minimal-111827?style=for-the-badge" alt="Minimal"><br>
-      <sub>极简现代</sub>
-    </td>
-    <td align="center" width="25%">
-      <img src="https://img.shields.io/badge/🌿-Literary-92400e?style=for-the-badge" alt="Literary"><br>
-      <sub>文艺清新</sub>
-    </td>
-  </tr>
-  <tr>
-    <td align="center" width="25%">
-      <img src="https://img.shields.io/badge/🔷-Tech_Blue-38bdf8?style=for-the-badge" alt="Tech Blue"><br>
-      <sub>科技蓝</sub>
-    </td>
-    <td align="center" width="25%">
-      <img src="https://img.shields.io/badge/💼-Business-1e40af?style=for-the-badge" alt="Business"><br>
-      <sub>商务经典</sub>
-    </td>
-    <td align="center" width="25%">
-      <img src="https://img.shields.io/badge/🌅-Warm-d97706?style=for-the-badge" alt="Warm"><br>
-      <sub>暖色温馨</sub>
-    </td>
-    <td align="center" width="25%">
-      <img src="https://img.shields.io/badge/💜-Purple-c084fc?style=for-the-badge" alt="Purple"><br>
-      <sub>紫色梦幻</sub>
-    </td>
-  </tr>
-</table>
-
-**专业版包含 13 种精美主题**，涵盖暗色、亮色、极简、文艺、科技等多种风格，满足不同场景需求。
-
-查看 [主题使用指南](THEMES.md) 了解更多
-
----
-
-## 📦 安装
-
-### 系统要求
-- macOS 11.0 或更高版本
-- Apple Silicon (M1/M2/M3/M4) 或 Intel 芯片
-- 至少 100 MB 可用空间
-
-### 下载安装
-
-1. 下载最新版本：[MDskill-1.2.0-arm64.dmg](https://github.com/AIPMAndy/MDskill/releases)
+1. 下载 DMG 文件
 2. 双击打开 DMG 文件
-3. 拖拽到 Applications 文件夹
-4. **右键点击**选择"打开"（首次需要）
+3. 将 MDskill 拖拽到 Applications 文件夹
+4. 首次打开时，右键点击应用选择"打开"（绕过 macOS 安全检查）
 
-**免费版**包含基础编辑功能和 1 个主题，**专业版**解锁所有 8 个主题和 PDF 导出功能。
+**系统要求：**
+- macOS 10.13 或更高版本
+- Apple Silicon (M1/M2/M3) 或 Intel 处理器
 
-详细安装说明请查看 [安装指南](INSTALL.md)
+### Windows / Linux
 
----
-
-## 🚀 快速开始
-
-### 创建新文档
-```
-Cmd+N 或点击"新建"按钮
-```
-
-### 切换主题
-- **快速切换**：点击工具栏左侧的 🌙/☀️ 图标
-- **选择主题**：点击工具栏右侧的主题下拉菜单
-
-### 编辑 Markdown
-在左侧编辑器中输入内容，右侧实时预览效果。
-
-### 保存文档
-```
-Cmd+S 或点击"保存"按钮
-```
-
-更多使用技巧请查看 [快速开始指南](QUICKSTART.md)
+Windows 和 Linux 版本正在开发中，敬请期待。
 
 ---
 
-## 📝 Markdown 示例
+## 🎯 使用场景
 
-### 标题和文本
-```markdown
-# 一级标题
-## 二级标题
+### 📝 技术文档
+- 编写技术博客、教程、API 文档
+- 代码高亮、表格支持、数学公式
+- 导出 PDF 用于技术分享
 
-这是**加粗**文本和*斜体*文本。
-```
+### 📱 公众号运营
+- 一键复制到公众号，保留完整样式
+- 多种主题风格，让文章更有辨识度
+- 无需二次调整，节省大量时间
 
-### 代码块
-````markdown
-```javascript
-function hello() {
-  console.log('Hello, MDskill!');
-}
-```
-````
+### ✍️ 内容创作
+- 写作、笔记、日记、读书笔记
+- 精美主题让内容更有质感
+- 导出 PDF 用于打印或分享
 
-### 数学公式
-```markdown
-行内公式：$E = mc^2$
-
-块级公式：
-$$
-\int_{-\infty}^{\infty} e^{-x^2} dx = \sqrt{\pi}
-$$
-```
-
-### 表格
-```markdown
-| 功能 | 状态 |
-|------|------|
-| 编辑 | ✅ |
-| 预览 | ✅ |
-```
-
-### 任务列表
-```markdown
-- [x] 完成安装
-- [ ] 开始写作
-```
+### 📊 知识管理
+- 整理学习笔记、会议记录
+- 支持标签、分类、搜索
+- 多格式导出，方便归档
 
 ---
 
-## ⌨️ 快捷键
+## 🔑 获取专业版授权
 
-| 功能 | 快捷键 |
-|------|--------|
-| 新建窗口 | `Cmd+N` |
-| 打开文件 | `Cmd+O` |
-| 保存文件 | `Cmd+S` |
-| 另存为 | `Cmd+Shift+S` |
-| **导出 PDF** | `Cmd+E` （专业版） |
-| 切换预览 | `Cmd+P` |
-| 加粗 | `Cmd+B` |
-| 斜体 | `Cmd+I` |
-| 插入链接 | `Cmd+K` |
+如需升级专业版，请联系我们获取授权：
+
+- **微信：** AIPMAndy
+- **邮箱：** andy@example.com
+
+我们提供灵活的授权方式，满足个人和团队的不同需求。
 
 ---
 
-## 🔧 技术栈
+## 🆕 更新日志
 
-- **框架：** Electron 28
-- **Markdown 解析：** Marked
-- **代码高亮：** Highlight.js
-- **数学公式：** KaTeX
-- **打包工具：** electron-builder
+### v1.2.0 (2024-01-15)
 
----
+**新特性：**
+- ✨ 全新深色高级风格激活页面
+- 🎨 毛玻璃效果和渐变色设计
+- 💎 Pro 标签和发光动画效果
+- 🎯 优化用户体验和视觉呈现
 
-## 📚 文档
-
-- [快速开始](QUICKSTART.md) - 5 分钟上手指南
-- [功能特性](FEATURES.md) - 完整功能列表
-- [安装指南](INSTALL.md) - 详细安装步骤
-- [更新日志](CHANGELOG.md) - 版本历史
+**改进：**
+- 📝 修正功能描述："AI 文本转 Markdown"
+- 🎨 统一视觉风格，提升专业感
+- 🔧 优化性能和稳定性
 
 ---
 
-## 🗺️ 路线图
+## 📄 开源协议
 
-### ✅ v1.2.0（已完成）
-- [x] 专业版授权系统
-- [x] 设备绑定授权码
-- [x] 激活界面和设备指纹
-- [x] 免费版/专业版功能分级
-
-### ✅ v1.1.0（已完成）
-- [x] 8 种精美主题
-- [x] 多窗口编辑支持
-- [x] PDF 导出功能
-- [x] 主题智能适配
-- [x] 性能优化
-
-### 🚧 v1.3.0（计划中）
-- [ ] 图片粘贴和拖拽
-- [ ] 自定义主题编辑器
-- [ ] 文档大纲导航
-- [ ] 全文搜索和替换
-- [ ] Markdown 表格编辑器
-
-### 💡 v1.4.0（规划中）
-- [ ] 云同步支持
-- [ ] 协作编辑
-- [ ] 版本历史
-- [ ] 插件系统
-- [ ] AI 写作助手
+本项目采用 MIT 协议开源。
 
 ---
 
-## 🐛 问题反馈
+## 🙏 致谢
 
-如果遇到问题或有功能建议，欢迎联系开发者。
-
-**AI酋长Andy**  
-微信：**AIPMAndy**
-
----
-
-## 📄 许可证
-
-本项目采用 **GPL-3.0** 许可证，同时提供**商业授权**：
-
-### 开源使用（GPL-3.0）
-- ✅ **个人使用**：完全免费
-- ✅ **学习研究**：自由修改和学习
-- ✅ **开源项目**：可用于其他 GPL 兼容的开源项目
-- ⚠️ **衍生作品**：必须同样开源并使用 GPL-3.0
-
-### 商业授权
-如果您需要：
-- 在闭源商业软件中使用 MDskill 代码
-- 不希望受 GPL-3.0 开源要求约束
-- 获得技术支持和定制开发
-
-请联系获取商业授权：
-- 微信：**AIPMAndy**
-- 邮箱：通过 GitHub 联系
-
-### 专业版授权
-MDskill 应用本身分为**免费版**和**专业版**：
-- **免费版**：基础编辑功能 + 1 个主题
-- **专业版**：所有 8 个主题 + PDF 导出（需购买授权码）
-
-**获取专业版授权码：**
-1. 应用内获取设备指纹
-2. 联系开发者（微信: **AIPMAndy**）
-3. 一次购买，终身使用（绑定设备）
-
-详见 [LICENSE](LICENSE) 文件
-
----
-
-## 👨‍💻 开发者
-
-**AI酋长Andy 出品**
-
-- 微信：**AIPMAndy**
-- GitHub: [@AIPMAndy](https://github.com/AIPMAndy)
+感谢所有使用 MDskill 的用户，你们的反馈和建议是我们不断改进的动力。
 
 ---
 
 <div align="center">
 
-**享受写作！** ✨
+**让 Markdown 编辑更简单，让内容创作更高效**
 
-Made with ❤️ by AI酋长Andy
-
-合作微信：**AIPMAndy**
+Made with ❤️ by MDskill Team
 
 </div>
