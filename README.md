@@ -1,18 +1,55 @@
-# MDskill - 现代化 Markdown 编辑器
+# MDskill - 专业的 Markdown 编辑器
 
 <div align="center">
 
-<img src="assets/logo-new.svg" width="128" height="128" alt="MDskill Logo">
+![MDskill Logo](assets/icon.png)
 
-**为 macOS 打造的优雅 Markdown 编辑器**
+**MDskill** 是一款专为 macOS 设计的现代化 Markdown 编辑器，提供流畅的编辑体验和强大的专业功能。
 
-[![Version](https://img.shields.io/badge/version-1.2.0-blue.svg)](CHANGELOG.md)
-[![Platform](https://img.shields.io/badge/platform-macOS-lightgrey.svg)](https://www.apple.com/macos/)
-[![License](https://img.shields.io/badge/license-GPL--3.0-green.svg)](LICENSE)
+[![Version](https://img.shields.io/badge/version-1.2.0-blue.svg)](https://github.com/AIPMAndy/MDSKILL/releases/tag/v1.2.0)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![Platform](https://img.shields.io/badge/platform-macOS-lightgrey.svg)](https://www.apple.com/macos)
 
-[快速开始](#-安装) • [功能特性](#-特性) • [主题预览](#-8-种精美主题) • [更新日志](CHANGELOG.md)
+[📥 下载最新版本](https://github.com/AIPMAndy/MDSKILL/releases/latest) | [📖 使用文档](docs/) | [🐛 反馈问题](https://github.com/AIPMAndy/MDSKILL/issues)
 
 </div>
+
+---
+
+## 📦 下载安装
+
+### 方式一：直接下载（推荐）
+
+从 GitHub Releases 下载最新版本：
+
+**[⬇️ 下载 MDskill v1.2.0 (Apple Silicon)](https://github.com/AIPMAndy/MDSKILL/releases/download/v1.2.0/MDskill-1.2.0-arm64.dmg)**
+
+- **DMG 安装包**（94 MB）：双击安装，拖拽到应用程序文件夹
+- **ZIP 压缩包**（90 MB）：解压后直接运行
+
+### 方式二：从源码构建
+
+```bash
+# 克隆仓库
+git clone https://github.com/AIPMAndy/MDSKILL.git
+cd MDSKILL
+
+# 安装依赖
+npm install
+
+# 开发模式运行
+npm start
+
+# 打包应用
+npm run build:mac
+```
+
+### 安装说明
+
+1. 下载 DMG 文件后双击打开
+2. 将 MDskill 图标拖拽到"应用程序"文件夹
+3. 首次打开时，右键点击应用选择"打开"（macOS 安全限制）
+4. 如遇到"无法打开"提示，在"系统偏好设置" → "安全性与隐私"中允许运行
 
 ---
 
@@ -29,10 +66,12 @@ MDskill 提供**免费版**和**专业版**两种版本：
 | 代码高亮 | ✅ | ✅ |
 | 数学公式 | ✅ | ✅ |
 | 多窗口编辑 | ✅ | ✅ |
-| **AI Markdown 格式化** | ❌ | ✅ |
+| **AI 文本转 Markdown** | ❌ | ✅ |
 | **主题** | 1 个（GitHub Dark） | 13 个精美主题 |
 | **PDF 导出** | ❌ | ✅ |
 | **公众号/博客复制** | ❌ | ✅ |
+
+**专业版价格：¥49 买断制，终身使用**
 
 **获取专业版授权：**
 1. 在应用中选择"帮助" → "获取设备指纹"
@@ -40,10 +79,15 @@ MDskill 提供**免费版**和**专业版**两种版本：
 3. 在应用中选择"帮助" → "激活专业版"
 4. 输入授权码即可解锁所有功能
 
+**v1.2.0 新特性：深色高级风格激活页面** 🎨
+- 深色渐变背景 + 毛玻璃效果
+- 紫蓝渐变 Accent 色 + Pro 标签
+- 发光动画效果 + 流畅交互
+
 ---
 
-### 🎨 8 种精美主题（专业版）
-- **多样化主题**：GitHub Dark/Light、Minimal、Literary、Tech Blue、Business、Warm、Purple
+### 🎨 13 种精美主题（专业版）
+- **多样化主题**：GitHub Dark/Light、Minimal、Literary、Tech Blue、Business、Warm、Purple 等 13 种
 - **一键切换**：快速切换亮/暗模式
 - **自动保存**：记住您的主题偏好
 - **智能适配**：编辑器文字颜色自动适配主题
@@ -98,7 +142,7 @@ MDskill 提供**免费版**和**专业版**两种版本：
 
 ---
 
-## 🎨 8 种精美主题
+## 🎨 13 种精美主题
 
 <table>
   <tr>
@@ -138,6 +182,8 @@ MDskill 提供**免费版**和**专业版**两种版本：
     </td>
   </tr>
 </table>
+
+**专业版包含 13 种精美主题**，涵盖暗色、亮色、极简、文艺、科技等多种风格，满足不同场景需求。
 
 查看 [主题使用指南](THEMES.md) 了解更多
 
