@@ -403,8 +403,8 @@ document.getElementById('copyWeChatBtn')?.addEventListener('click', async () => 
   }
 
   try {
-    const html = preview.innerHTML;
-    const success = await window.copyUtils.copyForWeChat(html, currentTemplate);
+    // 传递预览元素而不是 innerHTML
+    const success = await window.copyUtils.copyForWeChat(preview, currentTemplate);
     if (success) {
       window.copyUtils.showToast('已复制到剪贴板，可直接粘贴到微信公众号编辑器', 'success');
     } else {
@@ -431,8 +431,8 @@ document.getElementById('copyBlogBtn')?.addEventListener('click', async () => {
   }
 
   try {
-    const html = preview.innerHTML;
-    const success = await window.copyUtils.copyForBlog(html, currentTemplate);
+    // 传递预览元素而不是 innerHTML
+    const success = await window.copyUtils.copyForBlog(preview, currentTemplate);
     if (success) {
       window.copyUtils.showToast('已复制到剪贴板，可粘贴到知乎、简书等博客平台', 'success');
     } else {
