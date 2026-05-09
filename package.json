@@ -9,7 +9,13 @@
     "build": "electron-builder",
     "build:mac": "electron-builder --mac"
   },
-  "keywords": ["markdown", "editor", "mac", "electron", "ai"],
+  "keywords": [
+    "markdown",
+    "editor",
+    "mac",
+    "electron",
+    "ai"
+  ],
   "author": "AI酋长Andy <AIPMAndy>",
   "license": "GPL-3.0",
   "dependencies": {
@@ -29,31 +35,48 @@
     "mac": {
       "category": "public.app-category.productivity",
       "icon": "assets/icon.png",
-      "target": ["dmg", "zip"],
+      "target": [
+        "dmg",
+        "zip"
+      ],
       "extendInfo": {
         "CFBundleDocumentTypes": [
           {
             "CFBundleTypeName": "Markdown Document",
             "CFBundleTypeRole": "Editor",
             "LSHandlerRank": "Default",
-            "LSItemContentTypes": ["net.daringfireball.markdown"],
-            "CFBundleTypeExtensions": ["md", "markdown"]
+            "LSItemContentTypes": [
+              "net.daringfireball.markdown"
+            ],
+            "CFBundleTypeExtensions": [
+              "md",
+              "markdown"
+            ]
           },
           {
             "CFBundleTypeName": "Text Document",
             "CFBundleTypeRole": "Editor",
             "LSHandlerRank": "Alternate",
-            "LSItemContentTypes": ["public.plain-text"],
-            "CFBundleTypeExtensions": ["txt"]
+            "LSItemContentTypes": [
+              "public.plain-text"
+            ],
+            "CFBundleTypeExtensions": [
+              "txt"
+            ]
           }
         ],
         "UTImportedTypeDeclarations": [
           {
             "UTTypeIdentifier": "net.daringfireball.markdown",
-            "UTTypeConformsTo": ["public.plain-text"],
+            "UTTypeConformsTo": [
+              "public.plain-text"
+            ],
             "UTTypeDescription": "Markdown Document",
             "UTTypeTagSpecification": {
-              "public.filename-extension": ["md", "markdown"]
+              "public.filename-extension": [
+                "md",
+                "markdown"
+              ]
             }
           }
         ]
@@ -85,7 +108,8 @@
       "license-public-key.pem",
       "renderer/**/*",
       "assets/**/*",
-      "node_modules/**/*"
+      "node_modules/**/*",
+      "subscription-manager.js"
     ]
   }
 }
