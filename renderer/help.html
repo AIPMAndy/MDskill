@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>帮助 - MDSKILL</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+      background: #f5f5f7;
+      color: #1d1d1f;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    /* 头部 */
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .app-icon {
+      font-size: 64px;
+      margin-bottom: 16px;
+    }
+
+    .app-name {
+      font-size: 32px;
+      font-weight: 700;
+      color: #1d1d1f;
+      margin-bottom: 8px;
+    }
+
+    .app-version {
+      font-size: 16px;
+      color: #86868b;
+    }
+
+    /* 导航标签 */
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 24px;
+      background: white;
+      border-radius: 12px;
+      padding: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .tab {
+      flex: 1;
+      padding: 10px 16px;
+      border: none;
+      background: transparent;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #1d1d1f;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .tab:hover {
+      background: #f5f5f7;
+    }
+
+    .tab.active {
+      background: #0078D2;
+      color: white;
+    }
+
+    /* 内容区域 */
+    .content {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* 列表样式 */
+    .list-section {
+      border-bottom: 1px solid #e5e5e7;
+    }
+
+    .list-section:last-child {
+      border-bottom: none;
+    }
+
+    .section-header {
+      padding: 16px 24px;
+      background: #fafafa;
+      border-bottom: 1px solid #e5e5e7;
+    }
+
+    .section-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #86868b;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .list-item {
+      display: flex;
+      align-items: center;
+      padding: 16px 24px;
+      border-bottom: 1px solid #f5f5f7;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .list-item:hover {
+      background: #fafafa;
+    }
+
+    .list-item:last-child {
+      border-bottom: none;
+    }
+
+    .item-icon {
+      font-size: 20px;
+      margin-right: 12px;
+      width: 28px;
+      text-align: center;
+    }
+
+    .item-content {
+      flex: 1;
+    }
+
+    .item-title {
+      font-size: 15px;
+      font-weight: 500;
+      color: #1d1d1f;
+      margin-bottom: 2px;
+    }
+
+    .item-description {
+      font-size: 13px;
+      color: #86868b;
+    }
+
+    .item-arrow {
+      color: #c7c7cc;
+      font-size: 14px;
+    }
+
+    /* 快捷键样式 */
+    .shortcut-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 24px;
+      border-bottom: 1px solid #f5f5f7;
+    }
+
+    .shortcut-item:last-child {
+      border-bottom: none;
+    }
+
+    .shortcut-label {
+      font-size: 14px;
+      color: #1d1d1f;
+    }
+
+    .shortcut-keys {
+      display: flex;
+      gap: 4px;
+    }
+
+    .key {
+      display: inline-block;
+      padding: 4px 8px;
+      background: #f5f5f7;
+      border: 1px solid #d1d1d6;
+      border-radius: 4px;
+      font-size: 12px;
+      font-family: 'SF Mono', Monaco, monospace;
+      color: #1d1d1f;
+    }
+
+    /* 关于页面 */
+    .about-content {
+      padding: 24px;
+      text-align: center;
+    }
+
+    .about-logo {
+      font-size: 80px;
+      margin-bottom: 16px;
+    }
+
+    .about-title {
+      font-size: 24px;
+      font-weight: 600;
+      color: #1d1d1f;
+      margin-bottom: 8px;
+    }
+
+    .about-version {
+      font-size: 14px;
+      color: #86868b;
+      margin-bottom: 24px;
+    }
+
+    .about-description {
+      font-size: 15px;
+      color: #1d1d1f;
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+
+    .about-links {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin-bottom: 24px;
+    }
+
+    .link-btn {
+      padding: 10px 20px;
+      background: #f5f5f7;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      color: #0078D2;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .link-btn:hover {
+      background: #e5e5e7;
+    }
+
+    .about-footer {
+      padding-top: 24px;
+      border-top: 1px solid #e5e5e7;
+      font-size: 13px;
+      color: #86868b;
+    }
+
+    /* 功能卡片 */
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      padding: 24px;
+    }
+
+    .feature-card {
+      padding: 20px;
+      background: #fafafa;
+      border-radius: 8px;
+      text-align: center;
+      transition: all 0.2s;
+    }
+
+    .feature-card:hover {
+      background: #f5f5f7;
+      transform: translateY(-2px);
+    }
+
+    .feature-card-icon {
+      font-size: 32px;
+      margin-bottom: 12px;
+    }
+
+    .feature-card-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #1d1d1f;
+      margin-bottom: 4px;
+    }
+
+    .feature-card-desc {
+      font-size: 13px;
+      color: #86868b;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- 头部 -->
+    <div class="header">
+      <div class="app-icon">📝</div>
+      <div class="app-name">MDSKILL</div>
+      <div class="app-version">专业的 Markdown 编辑与排版工具</div>
+    </div>
+
+    <!-- 标签导航 -->
+    <div class="tabs">
+      <button class="tab active" data-tab="features">功能介绍</button>
+      <button class="tab" data-tab="shortcuts">快捷键</button>
+      <button class="tab" data-tab="faq">常见问题</button>
+      <button class="tab" data-tab="about">关于</button>
+    </div>
+
+    <!-- 内容区域 -->
+    <div class="content">
+      <!-- 功能介绍 -->
+      <div class="tab-content active" id="features">
+        <div class="feature-grid">
+          <div class="feature-card">
+            <div class="feature-card-icon">📱</div>
+            <div class="feature-card-title">公众号复制</div>
+            <div class="feature-card-desc">保留样式，直接粘贴</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-card-icon">📝</div>
+            <div class="feature-card-title">博客适配</div>
+            <div class="feature-card-desc">支持主流博客平台</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-card-icon">🎨</div>
+            <div class="feature-card-title">精美主题</div>
+            <div class="feature-card-desc">13种专业主题</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-card-icon">📄</div>
+            <div class="feature-card-title">PDF导出</div>
+            <div class="feature-card-desc">完美保留排版</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-card-icon">💻</div>
+            <div class="feature-card-title">HTML源码</div>
+            <div class="feature-card-desc">一键复制源码</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-card-icon">⚡</div>
+            <div class="feature-card-title">实时预览</div>
+            <div class="feature-card-desc">所见即所得</div>
+          </div>
+        </div>
+
+        <div class="list-section">
+          <div class="section-header">
+            <div class="section-title">编辑功能</div>
+          </div>
+          <div class="list-item">
+            <span class="item-icon">✏️</span>
+            <div class="item-content">
+              <div class="item-title">Markdown 编辑</div>
+              <div class="item-description">支持标准 Markdown 语法</div>
+            </div>
+          </div>
+          <div class="list-item">
+            <span class="item-icon">👁️</span>
+            <div class="item-content">
+              <div class="item-title">实时预览</div>
+              <div class="item-description">编辑与预览同步更新</div>
+            </div>
+          </div>
+          <div class="list-item">
+            <span class="item-icon">🎯</span>
+            <div class="item-content">
+              <div class="item-title">语法高亮</div>
+              <div class="item-description">代码块语法高亮显示</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="list-section">
+          <div class="section-header">
+            <div class="section-title">导出功能</div>
+          </div>
+          <div class="list-item">
+            <span class="item-icon">📱</span>
+            <div class="item-content">
+              <div class="item-title">微信公众号</div>
+              <div class="item-description">一键复制到公众号编辑器</div>
+            </div>
+          </div>
+          <div class="list-item">
+            <span class="item-icon">📝</span>
+            <div class="item-content">
+              <div class="item-title">博客平台</div>
+              <div class="item-description">适配掘金、知乎、CSDN等</div>
+            </div>
+          </div>
+          <div class="list-item">
+            <span class="item-icon">📄</span>
+            <div class="item-content">
+              <div class="item-title">PDF 导出</div>
+              <div class="item-description">专业排版，适合打印</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 快捷键 -->
+      <div class="tab-content" id="shortcuts">
+        <div class="list-section">
+          <div class="section-header">
+            <div class="section-title">文件操作</div>
+          </div>
+          <div class="shortcut-item">
+            <span class="shortcut-label">新建文件</span>
+            <div class="shortcut-keys">
+              <span class="key">⌘</span>
+              <span class="key">N</span>
+            </div>
+          </div>
+          <div class="shortcut-item">
+            <span class="shortcut-label">打开文件</span>
+            <div class="shortcut-keys">
+              <span class="key">⌘</span>
+              <span class="key">O</span>
+            </div>
+          </div>
+          <div class="shortcut-item">
+            <span class="shortcut-label">保存文件</span>
+            <div class="shortcut-keys">
+              <span class="key">⌘</span>
+              <span class="key">S</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="list-section">
+          <div class="section-header">
+            <div class="section-title">编辑操作</div>
+          </div>
+          <div class="shortcut-item">
+            <span class="shortcut-label">撤销</span>
+            <div class="shortcut-keys">
+              <span class="key">⌘</span>
+              <span class="key">Z</span>
+            </div>
+          </div>
+          <div class="shortcut-item">
+            <span class="shortcut-label">重做</span>
+            <div class="shortcut-keys">
+              <span class="key">⌘</span>
+              <span class="key">⇧</span>
+              <span class="key">Z</span>
+            </div>
+          </div>
+          <div class="shortcut-item">
+            <span class="shortcut-label">查找</span>
+            <div class="shortcut-keys">
+              <span class="key">⌘</span>
+              <span class="key">F</span>
+            </div>
+          </div>
+          <div class="shortcut-item">
+            <span class="shortcut-label">替换</span>
+            <div class="shortcut-keys">
+              <span class="key">⌘</span>
+              <span class="key">⌥</span>
+              <span class="key">F</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="list-section">
+          <div class="section-header">
+            <div class="section-title">格式化</div>
+          </div>
+          <div class="shortcut-item">
+            <span class="shortcut-label">粗体</span>
+            <div class="shortcut-keys">
+              <span class="key">⌘</span>
+              <span class="key">B</span>
+            </div>
+          </div>
+          <div class="shortcut-item">
+            <span class="shortcut-label">斜体</span>
+            <div class="shortcut-keys">
+              <span class="key">⌘</span>
+              <span class="key">I</span>
+            </div>
+          </div>
+          <div class="shortcut-item">
+            <span class="shortcut-label">插入链接</span>
+            <div class="shortcut-keys">
+              <span class="key">⌘</span>
+              <span class="key">K</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 常见问题 -->
+      <div class="tab-content" id="faq">
+        <div class="list-section">
+          <div class="list-item">
+            <span class="item-icon">❓</span>
+            <div class="item-content">
+              <div class="item-title">如何复制到微信公众号？</div>
+              <div class="item-description">点击工具栏的"复制到微信公众号"按钮，然后在公众号编辑器中粘贴即可</div>
+            </div>
+          </div>
+          <div class="list-item">
+            <span class="item-icon">❓</span>
+            <div class="item-content">
+              <div class="item-title">如何切换主题？</div>
+              <div class="item-description">点击工具栏的主题选择器，选择您喜欢的主题</div>
+            </div>
+          </div>
+          <div class="list-item">
+            <span class="item-icon">❓</span>
+            <div class="item-content">
+              <div class="item-title">如何导出PDF？</div>
+              <div class="item-description">点击工具栏的"导出PDF"按钮，选择保存位置即可</div>
+            </div>
+          </div>
+          <div class="list-item">
+            <span class="item-icon">❓</span>
+            <div class="item-content">
+              <div class="item-title">支持哪些博客平台？</div>
+              <div class="item-description">支持掘金、知乎、CSDN、简书等主流博客平台</div>
+            </div>
+          </div>
+          <div class="list-item">
+            <span class="item-icon">❓</span>
+            <div class="item-content">
+              <div class="item-title">如何激活专业版？</div>
+              <div class="item-description">点击菜单栏"帮助" → "订阅管理"，输入激活码即可。购买激活码请联系：微信 AIPMAndy 或邮箱 supera6@qq.com</div>
+            </div>
+          </div>
+          <div class="list-item">
+            <span class="item-icon">❓</span>
+            <div class="item-content">
+              <div class="item-title">试用期有多长？</div>
+              <div class="item-description">新用户可享受7天免费试用，试用期内可使用所有专业功能</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 关于 -->
+      <div class="tab-content" id="about">
+        <div class="about-content">
+          <div class="about-logo">📝</div>
+          <div class="about-title">MDSKILL</div>
+          <div class="about-version">版本 1.2.0</div>
+          <div class="about-description">
+            专业的 Markdown 编辑与排版工具<br>
+            让文档编辑更高效，排版更精美
+          </div>
+          <div class="about-links">
+            <button class="link-btn" onclick="openWebsite()">官方网站</button>
+            <button class="link-btn" onclick="openGithub()">GitHub</button>
+            <button class="link-btn" onclick="openFeedback()">反馈问题</button>
+          </div>
+          <div class="about-footer">
+            © 2026 MDSKILL. All rights reserved.<br>
+            联系方式：微信 AIPMAndy | 邮箱 supera6@qq.com
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 标签切换
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        const targetTab = tab.dataset.tab;
+
+        // 更新标签状态
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+
+        // 更新内容显示
+        document.querySelectorAll('.tab-content').forEach(content => {
+          content.classList.remove('active');
+        });
+        document.getElementById(targetTab).classList.add('active');
+      });
+    });
+
+    // 外部链接
+    function openWebsite() {
+      if (window.electron) {
+        window.electron.shell.openExternal('https://mdskill.com');
+      }
+    }
+
+    function openGithub() {
+      if (window.electron) {
+        window.electron.shell.openExternal('https://github.com/AIPMAndy/MDSKILL');
+      }
+    }
+
+    function openFeedback() {
+      if (window.electron) {
+        window.electron.shell.openExternal('https://github.com/AIPMAndy/MDSKILL/issues');
+      }
+    }
+  </script>
+</body>
+</html>

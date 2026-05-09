@@ -74,7 +74,10 @@ async function init() {
   console.log('window.getAllTemplates:', typeof window.getAllTemplates);
   console.log('window.getTemplateById:', typeof window.getTemplateById);
 
-  // 检查授权状态
+  // 检查订阅状态
+  await checkSubscriptionStatus();
+
+  // 检查授权状态（兼容旧的买断制）
   const isPro = licenseManager.isPro();
 
   // 加载保存的模板
@@ -108,6 +111,56 @@ async function init() {
 
   // 初始预览
   updatePreview();
+}
+
+// 检查订阅状态
+async function checkSubscriptionStatus() {
+  try {
+    const result = await ipcRenderer.invoke('get-subscription-status');
+    if (result.success) {
+      const status = result.data;
+      console.log('[Subscription] Status:', status);
+
+      // 检查是否需要显示续费提醒
+      const shouldRemind = await ipcRenderer.invoke('should-show-renewal-reminder');
+      if (shouldRemind) {
+        showRenewalReminder(status);
+      }
+
+      // 如果已过期，显示过期提示
+      if (status.isExpired) {
+        showExpiredNotice(status);
+      }
+    }
+  } catch (error) {
+    console.error('[Subscription] Check error:', error);
+  }
+}
+
+// 显示续费提醒
+function showRenewalReminder(status) {
+  const message = `您的会员将在 ${status.daysLeft} 天后到期，续费仅需 19元/月`;
+
+  if (confirm(`⏰ 会员即将到期\n\n${message}\n\n是否立即续费？`)) {
+    openSubscriptionWindow();
+  }
+
+  // 标记提醒已显示
+  ipcRenderer.invoke('mark-reminder-shown');
+}
+
+// 显示过期提示
+function showExpiredNotice(status) {
+  const message = '您的会员已过期，续费后立即恢复所有功能\n\n月会员：19元/月';
+
+  if (confirm(`😢 会员已过期\n\n${message}\n\n是否立即续费？`)) {
+    openSubscriptionWindow();
+  }
+}
+
+// 打开订阅管理窗口
+function openSubscriptionWindow() {
+  ipcRenderer.send('open-subscription');
 }
 
 // 应用模板
@@ -224,6 +277,251 @@ document.getElementById('togglePreviewBtn').addEventListener('click', () => {
   }
 });
 
+// AI 格式化按钮
+document.getElementById('aiFormatBtn').addEventListener('click', async () => {
+  // 检查是否有 AI 配置
+  const config = await ipcRenderer.invoke('get-ai-config');
+
+  if (!config || !config.apiKey) {
+    // 没有配置，通知主进程打开配置窗口
+    ipcRenderer.send('open-ai-config');
+  } else {
+    // 已有配置，直接格式化
+    await formatWithAI(config);
+  }
+});
+
+// 监听配置保存后的格式化请求
+ipcRenderer.on('start-ai-format', async () => {
+  const config = await ipcRenderer.invoke('get-ai-config');
+  if (config) {
+    await formatWithAI(config);
+  }
+});
+
+// AI 取消按钮
+const aiCancelBtn = document.getElementById('aiCancelBtn');
+if (aiCancelBtn) {
+  aiCancelBtn.addEventListener('click', () => {
+    if (aiFormatAbortController) {
+      aiFormatAbortController.abort();
+    }
+  });
+}
+
+// 使用 AI 格式化文本
+let aiFormatAbortController = null;
+
+async function formatWithAI(config) {
+  const content = editor.value;
+
+  if (!content.trim()) {
+    alert('编辑器内容为空');
+    return;
+  }
+
+  // 创建 AbortController 用于取消请求
+  aiFormatAbortController = new AbortController();
+
+  // 显示进度提示
+  const progressOverlay = document.getElementById('aiProgressOverlay');
+  if (progressOverlay) {
+    progressOverlay.style.display = 'flex';
+  }
+
+  // 禁用 MD 按钮
+  const aiBtn = document.getElementById('aiFormatBtn');
+  aiBtn.disabled = true;
+
+  try {
+    let formattedText;
+
+    if (config.provider === 'openai') {
+      formattedText = await formatWithOpenAI(config, content, aiFormatAbortController.signal);
+    } else if (config.provider === 'anthropic') {
+      formattedText = await formatWithAnthropic(config, content, aiFormatAbortController.signal);
+    } else if (config.provider === 'deepseek' || config.provider === 'zhipu' || config.provider === 'moonshot') {
+      formattedText = await formatWithOpenAICompatible(config, content, aiFormatAbortController.signal);
+    } else if (config.provider === 'custom') {
+      formattedText = await formatWithCustomAPI(config, content, aiFormatAbortController.signal);
+    }
+
+    if (formattedText) {
+      editor.value = formattedText;
+      isModified = true;
+      updateFileStatus();
+      updatePreview();
+    }
+  } catch (error) {
+    if (error.name === 'AbortError') {
+      console.log('AI 格式化已取消');
+    } else {
+      console.error('AI 格式化失败:', error);
+      alert('AI 格式化失败: ' + error.message);
+    }
+  } finally {
+    // 隐藏进度提示
+    if (progressOverlay) {
+      progressOverlay.style.display = 'none';
+    }
+    aiBtn.disabled = false;
+    aiFormatAbortController = null;
+  }
+}
+
+// OpenAI API 调用
+async function formatWithOpenAI(config, content, signal) {
+  const endpoint = config.endpoint || 'https://api.openai.com/v1/chat/completions';
+  const headers = {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${config.apiKey}`,
+    ...(config.customHeaders || {})
+  };
+
+  const response = await fetch(endpoint, {
+    method: 'POST',
+    headers: headers,
+    signal: signal,
+    body: JSON.stringify({
+      model: config.model || 'gpt-4o',
+      messages: [
+        {
+          role: 'system',
+          content: config.systemPrompt || '你是一个 Markdown 格式化专家。将用户提供的文本转换为格式良好的 Markdown 文档。保持原意，优化排版，添加适当的标题、列表、强调等格式。只返回格式化后的 Markdown 文本，不要添加任何解释。'
+        },
+        {
+          role: 'user',
+          content: content
+        }
+      ],
+      temperature: config.temperature !== undefined ? config.temperature : 0.3,
+      max_tokens: config.maxTokens || 4096
+    })
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error?.message || 'API 请求失败');
+  }
+
+  const data = await response.json();
+  return data.choices[0].message.content;
+}
+
+// Anthropic API 调用
+async function formatWithAnthropic(config, content, signal) {
+  const endpoint = config.endpoint || 'https://api.anthropic.com/v1/messages';
+  const headers = {
+    'Content-Type': 'application/json',
+    'x-api-key': config.apiKey,
+    'anthropic-version': '2023-06-01',
+    ...(config.customHeaders || {})
+  };
+
+  const systemPrompt = config.systemPrompt || '你是一个 Markdown 格式化专家。将以下文本转换为格式良好的 Markdown 文档。保持原意，优化排版，添加适当的标题、列表、强调等格式。只返回格式化后的 Markdown 文本，不要添加任何解释。';
+
+  const response = await fetch(endpoint, {
+    method: 'POST',
+    headers: headers,
+    signal: signal,
+    body: JSON.stringify({
+      model: config.model || 'claude-opus-4-20250514',
+      max_tokens: config.maxTokens || 4096,
+      messages: [
+        {
+          role: 'user',
+          content: `${systemPrompt}\n\n${content}`
+        }
+      ]
+    })
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error?.message || 'API 请求失败');
+  }
+
+  const data = await response.json();
+  return data.content[0].text;
+}
+
+// OpenAI 兼容 API 调用（DeepSeek、智谱、Kimi 等）
+async function formatWithOpenAICompatible(config, content, signal) {
+  const endpoint = config.endpoint || 'https://api.deepseek.com/v1/chat/completions';
+  const headers = {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${config.apiKey}`,
+    ...(config.customHeaders || {})
+  };
+
+  const response = await fetch(endpoint, {
+    method: 'POST',
+    headers: headers,
+    signal: signal,
+    body: JSON.stringify({
+      model: config.model,
+      messages: [
+        {
+          role: 'system',
+          content: config.systemPrompt || '你是一个 Markdown 格式化专家。将用户提供的文本转换为格式良好的 Markdown 文档。保持原意，优化排版，添加适当的标题、列表、强调等格式。只返回格式化后的 Markdown 文本，不要添加任何解释。'
+        },
+        {
+          role: 'user',
+          content: content
+        }
+      ],
+      temperature: config.temperature !== undefined ? config.temperature : 0.3,
+      max_tokens: config.maxTokens || 4096
+    })
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error?.message || error.message || 'API 请求失败');
+  }
+
+  const data = await response.json();
+  return data.choices[0].message.content;
+}
+
+// 自定义 API 调用
+async function formatWithCustomAPI(config, content, signal) {
+  const headers = {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${config.apiKey}`,
+    ...(config.customHeaders || {})
+  };
+
+  const response = await fetch(config.endpoint, {
+    method: 'POST',
+    headers: headers,
+    signal: signal,
+    body: JSON.stringify({
+      model: config.model || 'custom',
+      messages: [
+        {
+          role: 'system',
+          content: config.systemPrompt || '你是一个 Markdown 格式化专家。将用户提供的文本转换为格式良好的 Markdown 文档。保持原意，优化排版，添加适当的标题、列表、强调等格式。只返回格式化后的 Markdown 文本，不要添加任何解释。'
+        },
+        {
+          role: 'user',
+          content: content
+        }
+      ],
+      temperature: config.temperature !== undefined ? config.temperature : 0.3,
+      max_tokens: config.maxTokens || 4096
+    })
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error?.message || error.message || 'API 请求失败');
+  }
+
+  const data = await response.json();
+  return data.choices[0].message.content;
+}
+
 // 更新主题选择器，标记专业版主题
 function updateThemeSelector(isPro) {
   const select = document.getElementById('templateSelect');
@@ -315,19 +613,22 @@ if (themeSelector) {
   });
 
   // 监听主题切换
-  themeSelector.addEventListener('change', (e) => {
+  themeSelector.addEventListener('change', async (e) => {
     const templateId = e.target.value;
     if (!templateId) return;
 
     const template = getTemplateById(templateId);
-    const isPro = licenseManager.isPro();
 
     // 检查是否是专业版主题
-    if (template.isPremium && !isPro) {
-      showActivationPrompt('主题');
-      // 恢复到当前主题
-      e.target.value = currentTemplate.id;
-      return;
+    if (template.isPremium) {
+      const hasAccess = await checkFeatureAccess('premium_themes');
+
+      if (!hasAccess) {
+        showFeatureLockedPrompt('精美主题');
+        // 恢复到当前主题
+        e.target.value = currentTemplate.id;
+        return;
+      }
     }
 
     currentTemplate = template;
@@ -378,33 +679,73 @@ document.getElementById('linkBtn').addEventListener('click', () => {
 
 // 导出 PDF 按钮
 document.getElementById('exportPdfBtn').addEventListener('click', async () => {
-  const isPro = licenseManager.isPro();
+  const hasAccess = await checkFeatureAccess('pdf_export');
 
-  if (!isPro) {
-    showActivationPrompt('PDF 导出');
+  if (!hasAccess) {
+    showFeatureLockedPrompt('PDF 导出');
     return;
   }
 
   await exportToPDF();
 });
 
+// 检查功能权限（统一的权限检查函数）
+async function checkFeatureAccess(featureName) {
+  // 先检查订阅状态
+  const result = await ipcRenderer.invoke('check-feature-access', featureName);
+
+  if (result.hasAccess) {
+    return true;
+  }
+
+  // 如果订阅无权限，再检查旧的买断授权（兼容性）
+  const isPro = licenseManager.isPro();
+  if (isPro) {
+    return true;
+  }
+
+  // 都没有权限，显示提示
+  return false;
+}
+
+// 显示功能限制提示
+function showFeatureLockedPrompt(featureName) {
+  const message = `🔒 ${featureName}是会员专享功能\n\n月会员：19元/月\n新用户享7天免费试用`;
+
+  if (confirm(`${message}\n\n是否查看会员权益？`)) {
+    openSubscriptionWindow();
+  }
+}
+
 // 复制到微信公众号按钮
 document.getElementById('copyWeChatBtn')?.addEventListener('click', async () => {
-  const isPro = licenseManager.isPro();
+  const hasAccess = await checkFeatureAccess('wechat_copy');
 
-  if (!isPro) {
-    showActivationPrompt('复制到微信公众号');
+  if (!hasAccess) {
+    showFeatureLockedPrompt('复制到微信公众号');
     return;
   }
 
-  if (!window.copyUtils) {
-    alert('复制功能模块未加载，请刷新页面重试');
+  if (!window.wechatRenderer) {
+    alert('微信渲染器未加载，请刷新页面重试');
     return;
   }
 
   try {
-    // 传递预览元素而不是 innerHTML
-    const success = await window.copyUtils.copyForWeChat(preview, currentTemplate);
+    // 获取 Markdown 源文本
+    const markdown = editor.value;
+
+    if (!markdown || markdown.trim() === '') {
+      window.copyUtils.showToast('编辑器内容为空', 'error');
+      return;
+    }
+
+    // 使用新的微信渲染器直接从 Markdown 生成 HTML，传入当前主题
+    const wechatHTML = window.wechatRenderer.renderMarkdownForWeChat(markdown, currentTemplate);
+
+    // 复制到剪贴板
+    const success = await window.copyUtils.writeHTMLToClipboard(wechatHTML, markdown);
+
     if (success) {
       window.copyUtils.showToast('已复制到剪贴板，可直接粘贴到微信公众号编辑器', 'success');
     } else {
@@ -418,10 +759,10 @@ document.getElementById('copyWeChatBtn')?.addEventListener('click', async () => 
 
 // 复制到博客按钮
 document.getElementById('copyBlogBtn')?.addEventListener('click', async () => {
-  const isPro = licenseManager.isPro();
+  const hasAccess = await checkFeatureAccess('blog_copy');
 
-  if (!isPro) {
-    showActivationPrompt('复制到博客');
+  if (!hasAccess) {
+    showFeatureLockedPrompt('复制到博客');
     return;
   }
 
@@ -446,10 +787,10 @@ document.getElementById('copyBlogBtn')?.addEventListener('click', async () => {
 
 // 复制 HTML 源码按钮
 document.getElementById('copyHTMLBtn')?.addEventListener('click', async () => {
-  const isPro = licenseManager.isPro();
+  const hasAccess = await checkFeatureAccess('html_export');
 
-  if (!isPro) {
-    showActivationPrompt('复制 HTML 源码');
+  if (!hasAccess) {
+    showFeatureLockedPrompt('复制 HTML 源码');
     return;
   }
 
@@ -588,48 +929,105 @@ async function exportToPDF() {
     }
     console.log('Default PDF name:', defaultName);
 
-    // 获取 DOM 元素
-    const editorContainer = document.querySelector('.editor-container');
-    const editorPane = document.getElementById('editorPane');
-    const previewPane = document.getElementById('previewPane');
-
-    if (!editorContainer || !editorPane || !previewPane) {
-      throw new Error('Required DOM elements not found');
+    // 获取预览内容
+    const preview = document.getElementById('preview');
+    if (!preview) {
+      throw new Error('Preview element not found');
     }
 
-    // 保存原始样式
-    const originalContainerDisplay = editorContainer.style.display;
-    const originalEditorDisplay = editorPane.style.display;
-    const originalPreviewWidth = previewPane.style.width;
-    const originalPreviewMaxWidth = previewPane.style.maxWidth;
-    const originalPreviewMargin = previewPane.style.margin;
-    const originalPreviewPadding = previewPane.style.padding;
+    // 获取当前主题的 CSS
+    const themeStyle = document.getElementById('theme-style');
+    const themeCSS = themeStyle ? themeStyle.textContent : '';
 
-    // 设置为只显示预览
-    editorContainer.style.display = 'flex';
-    editorPane.style.display = 'none';
-    previewPane.style.width = '100%';
-    previewPane.style.maxWidth = '210mm'; // A4 宽度
-    previewPane.style.margin = '0 auto';
-    previewPane.style.padding = '20mm'; // A4 边距
+    // 获取 github-markdown.css 的内容
+    const markdownStyleLink = document.querySelector('link[href*="github-markdown"]');
+    let markdownCSS = '';
+    if (markdownStyleLink) {
+      try {
+        const response = await fetch(markdownStyleLink.href);
+        markdownCSS = await response.text();
+      } catch (e) {
+        console.warn('Failed to load markdown CSS:', e);
+      }
+    }
 
-    console.log('Layout adjusted for PDF export');
+    // 构建完整的 HTML 文档
+    const htmlContent = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    /* GitHub Markdown CSS */
+    ${markdownCSS}
 
-    // 等待布局更新
-    await new Promise(resolve => setTimeout(resolve, 200));
+    /* 主题样式 */
+    ${themeCSS}
 
-    console.log('Calling main process to export PDF...');
+    /* PDF 打印样式 */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: white;
+    }
+
+    .markdown-body {
+      padding: 0;
+      max-width: 100%;
+      overflow: visible;
+    }
+
+    /* 分页控制 */
+    h1, h2, h3 {
+      page-break-after: avoid;
+      break-after: avoid;
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+
+    pre, table, img, blockquote {
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+
+    p {
+      orphans: 3;
+      widows: 3;
+    }
+
+    li {
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+
+    pre code {
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+  </style>
+</head>
+<body>
+  <div class="markdown-body">
+    ${preview.innerHTML}
+  </div>
+</body>
+</html>
+    `;
+
+    console.log('HTML content prepared, length:', htmlContent.length);
+
     // 调用主进程导出 PDF
-    const result = await ipcRenderer.invoke('export-pdf', { defaultPath: defaultName });
+    const result = await ipcRenderer.invoke('export-pdf', {
+      defaultPath: defaultName,
+      htmlContent: htmlContent
+    });
     console.log('Export result:', result);
-
-    // 恢复原始布局
-    editorContainer.style.display = originalContainerDisplay;
-    editorPane.style.display = originalEditorDisplay;
-    previewPane.style.width = originalPreviewWidth;
-    previewPane.style.maxWidth = originalPreviewMaxWidth;
-    previewPane.style.margin = originalPreviewMargin;
-    previewPane.style.padding = originalPreviewPadding;
 
     if (result.success) {
       console.log('PDF exported successfully:', result.filePath);

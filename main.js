@@ -3,6 +3,7 @@ const path = require('path');
 const fs = require('fs').promises;
 const Store = require('electron-store');
 const licenseManager = require('./license-manager');
+const { subscriptionManager, SubscriptionStatus } = require('./subscription-manager');
 
 const store = new Store();
 
@@ -255,10 +256,7 @@ function buildMenu(win) {
         {
           label: t('about'),
           click: () => {
-            const focusedWindow = BrowserWindow.getFocusedWindow();
-            if (focusedWindow) {
-              focusedWindow.webContents.send('show-about-dialog');
-            }
+            showHelpDialog();
           }
         },
         { type: 'separator' },
@@ -273,7 +271,7 @@ function buildMenu(win) {
         {
           label: t('activatePro'),
           click: () => {
-            showActivationDialog();
+            showSubscriptionDialog();
           }
         },
         {
@@ -281,7 +279,20 @@ function buildMenu(win) {
           click: () => {
             const focusedWindow = BrowserWindow.getFocusedWindow();
             if (focusedWindow) {
-              focusedWindow.webContents.send('show-device-fingerprint-dialog');
+              const fingerprint = licenseManager.getDeviceFingerprint();
+              dialog.showMessageBox(focusedWindow, {
+                type: 'info',
+                title: '设备指纹',
+                message: '您的设备指纹：',
+                detail: fingerprint,
+                buttons: ['复制', '关闭']
+              }).then(result => {
+                if (result.response === 0) {
+                  // 复制到剪贴板
+                  const { clipboard } = require('electron');
+                  clipboard.writeText(fingerprint);
+                }
+              });
             }
           }
         },
@@ -291,7 +302,13 @@ function buildMenu(win) {
           click: () => {
             const focusedWindow = BrowserWindow.getFocusedWindow();
             if (focusedWindow) {
-              focusedWindow.webContents.send('show-contact-dialog');
+              dialog.showMessageBox(focusedWindow, {
+                type: 'info',
+                title: '联系开发者',
+                message: 'AI酋长Andy',
+                detail: '微信：AIPMAndy\nGitHub: https://github.com/AIPMAndy',
+                buttons: ['关闭']
+              });
             }
           }
         },
@@ -395,6 +412,34 @@ function showAIConfigDialog() {
   return aiConfigWin;
 }
 
+// 显示订阅管理窗口
+function showSubscriptionDialog() {
+  const subscriptionWin = new BrowserWindow({
+    width: 600,
+    height: 800,
+    center: true,
+    modal: false,
+    show: false,
+    resizable: false,
+    minimizable: false,
+    maximizable: false,
+    fullscreenable: false,
+    title: '订阅管理',
+    webPreferences: {
+      nodeIntegration: true,
+      contextIsolation: false
+    }
+  });
+
+  subscriptionWin.loadFile('renderer/subscription.html');
+
+  subscriptionWin.once('ready-to-show', () => {
+    subscriptionWin.show();
+  });
+
+  return subscriptionWin;
+}
+
 
 // 显示激活对话框
 async function showActivationDialog() {
@@ -428,6 +473,40 @@ async function showActivationDialog() {
 
   // 移除菜单栏
   activationWin.setMenu(null);
+}
+
+// 显示帮助对话框
+async function showHelpDialog() {
+  const focusedWindow = BrowserWindow.getFocusedWindow();
+
+  // 创建帮助窗口
+  const helpWin = new BrowserWindow({
+    width: 900,
+    height: 700,
+    center: true,
+    parent: focusedWindow,
+    modal: false,
+    resizable: true,
+    minimizable: true,
+    maximizable: true,
+    show: false,
+    webPreferences: {
+      nodeIntegration: true,
+      contextIsolation: false,
+      enableRemoteModule: true
+    }
+  });
+
+  // 加载帮助页面
+  helpWin.loadFile('renderer/help.html');
+
+  // 页面加载完成后再显示，避免闪烁
+  helpWin.once('ready-to-show', () => {
+    helpWin.show();
+  });
+
+  // 移除菜单栏
+  helpWin.setMenu(null);
 }
 
 async function openFile(targetWindow) {
@@ -493,7 +572,7 @@ ipcMain.handle('get-last-file', () => {
   return store.get('lastOpenedFile');
 });
 
-ipcMain.handle('export-pdf', async (event, { defaultPath }) => {
+ipcMain.handle('export-pdf', async (event, { defaultPath, htmlContent }) => {
   console.log('PDF export handler called with defaultPath:', defaultPath);
   const win = BrowserWindow.fromWebContents(event.sender);
   const result = await dialog.showSaveDialog(win, {
@@ -508,18 +587,46 @@ ipcMain.handle('export-pdf', async (event, { defaultPath }) => {
   if (!result.canceled && result.filePath) {
     try {
       console.log('Starting PDF generation...');
-      // 使用 Electron 的 printToPDF API
-      const data = await win.webContents.printToPDF({
-        printBackground: true,
-        pageSize: 'A4',
-        margins: {
-          top: 0,
-          bottom: 0,
-          left: 0,
-          right: 0
+
+      // 创建一个隐藏的打印窗口
+      const printWindow = new BrowserWindow({
+        width: 800,
+        height: 600,
+        show: false,
+        webPreferences: {
+          nodeIntegration: false,
+          contextIsolation: true
         }
       });
+
+      // 加载 HTML 内容
+      await printWindow.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(htmlContent)}`);
+
+      // 等待内容完全加载
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      // 使用优化的 printToPDF 配置
+      const data = await printWindow.webContents.printToPDF({
+        printBackground: true,
+        pageSize: 'A4',
+        landscape: false,
+        margins: {
+          top: 0.5,    // 0.5cm 上边距
+          bottom: 0.5, // 0.5cm 下边距
+          left: 1.0,   // 1.0cm 左边距
+          right: 1.0   // 1.0cm 右边距
+        },
+        preferCSSPageSize: true,
+        printSelectionOnly: false,
+        displayHeaderFooter: false,
+        scale: 1.0
+      });
+
       console.log('PDF data generated, size:', data.length, 'bytes');
+
+      // 关闭打印窗口
+      printWindow.close();
+
       await fs.writeFile(result.filePath, data);
       console.log('PDF file written successfully to:', result.filePath);
       return { success: true, filePath: result.filePath };
@@ -529,6 +636,11 @@ ipcMain.handle('export-pdf', async (event, { defaultPath }) => {
     }
   }
   return { success: false, canceled: true };
+});
+
+// 检查授权状态
+ipcMain.handle('check-license', () => {
+  return licenseManager.isPro();
 });
 
 // 激活授权码
@@ -556,6 +668,124 @@ ipcMain.handle('save-ai-config', (event, config) => {
   store.set('aiConfig', config);
   return { success: true };
 });
+
+// ============================================================================
+// 订阅管理 IPC 处理器
+// ============================================================================
+
+// 获取订阅状态
+ipcMain.handle('get-subscription-status', async () => {
+  try {
+    // 如果没有订阅，自动开通试用
+    if (!subscriptionManager.subscription) {
+      await subscriptionManager.startTrial();
+    }
+
+    // 检查是否需要在线验证
+    if (subscriptionManager.needsVerification()) {
+      await subscriptionManager.verifyOnline();
+    }
+
+    return {
+      success: true,
+      data: subscriptionManager.getStatusSummary()
+    };
+  } catch (error) {
+    console.error('[IPC] Get subscription status error:', error);
+    return {
+      success: false,
+      error: error.message
+    };
+  }
+});
+
+// 获取订阅信息（用于订阅管理窗口）
+ipcMain.handle('get-subscription-info', async () => {
+  try {
+    // 如果没有订阅，自动开通试用
+    if (!subscriptionManager.subscription) {
+      await subscriptionManager.startTrial();
+    }
+
+    return {
+      success: true,
+      data: subscriptionManager.getStatusSummary()
+    };
+  } catch (error) {
+    console.error('[IPC] Get subscription info error:', error);
+    return {
+      success: false,
+      error: error.message
+    };
+  }
+});
+
+// 检查功能权限
+ipcMain.handle('check-feature-access', (event, featureName) => {
+  const hasAccess = subscriptionManager.hasFeatureAccess(featureName);
+  return {
+    hasAccess,
+    status: subscriptionManager.getStatusSummary()
+  };
+});
+
+// 检查是否需要显示续费提醒
+ipcMain.handle('should-show-renewal-reminder', () => {
+  return subscriptionManager.shouldShowRenewalReminder();
+});
+
+// 标记续费提醒已显示
+ipcMain.handle('mark-reminder-shown', () => {
+  subscriptionManager.markReminderShown();
+  return { success: true };
+});
+
+// 激活订阅（支付成功后调用）
+ipcMain.handle('activate-subscription', async (event, months = 1) => {
+  try {
+    await subscriptionManager.activateSubscription(months);
+    return {
+      success: true,
+      data: subscriptionManager.getStatusSummary()
+    };
+  } catch (error) {
+    console.error('[IPC] Activate subscription error:', error);
+    return {
+      success: false,
+      error: error.message
+    };
+  }
+});
+
+// 使用激活码激活订阅
+ipcMain.handle('activate-with-code', async (event, activationCode) => {
+  try {
+    const result = await subscriptionManager.activateWithCode(activationCode);
+    return {
+      success: true,
+      data: result
+    };
+  } catch (error) {
+    console.error('[IPC] Activate with code error:', error);
+    return {
+      success: false,
+      error: error.message
+    };
+  }
+});
+
+// 重置订阅（仅用于开发测试）
+ipcMain.handle('reset-subscription', () => {
+  subscriptionManager.resetSubscription();
+  return { success: true };
+});
+
+// 打开订阅管理窗口
+ipcMain.on('open-subscription', () => {
+  showSubscriptionDialog();
+});
+
+// ============================================================================
 
 ipcMain.on('close-ai-config', (event) => {
   const win = BrowserWindow.fromWebContents(event.sender);

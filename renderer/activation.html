@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>激活专业版 - MDskill</title>
+  <title>激活专业版 - MDSKILL</title>
   <style>
     * {
       margin: 0;
@@ -12,294 +12,543 @@
     }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+      background: #f5f5f7;
       display: flex;
       align-items: center;
       justify-content: center;
-      height: 100vh;
+      min-height: 100vh;
       padding: 20px;
+      color: #1d1d1f;
     }
 
     .container {
       background: white;
       border-radius: 12px;
-      padding: 40px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
       width: 100%;
-      max-width: 450px;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+      max-width: 500px;
+      overflow: hidden;
     }
 
-    h1 {
+    /* 头部 */
+    .header {
+      padding: 32px 24px 24px;
+      text-align: center;
+      border-bottom: 1px solid #e5e5e7;
+    }
+
+    .header-icon {
+      font-size: 64px;
+      margin-bottom: 16px;
+    }
+
+    .header-title {
       font-size: 24px;
-      color: #333;
-      margin-bottom: 10px;
-      text-align: center;
-    }
-
-    .subtitle {
-      color: #666;
-      font-size: 14px;
-      text-align: center;
-      margin-bottom: 30px;
-    }
-
-    .device-info {
-      background: #f5f5f5;
-      border-radius: 8px;
-      padding: 15px;
-      margin-bottom: 20px;
-    }
-
-    .device-info label {
-      display: block;
-      font-size: 12px;
-      color: #666;
-      margin-bottom: 5px;
-      font-weight: 500;
-    }
-
-    .device-id {
-      font-family: 'Monaco', 'Menlo', monospace;
-      font-size: 16px;
-      color: #333;
       font-weight: 600;
-      letter-spacing: 1px;
+      color: #1d1d1f;
+      margin-bottom: 8px;
+    }
+
+    .header-subtitle {
+      font-size: 15px;
+      color: #86868b;
+      line-height: 1.5;
+    }
+
+    /* 试用信息 */
+    .trial-info {
+      padding: 20px 24px;
+      background: #fff9e6;
+      border-bottom: 1px solid #e5e5e7;
+      text-align: center;
+    }
+
+    .trial-badge {
+      display: inline-block;
+      padding: 6px 12px;
+      background: #ffc107;
+      color: white;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .trial-text {
+      font-size: 14px;
+      color: #856404;
+    }
+
+    .trial-days {
+      font-size: 20px;
+      font-weight: 700;
+      color: #856404;
+    }
+
+    /* 功能列表 */
+    .features-section {
+      padding: 20px 24px;
+      border-bottom: 1px solid #e5e5e7;
+    }
+
+    .section-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #86868b;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+    }
+
+    .feature-list {
+      list-style: none;
+    }
+
+    .feature-item {
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #f5f5f7;
     }
 
-    .copy-btn {
-      background: #667eea;
-      color: white;
-      border: none;
-      padding: 5px 12px;
-      border-radius: 4px;
-      font-size: 12px;
-      cursor: pointer;
-      transition: background 0.2s;
+    .feature-item:last-child {
+      border-bottom: none;
     }
 
-    .copy-btn:hover {
-      background: #5568d3;
+    .feature-icon {
+      font-size: 18px;
+      margin-right: 12px;
+      width: 24px;
+      text-align: center;
     }
 
-    .copy-btn:active {
-      transform: scale(0.95);
-    }
-
-    .form-group {
-      margin-bottom: 20px;
-    }
-
-    .form-group label {
-      display: block;
-      font-size: 14px;
-      color: #333;
-      margin-bottom: 8px;
-      font-weight: 500;
-    }
-
-    .form-group textarea {
-      width: 100%;
-      padding: 12px;
-      border: 2px solid #e0e0e0;
-      border-radius: 6px;
-      font-size: 13px;
-      font-family: 'Monaco', 'Menlo', monospace;
-      resize: vertical;
-      min-height: 100px;
-      transition: border-color 0.2s;
-    }
-
-    .form-group textarea:focus {
-      outline: none;
-      border-color: #667eea;
-    }
-
-    .button-group {
-      display: flex;
-      gap: 10px;
-      margin-top: 25px;
-    }
-
-    .btn {
+    .feature-text {
       flex: 1;
-      padding: 12px;
-      border: none;
-      border-radius: 6px;
-      font-size: 14px;
-      font-weight: 500;
+      font-size: 15px;
+      color: #1d1d1f;
+    }
+
+    .feature-check {
+      color: #34c759;
+      font-size: 18px;
+    }
+
+    /* 价格区域 */
+    .pricing-section {
+      padding: 20px 24px;
+      background: #fafafa;
+      border-bottom: 1px solid #e5e5e7;
+    }
+
+    .pricing-options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .pricing-card {
+      padding: 16px;
+      background: white;
+      border: 2px solid #e5e5e7;
+      border-radius: 8px;
+      text-align: center;
       cursor: pointer;
       transition: all 0.2s;
     }
 
+    .pricing-card:hover {
+      border-color: #0078D2;
+    }
+
+    .pricing-card.recommended {
+      border-color: #0078D2;
+      background: #f0f8ff;
+      position: relative;
+    }
+
+    .pricing-card.recommended::before {
+      content: "推荐";
+      position: absolute;
+      top: -8px;
+      right: 8px;
+      background: #0078D2;
+      color: white;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .pricing-period {
+      font-size: 14px;
+      color: #86868b;
+      margin-bottom: 8px;
+    }
+
+    .pricing-amount {
+      font-size: 28px;
+      font-weight: 700;
+      color: #0078D2;
+      margin-bottom: 4px;
+    }
+
+    .pricing-save {
+      font-size: 12px;
+      color: #34c759;
+      font-weight: 600;
+    }
+
+    .pricing-note {
+      text-align: center;
+      font-size: 13px;
+      color: #86868b;
+    }
+
+    /* 激活码输入 */
+    .activation-section {
+      padding: 20px 24px;
+      border-bottom: 1px solid #e5e5e7;
+    }
+
+    .input-label {
+      font-size: 14px;
+      font-weight: 500;
+      color: #1d1d1f;
+      margin-bottom: 8px;
+    }
+
+    .input-field {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #d1d1d6;
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: 'SF Mono', Monaco, monospace;
+      transition: border-color 0.2s;
+    }
+
+    .input-field:focus {
+      outline: none;
+      border-color: #0078D2;
+    }
+
+    .input-hint {
+      font-size: 12px;
+      color: #86868b;
+      margin-top: 6px;
+    }
+
+    /* 按钮区域 */
+    .actions-section {
+      padding: 20px 24px;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-bottom: 12px;
+    }
+
+    .btn:last-child {
+      margin-bottom: 0;
+    }
+
     .btn-primary {
-      background: #667eea;
+      background: #0078D2;
       color: white;
     }
 
     .btn-primary:hover {
-      background: #5568d3;
+      background: #006bb3;
+    }
+
+    .btn-primary:active {
+      background: #005a94;
     }
 
     .btn-primary:disabled {
-      background: #ccc;
+      background: #d1d1d6;
       cursor: not-allowed;
     }
 
     .btn-secondary {
-      background: #f5f5f5;
-      color: #666;
+      background: #f5f5f7;
+      color: #1d1d1f;
     }
 
     .btn-secondary:hover {
-      background: #e0e0e0;
+      background: #e5e5e7;
     }
 
-    .message {
-      margin-top: 15px;
-      padding: 12px;
-      border-radius: 6px;
+    .btn-text {
+      background: transparent;
+      color: #0078D2;
+      padding: 8px 20px;
+    }
+
+    .btn-text:hover {
+      background: #f5f5f7;
+    }
+
+    /* 支付信息 */
+    .payment-section {
+      padding: 20px 24px;
+      background: #fafafa;
+      border-top: 1px solid #e5e5e7;
+      text-align: center;
+    }
+
+    .payment-tabs {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin-bottom: 16px;
+    }
+
+    .payment-tab {
+      padding: 8px 16px;
+      border-radius: 8px;
+      background: white;
+      border: 1px solid #e5e5e7;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 14px;
+    }
+
+    .payment-tab:hover {
+      border-color: #0078D2;
+    }
+
+    .payment-tab.active {
+      background: #0078D2;
+      color: white;
+      border-color: #0078D2;
+    }
+
+    .qr-placeholder {
+      width: 200px;
+      height: 200px;
+      margin: 0 auto 12px;
+      background: white;
+      border: 1px solid #e5e5e7;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #86868b;
+      font-size: 14px;
+    }
+
+    .payment-note {
       font-size: 13px;
-      display: none;
-    }
-
-    .message.success {
-      background: #d4edda;
-      color: #155724;
-      border: 1px solid #c3e6cb;
-    }
-
-    .message.error {
-      background: #f8d7da;
-      color: #721c24;
-      border: 1px solid #f5c6cb;
+      color: #86868b;
+      margin-bottom: 8px;
     }
 
     .contact-info {
-      margin-top: 20px;
-      padding-top: 20px;
-      border-top: 1px solid #e0e0e0;
-      text-align: center;
-      font-size: 13px;
-      color: #666;
+      font-size: 14px;
+      color: #0078D2;
+      font-weight: 500;
     }
 
-    .contact-info strong {
-      color: #333;
+    /* 帮助链接 */
+    .help-section {
+      padding: 16px 24px;
+      text-align: center;
+      border-top: 1px solid #e5e5e7;
+    }
+
+    .help-link {
+      color: #0078D2;
+      text-decoration: none;
+      font-size: 14px;
+      transition: opacity 0.2s;
+    }
+
+    .help-link:hover {
+      opacity: 0.7;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>🔓 激活专业版</h1>
-    <p class="subtitle">解锁所有主题和 PDF 导出功能</p>
-
-    <div class="device-info">
-      <label>您的设备指纹</label>
-      <div class="device-id">
-        <span id="deviceId">加载中...</span>
-        <button class="copy-btn" id="copyBtn">复制</button>
+    <!-- 头部 -->
+    <div class="header">
+      <div class="header-icon">🎉</div>
+      <div class="header-title">升级到专业版</div>
+      <div class="header-subtitle">
+        解锁全部高级功能，让创作更高效
       </div>
     </div>
 
-    <div class="form-group">
-      <label>授权码</label>
-      <textarea
-        id="licenseKey"
-        placeholder="请输入从开发者处获取的授权码&#10;格式: MDSK-xxxxxxxx-xxxxxxxx"
-      ></textarea>
+    <!-- 试用信息 -->
+    <div class="trial-info" id="trialInfo">
+      <div class="trial-badge">试用期</div>
+      <div class="trial-text">
+        还剩 <span class="trial-days" id="daysLeft">7</span> 天试用时间
+      </div>
     </div>
 
-    <div class="button-group">
-      <button class="btn btn-secondary" id="cancelBtn">取消</button>
-      <button class="btn btn-primary" id="activateBtn">激活</button>
+    <!-- 专业功能 -->
+    <div class="features-section">
+      <div class="section-title">专业功能</div>
+      <ul class="feature-list">
+        <li class="feature-item">
+          <span class="feature-icon">📱</span>
+          <span class="feature-text">复制到微信公众号</span>
+          <span class="feature-check">✓</span>
+        </li>
+        <li class="feature-item">
+          <span class="feature-icon">📝</span>
+          <span class="feature-text">复制到博客平台</span>
+          <span class="feature-check">✓</span>
+        </li>
+        <li class="feature-item">
+          <span class="feature-icon">💻</span>
+          <span class="feature-text">复制HTML源码</span>
+          <span class="feature-check">✓</span>
+        </li>
+        <li class="feature-item">
+          <span class="feature-icon">📄</span>
+          <span class="feature-text">导出PDF</span>
+          <span class="feature-check">✓</span>
+        </li>
+        <li class="feature-item">
+          <span class="feature-icon">🎨</span>
+          <span class="feature-text">13种精美主题</span>
+          <span class="feature-check">✓</span>
+        </li>
+      </ul>
     </div>
 
-    <div class="message" id="message"></div>
+    <!-- 价格选项 -->
+    <div class="pricing-section">
+      <div class="section-title">选择订阅时长</div>
+      <div class="pricing-options">
+        <div class="pricing-card">
+          <div class="pricing-period">月付</div>
+          <div class="pricing-amount">¥19</div>
+          <div class="pricing-save">灵活选择</div>
+        </div>
+        <div class="pricing-card recommended">
+          <div class="pricing-period">年付</div>
+          <div class="pricing-amount">¥99</div>
+          <div class="pricing-save">省 ¥129</div>
+        </div>
+      </div>
+      <div class="pricing-note">
+        年付相当于 ¥8.25/月，超值优惠
+      </div>
+    </div>
 
-    <div class="contact-info">
-      <p>还没有授权码？</p>
-      <p><strong>微信: AIPMAndy</strong></p>
-      <p>将设备指纹发送给开发者获取授权码</p>
+    <!-- 激活码输入 -->
+    <div class="activation-section">
+      <div class="input-label">输入激活码</div>
+      <input
+        type="text"
+        class="input-field"
+        id="activationCodeInput"
+        placeholder="eyJ1-c2Vy-SWQi-...|df52-b5e6-..."
+      />
+      <div class="input-hint">
+        支付后客服会将激活码发送给您
+      </div>
+    </div>
+
+    <!-- 操作按钮 -->
+    <div class="actions-section">
+      <button class="btn btn-primary" id="activateBtn">立即激活</button>
+      <button class="btn btn-text" id="laterBtn">稍后</button>
+    </div>
+
+    <!-- 购买提示 -->
+    <div class="payment-section">
+      <div class="section-title">购买激活码</div>
+      <div class="payment-note">请联系客服购买激活码</div>
+      <div class="contact-info">
+        微信：AIPMAndy<br>
+        邮箱：supera6@qq.com
+      </div>
+    </div>
+
+    <!-- 帮助链接 -->
+    <div class="help-section">
+      <a href="#" class="help-link" id="helpLink">需要帮助？查看使用指南</a>
     </div>
   </div>
 
   <script>
-    const { ipcRenderer } = require('electron');
-    const { clipboard } = require('electron');
+    const ipcRenderer = window.electron?.ipcRenderer;
 
-    const deviceIdEl = document.getElementById('deviceId');
-    const copyBtn = document.getElementById('copyBtn');
-    const licenseKeyEl = document.getElementById('licenseKey');
-    const activateBtn = document.getElementById('activateBtn');
-    const cancelBtn = document.getElementById('cancelBtn');
-    const messageEl = document.getElementById('message');
+    // 加载试用信息
+    async function loadTrialInfo() {
+      if (!ipcRenderer) return;
 
-    // 加载设备指纹
-    async function loadDeviceId() {
-      const deviceId = await ipcRenderer.invoke('get-device-fingerprint');
-      deviceIdEl.textContent = deviceId;
+      try {
+        const info = await ipcRenderer.invoke('get-subscription-info');
+
+        if (info.status === 'trial') {
+          document.getElementById('daysLeft').textContent = info.daysLeft || 0;
+          document.getElementById('trialInfo').style.display = 'block';
+        } else {
+          document.getElementById('trialInfo').style.display = 'none';
+        }
+      } catch (error) {
+        console.error('加载试用信息失败:', error);
+      }
     }
 
-    // 复制设备指纹
-    copyBtn.addEventListener('click', () => {
-      const deviceId = deviceIdEl.textContent;
-      clipboard.writeText(deviceId);
-      copyBtn.textContent = '已复制!';
-      setTimeout(() => {
-        copyBtn.textContent = '复制';
-      }, 2000);
-    });
-
     // 激活按钮
-    activateBtn.addEventListener('click', async () => {
-      const licenseKey = licenseKeyEl.value.trim();
+    document.getElementById('activateBtn').addEventListener('click', async () => {
+      const code = document.getElementById('activationCodeInput').value.trim();
 
-      if (!licenseKey) {
-        showMessage('请输入授权码', 'error');
+      if (!code) {
+        alert('请输入激活码');
         return;
       }
 
-      activateBtn.disabled = true;
-      activateBtn.textContent = '激活中...';
+      if (!ipcRenderer) {
+        alert('IPC 通信不可用');
+        return;
+      }
 
       try {
-        const result = await ipcRenderer.invoke('activate-license', licenseKey);
+        const result = await ipcRenderer.invoke('activate-with-code', code);
 
         if (result.success) {
-          showMessage('激活成功！专业版功能已解锁', 'success');
-          setTimeout(() => {
-            window.close();
-          }, 1500);
+          alert(`激活成功！\n会员时长：${result.months} 个月\n到期日期：${new Date(result.expiryDate).toLocaleDateString('zh-CN')}`);
+          window.close();
         } else {
-          showMessage(result.error || '激活失败', 'error');
-          activateBtn.disabled = false;
-          activateBtn.textContent = '激活';
+          alert('激活失败：' + (result.message || '未知错误'));
         }
       } catch (error) {
-        showMessage('激活出错: ' + error.message, 'error');
-        activateBtn.disabled = false;
-        activateBtn.textContent = '激活';
+        alert('激活失败：' + error.message);
       }
     });
 
-    // 取消按钮
-    cancelBtn.addEventListener('click', () => {
+    // 稍后按钮
+    document.getElementById('laterBtn').addEventListener('click', () => {
       window.close();
     });
 
-    // 显示消息
-    function showMessage(text, type) {
-      messageEl.textContent = text;
-      messageEl.className = `message ${type}`;
-      messageEl.style.display = 'block';
-    }
+    // 帮助链接
+    document.getElementById('helpLink').addEventListener('click', (e) => {
+      e.preventDefault();
+      if (ipcRenderer) {
+        ipcRenderer.send('open-help');
+      }
+    });
 
-    // 初始化
-    loadDeviceId();
+    // 页面加载时加载试用信息
+    loadTrialInfo();
   </script>
 </body>
 </html>
