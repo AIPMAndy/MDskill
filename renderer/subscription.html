@@ -531,14 +531,30 @@
 
   <script>
     // IPC 通信
-    const ipcRenderer = window.electron?.ipcRenderer;
+    let ipcRenderer;
+    try {
+      ipcRenderer = require('electron').ipcRenderer;
+    } catch (error) {
+      console.error('Failed to load ipcRenderer via require:', error);
+      // 备用方案：使用 window.electron（如果有 preload 脚本）
+      if (window.electron && window.electron.ipcRenderer) {
+        ipcRenderer = window.electron.ipcRenderer;
+      } else {
+        alert('IPC 通信不可用：无法加载 Electron IPC 模块');
+        throw new Error('IPC communication unavailable');
+      }
+    }
+
+    if (!ipcRenderer) {
+      alert('IPC 通信不可用：ipcRenderer 未定义');
+      throw new Error('ipcRenderer is undefined');
+    }
 
     // 加载订阅信息
     async function loadSubscriptionInfo() {
-      if (!ipcRenderer) return;
-
       try {
-        const info = await ipcRenderer.invoke('get-subscription-info');
+        const result = await ipcRenderer.invoke('get-subscription-info');
+        const info = result.data;
 
         // 更新用户ID
         document.getElementById('userId').textContent = info.userId || '-';
@@ -595,21 +611,16 @@
         return;
       }
 
-      if (!ipcRenderer) {
-        alert('IPC 通信不可用');
-        return;
-      }
-
       try {
         const result = await ipcRenderer.invoke('activate-with-code', code);
 
-        if (result.success) {
-          alert(`激活成功！\n会员时长：${result.months} 个月\n到期日期：${new Date(result.expiryDate).toLocaleDateString('zh-CN')}`);
+        if (result.success && result.data) {
+          alert(`激活成功！\n会员时长：${result.data.months} 个月\n到期日期：${new Date(result.data.expiryDate).toLocaleDateString('zh-CN')}`);
           document.getElementById('activationModal').classList.remove('show');
           document.getElementById('activationCodeInput').value = '';
           loadSubscriptionInfo();
         } else {
-          alert('激活失败：' + (result.message || '未知错误'));
+          alert('激活失败：' + (result.error || result.message || '未知错误'));
         }
       } catch (error) {
         alert('激活失败：' + error.message);
@@ -624,11 +635,6 @@
     // 重置订阅（测试用）
     document.getElementById('resetBtn').addEventListener('click', async () => {
       if (!confirm('确定要重置订阅吗？这将清除所有订阅数据。')) {
-        return;
-      }
-
-      if (!ipcRenderer) {
-        alert('IPC 通信不可用');
         return;
       }
 

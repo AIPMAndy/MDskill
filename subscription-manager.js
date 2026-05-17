@@ -327,10 +327,13 @@ class SubscriptionManager {
 
     return {
       hasSubscription: true,
+      userId: this.subscription.userId,
+      deviceId: this.subscription.deviceId,
       status: this.subscription.status,
       daysLeft,
       isExpired,
       expiryDate: this.subscription.expiryDate,
+      lastVerified: this.subscription.lastVerified,
       message,
       needsRenewal: daysLeft <= CONFIG.REMINDER_DAYS
     };
@@ -391,6 +394,20 @@ class SubscriptionManager {
     }
 
     console.log('[Subscription] Activation code verified:', codeData);
+
+    // 如果没有订阅信息，先创建基础订阅
+    if (!this.subscription) {
+      const now = new Date();
+      this.subscription = {
+        userId: codeData.userId,
+        deviceId: this.generateDeviceId(),
+        status: SubscriptionStatus.TRIAL,
+        expiryDate: now.toISOString(),
+        createdAt: now.toISOString(),
+        lastVerified: now.toISOString(),
+        reminderShown: false
+      };
+    }
 
     // 激活订阅
     await this.activateSubscription(codeData.months);
