@@ -72,10 +72,10 @@
 
 ### macOS
 
-**最新版本：v1.2.0**
+**最新版本：v1.2.2**
 
-- [下载 DMG 安装包](https://github.com/AIPMAndy/MDSKILL/releases/download/v1.2.0/MDskill-1.2.0-arm64.dmg) (94 MB)
-- [下载 ZIP 压缩包](https://github.com/AIPMAndy/MDSKILL/releases/download/v1.2.0/MDskill-1.2.0-arm64-mac.zip) (90 MB)
+- [下载 DMG 安装包](https://github.com/AIPMAndy/MDSKILL/releases/download/v1.2.2/MDskill-1.2.2-arm64.dmg)
+- [下载 ZIP 压缩包](https://github.com/AIPMAndy/MDSKILL/releases/download/v1.2.2/MDskill-1.2.2-arm64-mac.zip)
 
 **安装步骤：**
 
@@ -131,18 +131,32 @@ Windows 和 Linux 版本正在开发中，敬请期待。
 
 ## 🆕 更新日志
 
-### v1.2.0 (2024-01-15)
+### v1.2.2 (2026-05-19)
+
+**改进：**
+- 🎨 更新应用图标为全新 MD 品牌 logo
+- ✨ 提升视觉识别度和品牌形象
+
+### v1.2.1 (2026-05-17)
+
+**修复：**
+- 🐛 修复订阅激活显示问题
+- 🔧 修复打包配置，添加 subscription-manager.js
+
+### v1.2.0 (2026-05-09)
 
 **新特性：**
 - ✨ 全新深色高级风格激活页面
 - 🎨 毛玻璃效果和渐变色设计
 - 💎 Pro 标签和发光动画效果
-- 🎯 优化用户体验和视觉呈现
+- 🎯 优化 PDF 导出功能
+- ⏱️ 试用期调整为 7 天
 
 **改进：**
 - 📝 修正功能描述："AI 文本转 Markdown"
 - 🎨 统一视觉风格，提升专业感
 - 🔧 优化性能和稳定性
+- 🐛 修复公众号和博客复制功能的样式问题
 
 ---
 
