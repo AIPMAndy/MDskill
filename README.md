@@ -82,7 +82,19 @@
 1. 下载 DMG 文件
 2. 双击打开 DMG 文件
 3. 将 MDskill 拖拽到 Applications 文件夹
-4. 首次打开时，右键点击应用选择"打开"（绕过 macOS 安全检查）
+4. **重要：首次打开请按以下步骤操作**
+   - 在 Applications 文件夹中找到 MDskill
+   - **右键点击**应用图标，选择"打开"
+   - 在弹出的安全提示中点击"打开"
+   - 之后就可以正常双击打开了
+
+**如果提示"文件已损坏"：**
+
+打开终端（Terminal），执行以下命令：
+```bash
+sudo xattr -rd com.apple.quarantine /Applications/MDskill.app
+```
+输入密码后回车，然后就可以正常打开应用了。
 
 **系统要求：**
 - macOS 10.13 或更高版本
