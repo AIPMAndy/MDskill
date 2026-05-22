@@ -398,3 +398,169 @@ body {
 .theme-selector option:disabled {
   color: #888;
 }
+
+/* AI Progress Overlay */
+.ai-progress-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(30, 30, 30, 0.95);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+}
+
+.ai-progress-content {
+  background: #252526;
+  border-radius: 12px;
+  padding: 32px 48px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  text-align: center;
+  min-width: 300px;
+}
+
+.ai-progress-spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid #3c3c3c;
+  border-top-color: #667eea;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 20px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.ai-progress-text {
+  color: #cccccc;
+  font-size: 16px;
+  margin-bottom: 20px;
+  font-weight: 500;
+}
+
+.ai-progress-cancel {
+  background: #3c3c3c;
+  border: 1px solid #555;
+  color: #cccccc;
+  padding: 8px 24px;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.ai-progress-cancel:hover {
+  background: #e74c3c;
+  border-color: #e74c3c;
+  color: white;
+}
+
+/* ==================== PDF 导出样式 ==================== */
+
+/* PDF 导出模式样式 */
+body.pdf-export-mode {
+  overflow: visible !important;
+}
+
+body.pdf-export-mode .editor-container {
+  height: auto !important;
+  overflow: visible !important;
+}
+
+body.pdf-export-mode #previewPane {
+  overflow: visible !important;
+  height: auto !important;
+  max-height: none !important;
+}
+
+body.pdf-export-mode #preview {
+  overflow: visible !important;
+  height: auto !important;
+  max-height: none !important;
+}
+
+/* 打印样式 */
+@media print {
+  body {
+    margin: 0;
+    padding: 0;
+    background: white !important;
+  }
+
+  .toolbar,
+  .editor-pane,
+  .status-bar {
+    display: none !important;
+  }
+
+  .editor-container {
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  .preview-pane {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    height: auto !important;
+    background: white !important;
+  }
+
+  #preview {
+    overflow: visible !important;
+    height: auto !important;
+    max-height: none !important;
+  }
+
+  .markdown-body {
+    max-width: 100% !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    background: white !important;
+  }
+
+  /* 分页控制 - 避免标题在页面底部被截断 */
+  .markdown-body h1,
+  .markdown-body h2,
+  .markdown-body h3 {
+    page-break-after: avoid;
+    break-after: avoid;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  /* 避免代码块、表格、图片被分页截断 */
+  .markdown-body pre,
+  .markdown-body table,
+  .markdown-body img,
+  .markdown-body blockquote {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  /* 控制段落的孤行和寡行 */
+  .markdown-body p {
+    orphans: 3;
+    widows: 3;
+  }
+
+  /* 列表项不要被截断 */
+  .markdown-body li {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  /* 确保代码块在打印时可见 */
+  .markdown-body pre code {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+}

@@ -137,17 +137,27 @@ const WECHAT_CSS_WHITELIST = [
   'border-width',
   'border-style',
   'border-radius',
+  'border-collapse',
   'width',
   'max-width',
+  'min-width',
   'height',
   'max-height',
+  'min-height',
   'display',
+  'position',
   'float',
   'clear',
+  'opacity',
   'overflow',
+  'overflow-x',
   'vertical-align',
   'text-indent',
   'list-style-type',
+  'word-wrap',
+  'word-break',
+  'white-space',
+  'box-sizing',
 ];
 
 /**
@@ -292,97 +302,253 @@ function fixWeChatStyles(element) {
     if (el.nodeType !== Node.ELEMENT_NODE) return;
 
     const tagName = el.tagName.toLowerCase();
-    const computedStyle = el.style;
 
-    // 修复文字颜色：确保深色文字
-    const color = computedStyle.color;
-    if (!color || color === 'rgb(255, 255, 255)' || color === '#ffffff' || color === '#fff' ||
-        color === 'rgb(212, 212, 212)' || color === 'rgba(255, 255, 255, 1)') {
-      // 浅色文字改为深色
+    // ========== 全局基础样式（防止重叠的核心） ==========
+    el.style.setProperty('box-sizing', 'border-box', 'important');
+    el.style.setProperty('vertical-align', 'baseline', 'important');
+
+    // ========== 清除微信不支持的样式 ==========
+    el.style.removeProperty('box-shadow');
+    el.style.removeProperty('text-shadow');
+    el.style.removeProperty('transform');
+    el.style.removeProperty('transition');
+    el.style.removeProperty('animation');
+    el.style.removeProperty('filter');
+    el.style.removeProperty('mix-blend-mode');
+
+    // ========== 清除可能导致重叠的定位样式 ==========
+    el.style.removeProperty('position');
+    el.style.removeProperty('float');
+    el.style.removeProperty('z-index');
+    el.style.removeProperty('top');
+    el.style.removeProperty('left');
+    el.style.removeProperty('right');
+    el.style.removeProperty('bottom');
+
+    // ========== 关键：添加 position: relative 防止布局错乱 ==========
+    el.style.setProperty('position', 'relative', 'important');
+
+    // ========== 强制所有元素不透明 ==========
+    el.style.setProperty('opacity', '1', 'important');
+
+    // ========== 强制块级元素清除浮动 ==========
+    if (['div', 'section', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'pre', 'ul', 'ol', 'li'].includes(tagName)) {
+      el.style.setProperty('clear', 'both', 'important');
+      el.style.setProperty('display', 'block', 'important');
+      el.style.setProperty('float', 'none', 'important');
+    }
+
+    // ========== 修复文字颜色 ==========
+    const currentColor = el.style.color;
+    if (!currentColor ||
+        currentColor.includes('255, 255, 255') ||
+        currentColor.includes('212, 212, 212') ||
+        currentColor === '#ffffff' ||
+        currentColor === '#fff' ||
+        currentColor === 'white') {
       el.style.setProperty('color', '#333333', 'important');
     }
 
-    // 修复背景色：确保白色或浅色背景
-    const bgColor = computedStyle.backgroundColor;
-    if (bgColor && (bgColor.includes('37, 37, 37') || bgColor.includes('30, 30, 30') ||
-        bgColor.includes('0, 0, 0') || bgColor === 'rgb(0, 0, 0)' || bgColor === '#000000')) {
-      // 深色背景改为浅色
+    // ========== 修复背景色 ==========
+    const currentBgColor = el.style.backgroundColor;
+
+    // 如果是深色背景，改为浅色
+    if (currentBgColor && (
+        currentBgColor.includes('0, 0, 0') ||
+        currentBgColor.includes('30, 30, 30') ||
+        currentBgColor.includes('37, 37, 37') ||
+        currentBgColor === '#000000' ||
+        currentBgColor === '#000' ||
+        currentBgColor === 'black')) {
       if (tagName === 'pre' || tagName === 'code') {
         el.style.setProperty('background-color', '#f6f8fa', 'important');
       } else {
-        el.style.setProperty('background-color', '#ffffff', 'important');
+        el.style.setProperty('background-color', 'transparent', 'important');
       }
     }
 
-    // 特殊处理：标题
-    if (['h1', 'h2', 'h3', 'h4', 'h5', 'h6'].includes(tagName)) {
-      el.style.setProperty('color', '#24292e', 'important');
-      el.style.setProperty('font-weight', 'bold', 'important');
+    // ========== 段落样式 ==========
+    if (tagName === 'p') {
+      el.style.setProperty('display', 'block', 'important');
+      el.style.setProperty('margin', '20px 0', 'important');
+      el.style.setProperty('padding', '5px 0', 'important');
+      el.style.setProperty('line-height', '2', 'important');
+      el.style.setProperty('word-wrap', 'break-word', 'important');
+      el.style.setProperty('word-break', 'break-word', 'important');
+      el.style.setProperty('color', '#333333', 'important');
+      el.style.setProperty('text-align', 'justify', 'important');
+      el.style.setProperty('min-height', '2em', 'important');
+      el.style.setProperty('font-size', '16px', 'important');
     }
 
-    // 特殊处理：代码块
+    // ========== 标题样式 ==========
+    if (['h1', 'h2', 'h3', 'h4', 'h5', 'h6'].includes(tagName)) {
+      el.style.setProperty('display', 'block', 'important');
+      el.style.setProperty('color', '#24292e', 'important');
+      el.style.setProperty('font-weight', 'bold', 'important');
+      el.style.setProperty('opacity', '1', 'important');
+      el.style.setProperty('padding', '10px 0', 'important');
+      el.style.setProperty('clear', 'both', 'important');
+
+      // 不同级别标题的间距
+      if (tagName === 'h1') {
+        el.style.setProperty('margin', '10px 0 30px 0', 'important');
+        el.style.setProperty('line-height', '1.5', 'important');
+        el.style.setProperty('font-size', '28px', 'important');
+      } else if (tagName === 'h2') {
+        el.style.setProperty('margin', '40px 0 20px 0', 'important');
+        el.style.setProperty('line-height', '1.5', 'important');
+        el.style.setProperty('font-size', '24px', 'important');
+      } else if (tagName === 'h3') {
+        el.style.setProperty('margin', '30px 0 15px 0', 'important');
+        el.style.setProperty('line-height', '1.5', 'important');
+        el.style.setProperty('font-size', '20px', 'important');
+      } else {
+        el.style.setProperty('margin', '25px 0 12px 0', 'important');
+        el.style.setProperty('line-height', '1.5', 'important');
+        el.style.setProperty('font-size', '18px', 'important');
+      }
+    }
+
+    // ========== 代码块样式 ==========
     if (tagName === 'pre') {
       el.style.setProperty('background-color', '#f6f8fa', 'important');
       el.style.setProperty('border', '1px solid #e1e4e8', 'important');
       el.style.setProperty('border-radius', '6px', 'important');
-      el.style.setProperty('padding', '16px', 'important');
+      el.style.setProperty('padding', '20px', 'important');
       el.style.setProperty('overflow-x', 'auto', 'important');
+      el.style.setProperty('margin', '20px 0', 'important');
+      el.style.setProperty('line-height', '1.6', 'important');
+      el.style.setProperty('white-space', 'pre-wrap', 'important');
+      el.style.setProperty('word-wrap', 'break-word', 'important');
+      el.style.setProperty('opacity', '1', 'important');
 
-      // 代码块内的文字
       const codeEl = el.querySelector('code');
       if (codeEl) {
         codeEl.style.setProperty('color', '#24292e', 'important');
         codeEl.style.setProperty('background-color', 'transparent', 'important');
+        codeEl.style.setProperty('display', 'block', 'important');
+        codeEl.style.setProperty('opacity', '1', 'important');
       }
     }
 
-    // 特殊处理：行内代码
+    // ========== 行内代码样式 ==========
     if (tagName === 'code' && el.parentElement?.tagName !== 'PRE') {
       el.style.setProperty('background-color', '#f6f8fa', 'important');
       el.style.setProperty('color', '#24292e', 'important');
       el.style.setProperty('padding', '2px 6px', 'important');
-      el.style.setProperty('border-radius', '3px', 'important');
+      el.style.setProperty('border-radius', '4px', 'important');
+      el.style.setProperty('display', 'inline', 'important');
+      el.style.setProperty('opacity', '1', 'important');
+      el.style.setProperty('font-family', "'Fira Code', 'JetBrains Mono', Consolas, Monaco, monospace", 'important');
+      el.style.setProperty('font-size', '14px', 'important');
     }
 
-    // 特殊处理：链接
-    if (tagName === 'a') {
-      el.style.setProperty('color', '#0366d6', 'important');
-      el.style.setProperty('text-decoration', 'none', 'important');
-    }
-
-    // 特殊处理：引用块
+    // ========== 引用块样式 ==========
     if (tagName === 'blockquote') {
       el.style.setProperty('color', '#6a737d', 'important');
       el.style.setProperty('border-left', '4px solid #dfe2e5', 'important');
-      el.style.setProperty('padding-left', '16px', 'important');
-      el.style.setProperty('background-color', '#ffffff', 'important');
+      el.style.setProperty('padding', '12px 18px', 'important');
+      el.style.setProperty('background-color', '#f5f5f5', 'important');
+      el.style.setProperty('margin', '20px 0', 'important');
+      el.style.setProperty('line-height', '1.6', 'important');
+      el.style.setProperty('font-size', '16px', 'important');
+      el.style.setProperty('opacity', '1', 'important');
     }
 
-    // 特殊处理：表格
+    // ========== 链接样式 ==========
+    if (tagName === 'a') {
+      el.style.setProperty('color', '#0366d6', 'important');
+      el.style.setProperty('text-decoration', 'none', 'important');
+      el.style.setProperty('border-bottom', '1px solid #0366d6', 'important');
+      el.style.setProperty('display', 'inline', 'important');
+      el.style.setProperty('opacity', '1', 'important');
+    }
+
+    // ========== 列表样式 ==========
+    if (tagName === 'ul' || tagName === 'ol') {
+      el.style.setProperty('display', 'block', 'important');
+      el.style.setProperty('margin', '20px 0', 'important');
+      el.style.setProperty('padding', '0 0 0 30px', 'important');
+      el.style.setProperty('color', '#333333', 'important');
+      el.style.setProperty('opacity', '1', 'important');
+      el.style.setProperty('clear', 'both', 'important');
+    }
+
+    if (tagName === 'li') {
+      el.style.setProperty('display', 'list-item', 'important');
+      el.style.setProperty('margin', '12px 0', 'important');
+      el.style.setProperty('padding', '5px 0', 'important');
+      el.style.setProperty('line-height', '2', 'important');
+      el.style.setProperty('color', '#333333', 'important');
+      el.style.setProperty('opacity', '1', 'important');
+      el.style.setProperty('min-height', '2em', 'important');
+      el.style.setProperty('font-size', '16px', 'important');
+    }
+
+    // ========== 表格样式 ==========
     if (tagName === 'table') {
       el.style.setProperty('border-collapse', 'collapse', 'important');
       el.style.setProperty('width', '100%', 'important');
-      el.style.setProperty('background-color', '#ffffff', 'important');
+      el.style.setProperty('margin', '20px 0', 'important');
+      el.style.setProperty('display', 'table', 'important');
+      el.style.setProperty('font-size', '14px', 'important');
+      el.style.setProperty('opacity', '1', 'important');
+    }
+
+    if (tagName === 'thead') {
+      el.style.setProperty('background-color', '#f6f8fa', 'important');
+      el.style.setProperty('display', 'table-header-group', 'important');
+      el.style.setProperty('opacity', '1', 'important');
+    }
+
+    if (tagName === 'tbody') {
+      el.style.setProperty('display', 'table-row-group', 'important');
+      el.style.setProperty('opacity', '1', 'important');
+    }
+
+    if (tagName === 'tr') {
+      el.style.setProperty('border-bottom', '1px solid #e1e4e8', 'important');
+      el.style.setProperty('display', 'table-row', 'important');
+      el.style.setProperty('opacity', '1', 'important');
     }
 
     if (tagName === 'th' || tagName === 'td') {
-      el.style.setProperty('border', '1px solid #dfe2e5', 'important');
-      el.style.setProperty('padding', '8px 12px', 'important');
-      el.style.setProperty('color', '#24292e', 'important');
+      el.style.setProperty('border', '1px solid #e1e4e8', 'important');
+      el.style.setProperty('padding', '10px 14px', 'important');
+      el.style.setProperty('text-align', 'left', 'important');
+      el.style.setProperty('display', 'table-cell', 'important');
+      el.style.setProperty('color', '#333333', 'important');
+      el.style.setProperty('line-height', '1.6', 'important');
+      el.style.setProperty('opacity', '1', 'important');
 
       if (tagName === 'th') {
         el.style.setProperty('background-color', '#f6f8fa', 'important');
-        el.style.setProperty('font-weight', 'bold', 'important');
-      } else {
-        el.style.setProperty('background-color', '#ffffff', 'important');
+        el.style.setProperty('font-weight', '600', 'important');
       }
     }
 
-    // 移除可能导致冲突的样式
-    el.style.removeProperty('position');
-    el.style.removeProperty('transform');
-    el.style.removeProperty('z-index');
-    el.style.removeProperty('filter');
+    // ========== 图片样式 ==========
+    if (tagName === 'img') {
+      el.style.setProperty('max-width', '100%', 'important');
+      el.style.setProperty('height', 'auto', 'important');
+      el.style.setProperty('display', 'block', 'important');
+      el.style.setProperty('margin', '20px auto', 'important');
+      el.style.setProperty('border-radius', '4px', 'important');
+      el.style.setProperty('clear', 'both', 'important');
+      el.style.setProperty('opacity', '1', 'important');
+    }
+
+    // ========== 强制所有文本元素不透明 ==========
+    if (tagName === 'span' || tagName === 'strong' || tagName === 'em' || tagName === 'b' || tagName === 'i') {
+      el.style.setProperty('opacity', '1', 'important');
+
+      // 确保文字颜色不是浅色
+      const spanColor = el.style.color;
+      if (!spanColor || spanColor.includes('255, 255, 255') || spanColor.includes('212, 212, 212')) {
+        el.style.setProperty('color', 'inherit', 'important');
+      }
+    }
   });
 }
 
@@ -453,17 +619,24 @@ async function copyForWeChat(source, themeName = 'default') {
     // 从源元素内联计算样式（源元素有正确的样式）
     const styledElement = inlineComputedStyles(sourceElement);
 
+    // 修复微信公众号特定样式问题（必须在过滤之前执行）
+    fixWeChatStyles(styledElement);
+
     // 应用微信 CSS 白名单过滤
     filterWeChatStyles(styledElement);
 
     // 移除不安全的标签和属性
     sanitizeHTML(styledElement);
 
-    // 修复微信公众号特定样式问题
-    fixWeChatStyles(styledElement);
-
     // 获取处理后的 HTML
     const processedHTML = styledElement.innerHTML;
+
+    // 调试：输出前几个元素的样式
+    const firstElements = styledElement.querySelectorAll('p, h1, h2, h3, li');
+    console.log('[Copy] First 3 elements styles:');
+    Array.from(firstElements).slice(0, 3).forEach((el, i) => {
+      console.log(`  [${i}] ${el.tagName}:`, el.getAttribute('style'));
+    });
 
     // 生成纯文本（用于降级）
     const plainText = styledElement.textContent || '';
@@ -920,6 +1093,7 @@ if (typeof window !== 'undefined') {
     copyForBlog,
     copyHTMLSource,
     showToast,
+    writeHTMLToClipboard,
   };
 }
 
@@ -931,5 +1105,6 @@ if (typeof module !== 'undefined' && module.exports) {
     copyForBlog,
     copyHTMLSource,
     showToast,
+    writeHTMLToClipboard,
   };
 }

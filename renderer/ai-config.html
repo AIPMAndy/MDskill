@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI API 配置</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+      background: #f9fafb;
+      color: #111827;
+      padding: 24px;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 24px;
+      box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    }
+
+    h2 {
+      font-size: 20px;
+      font-weight: 600;
+      color: #111827;
+      margin-bottom: 8px;
+    }
+
+    .description {
+      font-size: 14px;
+      color: #6b7280;
+      margin-bottom: 24px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-size: 14px;
+      font-weight: 500;
+      color: #374151;
+      margin-bottom: 6px;
+    }
+
+    select, input[type="text"], textarea {
+      width: 100%;
+      padding: 10px 12px;
+      font-size: 14px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      background: #ffffff;
+      color: #111827;
+      transition: all 0.2s;
+    }
+
+    select:focus, input[type="text"]:focus, textarea:focus {
+      outline: none;
+      border-color: #6366f1;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+      font-family: 'Monaco', 'Menlo', monospace;
+    }
+
+    .hint {
+      font-size: 12px;
+      color: #6b7280;
+      margin-top: 4px;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    button {
+      flex: 1;
+      padding: 10px 16px;
+      font-size: 14px;
+      font-weight: 500;
+      border-radius: 6px;
+      border: 1px solid;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: #6366f1;
+      border-color: #6366f1;
+      color: #ffffff;
+    }
+
+    .btn-primary:hover {
+      background: #4f46e5;
+      border-color: #4f46e5;
+    }
+
+    .btn-secondary {
+      background: #ffffff;
+      border-color: #d1d5db;
+      color: #374151;
+    }
+
+    .btn-secondary:hover {
+      background: #f9fafb;
+      border-color: #9ca3af;
+    }
+
+    .provider-info {
+      background: #f0f9ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 6px;
+      padding: 12px;
+      margin-top: 12px;
+      font-size: 13px;
+      color: #1e40af;
+    }
+
+    .provider-info a {
+      color: #2563eb;
+      text-decoration: underline;
+    }
+
+    .config-mode-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #e5e7eb;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 10px 16px;
+      font-size: 14px;
+      font-weight: 500;
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: #6b7280;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-bottom: -2px;
+    }
+
+    .tab-btn:hover {
+      color: #374151;
+    }
+
+    .tab-btn.active {
+      color: #6366f1;
+      border-bottom-color: #6366f1;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <h2>AI API 配置</h2>
+      <p class="description">配置 AI API 后，可以一键将文本转换为格式化的 Markdown</p>
+
+      <div class="config-mode-tabs">
+        <button type="button" class="tab-btn active" data-mode="ui">界面配置</button>
+        <button type="button" class="tab-btn" data-mode="json">JSON 配置</button>
+      </div>
+
+      <div id="uiConfigMode">
+        <form id="aiConfigForm">
+        <div class="form-group">
+          <label for="provider">AI 服务商</label>
+          <select id="provider" required>
+            <option value="">请选择服务商</option>
+            <option value="openai">OpenAI</option>
+            <option value="anthropic">Anthropic</option>
+            <option value="deepseek">DeepSeek (国内)</option>
+            <option value="zhipu">智谱 AI</option>
+            <option value="moonshot">月之暗面</option>
+            <option value="custom">自定义 API</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="apiKey">API Key</label>
+          <input type="text" id="apiKey" placeholder="sk-..." required>
+          <p class="hint">您的 API Key 将安全存储在本地</p>
+        </div>
+
+        <div class="form-group" id="modelGroup" style="display: none;">
+          <label for="model">模型名称</label>
+          <input type="text" id="model" placeholder="例如: gpt-4o">
+          <p class="hint" id="modelHint">请填写模型的完整名称</p>
+        </div>
+
+        <div class="form-group" id="endpointGroup" style="display: none;">
+          <label for="endpoint">API 端点</label>
+          <input type="text" id="endpoint" placeholder="https://api.example.com/v1/chat/completions">
+        </div>
+
+        <div id="providerInfo"></div>
+
+        <div class="button-group">
+          <button type="button" class="btn-secondary" id="cancelBtn">取消</button>
+          <button type="submit" class="btn-primary">保存并转换</button>
+        </div>
+      </form>
+      </div>
+
+      <div id="jsonConfigMode" style="display: none;">
+        <div class="form-group">
+          <label for="jsonConfig">JSON 配置</label>
+          <textarea id="jsonConfig" rows="15" placeholder='示例配置：
+{
+  "provider": "deepseek",
+  "apiKey": "sk-xxx",
+  "model": "deepseek-chat",
+  "endpoint": "https://api.deepseek.com/v1/chat/completions",
+  "temperature": 0.3,
+  "maxTokens": 4096,
+  "systemPrompt": "你是一个 Markdown 格式化专家...",
+  "customHeaders": {}
+}'></textarea>
+          <p class="hint">支持自定义所有参数，包括 headers、temperature 等</p>
+        </div>
+
+        <div class="button-group">
+          <button type="button" class="btn-secondary" id="cancelJsonBtn">取消</button>
+          <button type="button" class="btn-primary" id="saveJsonBtn">保存并转换</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const { ipcRenderer } = require('electron');
+
+    const providerSelect = document.getElementById('provider');
+    const modelGroup = document.getElementById('modelGroup');
+    const endpointGroup = document.getElementById('endpointGroup');
+    const providerInfo = document.getElementById('providerInfo');
+    const uiConfigMode = document.getElementById('uiConfigMode');
+    const jsonConfigMode = document.getElementById('jsonConfigMode');
+    const jsonConfigTextarea = document.getElementById('jsonConfig');
+
+    // Tab 切换
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const mode = btn.dataset.mode;
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        if (mode === 'ui') {
+          uiConfigMode.style.display = 'block';
+          jsonConfigMode.style.display = 'none';
+        } else {
+          uiConfigMode.style.display = 'none';
+          jsonConfigMode.style.display = 'block';
+          // 同步当前 UI 配置到 JSON
+          syncUIToJSON();
+        }
+      });
+    });
+
+    // 同步 UI 配置到 JSON
+    function syncUIToJSON() {
+      const config = {
+        provider: document.getElementById('provider').value,
+        apiKey: document.getElementById('apiKey').value,
+        model: document.getElementById('model').value,
+        endpoint: document.getElementById('endpoint').value,
+        temperature: 0.3,
+        maxTokens: 4096,
+        systemPrompt: '你是一个 Markdown 格式化专家。将用户提供的文本转换为格式良好的 Markdown 文档。保持原意，优化排版，添加适当的标题、列表、强调等格式。只返回格式化后的 Markdown 文本，不要添加任何解释。',
+        customHeaders: {}
+      };
+      jsonConfigTextarea.value = JSON.stringify(config, null, 2);
+    }
+
+    // 加载已保存的配置
+    ipcRenderer.invoke('get-ai-config').then(config => {
+      if (config) {
+        document.getElementById('provider').value = config.provider || '';
+        document.getElementById('apiKey').value = config.apiKey || '';
+        document.getElementById('model').value = config.model || '';
+        document.getElementById('endpoint').value = config.endpoint || '';
+        updateProviderUI(config.provider);
+
+        // 加载到 JSON 编辑器
+        jsonConfigTextarea.value = JSON.stringify(config, null, 2);
+      }
+    });
+
+    providerSelect.addEventListener('change', (e) => {
+      updateProviderUI(e.target.value);
+    });
+
+    function updateProviderUI(provider) {
+      const modelInput = document.getElementById('model');
+      const modelHint = document.getElementById('modelHint');
+
+      modelGroup.style.display = 'none';
+      endpointGroup.style.display = 'none';
+      providerInfo.innerHTML = '';
+
+      if (provider === 'openai') {
+        modelGroup.style.display = 'block';
+        modelInput.placeholder = '例如: gpt-4o, gpt-4o-mini, o1';
+        modelHint.textContent = '请填写 OpenAI 模型名称';
+        providerInfo.innerHTML = `
+          <div class="provider-info">
+            获取 API Key: <a href="https://platform.openai.com/api-keys" target="_blank">OpenAI Platform</a>
+          </div>
+        `;
+      } else if (provider === 'anthropic') {
+        modelGroup.style.display = 'block';
+        modelInput.placeholder = '例如: claude-opus-4-20250514';
+        modelHint.textContent = '请填写 Claude 模型名称';
+        providerInfo.innerHTML = `
+          <div class="provider-info">
+            获取 API Key: <a href="https://console.anthropic.com/settings/keys" target="_blank">Anthropic Console</a>
+          </div>
+        `;
+      } else if (provider === 'deepseek') {
+        modelGroup.style.display = 'block';
+        endpointGroup.style.display = 'block';
+        document.getElementById('endpoint').value = 'https://api.deepseek.com/v1/chat/completions';
+        modelInput.placeholder = '例如: deepseek-chat, deepseek-reasoner';
+        modelHint.textContent = '请填写 DeepSeek 模型名称';
+        providerInfo.innerHTML = `
+          <div class="provider-info">
+            获取 API Key: <a href="https://platform.deepseek.com/api_keys" target="_blank">DeepSeek 平台</a><br>
+            国内访问，价格低廉，性能优秀
+          </div>
+        `;
+      } else if (provider === 'zhipu') {
+        modelGroup.style.display = 'block';
+        endpointGroup.style.display = 'block';
+        document.getElementById('endpoint').value = 'https://open.bigmodel.cn/api/paas/v4/chat/completions';
+        modelInput.placeholder = '例如: glm-4-plus, glm-4-air';
+        modelHint.textContent = '请填写智谱 AI 模型名称';
+        providerInfo.innerHTML = `
+          <div class="provider-info">
+            获取 API Key: <a href="https://open.bigmodel.cn/usercenter/apikeys" target="_blank">智谱 AI 开放平台</a><br>
+            国内访问，支持长文本
+          </div>
+        `;
+      } else if (provider === 'moonshot') {
+        modelGroup.style.display = 'block';
+        endpointGroup.style.display = 'block';
+        document.getElementById('endpoint').value = 'https://api.moonshot.cn/v1/chat/completions';
+        modelInput.placeholder = '例如: moonshot-v1-32k, moonshot-v1-128k';
+        modelHint.textContent = '请填写 Kimi 模型名称';
+        providerInfo.innerHTML = `
+          <div class="provider-info">
+            获取 API Key: <a href="https://platform.moonshot.cn/console/api-keys" target="_blank">月之暗面平台</a><br>
+            国内访问，超长上下文
+          </div>
+        `;
+      } else if (provider === 'custom') {
+        modelGroup.style.display = 'block';
+        endpointGroup.style.display = 'block';
+        modelInput.placeholder = '例如: your-model-name';
+        modelHint.textContent = '请填写自定义模型名称';
+      }
+    }
+
+    document.getElementById('cancelBtn').addEventListener('click', () => {
+      ipcRenderer.send('close-ai-config');
+    });
+
+    document.getElementById('cancelJsonBtn').addEventListener('click', () => {
+      ipcRenderer.send('close-ai-config');
+    });
+
+    document.getElementById('aiConfigForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const provider = document.getElementById('provider').value;
+      const apiKey = document.getElementById('apiKey').value;
+      const model = document.getElementById('model').value;
+      const endpoint = document.getElementById('endpoint').value;
+
+      // 验证必填字段
+      if (!apiKey) {
+        alert('请填写 API Key');
+        return;
+      }
+
+      if (provider !== 'custom' && !model) {
+        alert('请填写模型名称');
+        return;
+      }
+
+      const config = {
+        provider,
+        apiKey,
+        model,
+        endpoint,
+        temperature: 0.3,
+        maxTokens: 4096,
+        systemPrompt: '你是一个 Markdown 格式化专家。将用户提供的文本转换为格式良好的 Markdown 文档。保持原意，优化排版，添加适当的标题、列表、强调等格式。只返回格式化后的 Markdown 文本，不要添加任何解释。',
+        customHeaders: {}
+      };
+
+      // 保存配置
+      await ipcRenderer.invoke('save-ai-config', config);
+
+      // 关闭窗口并触发格式化
+      ipcRenderer.send('ai-config-saved');
+    });
+
+    document.getElementById('saveJsonBtn').addEventListener('click', async () => {
+      try {
+        const config = JSON.parse(jsonConfigTextarea.value);
+
+        // 验证必需字段
+        if (!config.apiKey) {
+          alert('配置错误：缺少 apiKey 字段');
+          return;
+        }
+
+        // 保存配置
+        await ipcRenderer.invoke('save-ai-config', config);
+
+        // 关闭窗口并触发格式化
+        ipcRenderer.send('ai-config-saved');
+      } catch (error) {
+        alert('JSON 格式错误：' + error.message);
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MDSKILL 激活码生成工具 - 客服专用</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 40px 30px;
+      text-align: center;
+    }
+
+    .header h1 {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .header p {
+      font-size: 16px;
+      opacity: 0.9;
+    }
+
+    .content {
+      padding: 40px 30px;
+    }
+
+    .form-group {
+      margin-bottom: 24px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 8px;
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      font-size: 16px;
+      transition: border-color 0.3s;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 16px;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .result-box {
+      display: none;
+      margin-top: 24px;
+      padding: 24px;
+      background: #f8f9fa;
+      border-radius: 12px;
+      border: 2px solid #667eea;
+    }
+
+    .result-box.show {
+      display: block;
+    }
+
+    .result-box h3 {
+      font-size: 18px;
+      color: #333;
+      margin-bottom: 16px;
+    }
+
+    .code-display {
+      background: white;
+      padding: 16px;
+      border-radius: 8px;
+      font-family: 'Monaco', 'Menlo', monospace;
+      font-size: 18px;
+      font-weight: 600;
+      color: #667eea;
+      text-align: center;
+      margin-bottom: 16px;
+      word-break: break-all;
+      user-select: all;
+    }
+
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #ddd;
+      font-size: 14px;
+    }
+
+    .info-row:last-child {
+      border-bottom: none;
+    }
+
+    .info-label {
+      color: #666;
+    }
+
+    .info-value {
+      color: #333;
+      font-weight: 600;
+    }
+
+    .btn-copy {
+      width: 100%;
+      padding: 12px;
+      background: #28a745;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 16px;
+    }
+
+    .btn-copy:hover {
+      background: #218838;
+    }
+
+    .warning {
+      background: #fff3cd;
+      border: 2px solid #ffc107;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 24px;
+      color: #856404;
+      font-size: 14px;
+    }
+
+    .warning strong {
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .history {
+      margin-top: 40px;
+      padding-top: 40px;
+      border-top: 2px solid #eee;
+    }
+
+    .history h3 {
+      font-size: 18px;
+      color: #333;
+      margin-bottom: 16px;
+    }
+
+    .history-item {
+      background: #f8f9fa;
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      font-size: 14px;
+    }
+
+    .history-code {
+      font-family: 'Monaco', 'Menlo', monospace;
+      color: #667eea;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .history-info {
+      color: #666;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🔑 激活码生成工具</h1>
+      <p>MDSKILL 客服专用</p>
+    </div>
+
+    <div class="content">
+      <div class="warning">
+        <strong>⚠️ 重要提示</strong>
+        此工具仅供客服人员使用。生成的激活码具有真实价值，请妥善保管，不要泄露给未付费用户。
+      </div>
+
+      <form id="generateForm">
+        <div class="form-group">
+          <label for="userId">用户ID *</label>
+          <input
+            type="text"
+            id="userId"
+            placeholder="从用户应用中获取，或输入用户微信号"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="months">会员时长 *</label>
+          <select id="months" required>
+            <option value="1">1个月（19元）</option>
+            <option value="3">3个月（57元）</option>
+            <option value="6">6个月（114元）</option>
+            <option value="12">1年（99元）⭐️ 推荐</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="note">备注（可选）</label>
+          <input
+            type="text"
+            id="note"
+            placeholder="例如：微信用户张三，支付凭证已确认"
+          />
+        </div>
+
+        <button type="submit" class="btn btn-primary" id="generateBtn">
+          生成激活码
+        </button>
+      </form>
+
+      <div class="result-box" id="resultBox">
+        <h3>✅ 激活码生成成功</h3>
+        <div class="code-display" id="codeDisplay"></div>
+        <div class="info-row">
+          <span class="info-label">用户ID</span>
+          <span class="info-value" id="resultUserId"></span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">会员月数</span>
+          <span class="info-value" id="resultMonths"></span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">生成时间</span>
+          <span class="info-value" id="resultTime"></span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">备注</span>
+          <span class="info-value" id="resultNote"></span>
+        </div>
+        <button class="btn-copy" id="copyBtn">📋 复制激活码</button>
+      </div>
+
+      <div class="history" id="historySection" style="display: none;">
+        <h3>📝 生成历史</h3>
+        <div id="historyList"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 激活码生成逻辑（从 activation-code-generator.js 复制）
+    const SECRET_KEY = 'MDSKILL-2026-SECRET-KEY-CHANGE-IN-PRODUCTION';
+
+    function generateActivationCode(userId, months) {
+      const expiryDate = new Date();
+      expiryDate.setMonth(expiryDate.getMonth() + months);
+
+      const data = {
+        userId,
+        months,
+        expiryDate: expiryDate.toISOString(),
+        timestamp: Date.now()
+      };
+
+      const payload = JSON.stringify(data);
+
+      // 使用 Web Crypto API 生成签名
+      return crypto.subtle.importKey(
+        'raw',
+        new TextEncoder().encode(SECRET_KEY),
+        { name: 'HMAC', hash: 'SHA-256' },
+        false,
+        ['sign']
+      ).then(key => {
+        return crypto.subtle.sign(
+          'HMAC',
+          key,
+          new TextEncoder().encode(payload)
+        );
+      }).then(signature => {
+        const signatureHex = Array.from(new Uint8Array(signature))
+          .map(b => b.toString(16).padStart(2, '0'))
+          .join('')
+          .substring(0, 16);
+
+        // 使用 TextEncoder 确保与 Node.js Buffer 编码一致
+        const payloadBytes = new TextEncoder().encode(payload);
+        const payloadBase64 = btoa(String.fromCharCode(...payloadBytes));
+        const code = payloadBase64 + '-' + signatureHex;
+        // 不转换大小写，因为 base64 是大小写敏感的
+        return formatActivationCode(code);
+      });
+    }
+
+    function formatActivationCode(code) {
+      // 分离 base64 和签名
+      const parts = code.split('-');
+      const base64Part = parts[0];
+      const signaturePart = parts[1];
+
+      // 只格式化 base64 部分（每4个字符一组）
+      const formattedBase64 = base64Part.match(/.{1,4}/g).join('-');
+
+      // 格式化签名部分（每4个字符一组）
+      const formattedSignature = signaturePart.match(/.{1,4}/g).join('-');
+
+      // 用 | 分隔 base64 和签名，便于验证时分离
+      return formattedBase64 + '|' + formattedSignature;
+    }
+
+    // 表单提交
+    document.getElementById('generateForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const userId = document.getElementById('userId').value.trim();
+      const months = parseInt(document.getElementById('months').value);
+      const note = document.getElementById('note').value.trim();
+
+      if (!userId) {
+        alert('请输入用户ID');
+        return;
+      }
+
+      // 显示加载状态
+      const btn = document.getElementById('generateBtn');
+      const originalText = btn.textContent;
+      btn.textContent = '生成中...';
+      btn.disabled = true;
+
+      try {
+        // 生成激活码
+        const code = await generateActivationCode(userId, months);
+
+        // 显示结果
+        document.getElementById('codeDisplay').textContent = code;
+        document.getElementById('resultUserId').textContent = userId;
+        document.getElementById('resultMonths').textContent = `${months} 个月`;
+        document.getElementById('resultTime').textContent = new Date().toLocaleString();
+        document.getElementById('resultNote').textContent = note || '无';
+        document.getElementById('resultBox').classList.add('show');
+
+        // 保存到历史
+        saveToHistory({ code, userId, months, note, time: new Date().toISOString() });
+
+        // 滚动到结果
+        document.getElementById('resultBox').scrollIntoView({ behavior: 'smooth' });
+      } catch (error) {
+        alert('生成失败：' + error.message);
+      } finally {
+        btn.textContent = originalText;
+        btn.disabled = false;
+      }
+    });
+
+    // 复制按钮
+    document.getElementById('copyBtn').addEventListener('click', () => {
+      const code = document.getElementById('codeDisplay').textContent;
+      navigator.clipboard.writeText(code).then(() => {
+        const btn = document.getElementById('copyBtn');
+        const originalText = btn.textContent;
+        btn.textContent = '✅ 已复制';
+        setTimeout(() => {
+          btn.textContent = originalText;
+        }, 2000);
+      });
+    });
+
+    // 保存到历史
+    function saveToHistory(item) {
+      let history = JSON.parse(localStorage.getItem('activationHistory') || '[]');
+      history.unshift(item);
+      history = history.slice(0, 10); // 只保留最近10条
+      localStorage.setItem('activationHistory', JSON.stringify(history));
+      loadHistory();
+    }
+
+    // 加载历史
+    function loadHistory() {
+      const history = JSON.parse(localStorage.getItem('activationHistory') || '[]');
+      if (history.length === 0) return;
+
+      document.getElementById('historySection').style.display = 'block';
+      const historyList = document.getElementById('historyList');
+      historyList.innerHTML = history.map(item => `
+        <div class="history-item">
+          <div class="history-code">${item.code}</div>
+          <div class="history-info">
+            用户：${item.userId} |
+            月数：${item.months} |
+            时间：${new Date(item.time).toLocaleString()}
+            ${item.note ? ` | 备注：${item.note}` : ''}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // 页面加载时加载历史
+    loadHistory();
+  </script>
+</body>
+</html>

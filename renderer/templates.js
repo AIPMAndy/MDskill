@@ -1,70 +1,103 @@
 // MDSKILL 模板配置系统
 // 参考 pageSKILL 的模板架构
 
-const baseStyles = {
-  backgroundColor: '#252526',
+// ============== 基础样式配置 ==============
+// 所有主题必须包含的样式属性
+
+const baseCommonStyles = {
   maxWidth: '900px',
   padding: '40px',
 
-  // 标题
+  // 字体
   titleFont: '"Noto Sans SC", -apple-system, sans-serif',
+  bodyFont: '"Noto Sans SC", -apple-system, sans-serif',
+  h2Font: '"Noto Sans SC", -apple-system, sans-serif',
+
+  // 尺寸
   titleSize: '32px',
   titleWeight: '700',
-  titleColor: '#ffffff',
   titleMarginBottom: '24px',
-
-  // 二级标题
-  h2Font: '"Noto Sans SC", -apple-system, sans-serif',
   h2Size: '24px',
   h2Weight: '600',
-  h2Color: '#e2e8f0',
   h2MarginTop: '36px',
   h2MarginBottom: '16px',
-  h2BorderColor: '#3e3e42',
-
-  // 三级标题
   h3Size: '20px',
   h3Weight: '600',
-  h3Color: '#cbd5e1',
-
-  // 正文
-  bodyFont: '"Noto Sans SC", -apple-system, sans-serif',
   bodySize: '16px',
-  bodyColor: '#d4d4d4',
   bodyLineHeight: '1.8',
   paragraphSpacing: '16px',
+};
 
-  // 链接
+// 深色主题基础配置
+const baseDarkTheme = {
+  ...baseCommonStyles,
+  backgroundColor: '#252526',
+  titleColor: '#ffffff',
+  h2Color: '#e2e8f0',
+  h2BorderColor: '#3e3e42',
+  h3Color: '#cbd5e1',
+  bodyColor: '#d4d4d4',
   linkColor: '#4fc3f7',
   linkHoverColor: '#81d4fa',
-
-  // 引用块
   blockquoteBorderColor: '#4fc3f7',
   blockquoteBg: '#1e293b',
   blockquoteColor: '#94a3b8',
-
-  // 代码
   codeBg: '#1e1e1e',
   codeColor: '#ce9178',
   codeBlockBg: '#1e1e1e',
   codeBlockBorder: '#3e3e42',
-
-  // 表格
   tableBorderColor: '#3e3e42',
   tableHeaderBg: '#1e1e1e',
   tableHeaderColor: '#ffffff',
   tableStripeBg: '#2d2d30',
-
-  // 分割线
   hrColor: '#3e3e42',
-
-  // 强调
   strongColor: '#ffffff',
   emColor: '#4fc3f7',
-
-  // 列表
   listMarkerColor: '#4fc3f7',
 };
+
+// 浅色主题基础配置
+const baseLightTheme = {
+  ...baseCommonStyles,
+  backgroundColor: '#ffffff',
+  titleColor: '#1a1a1a',
+  h2Color: '#1a1a1a',
+  h2BorderColor: '#e2e8f0',
+  h3Color: '#333333',
+  bodyColor: '#333333',
+  linkColor: '#2563eb',
+  linkHoverColor: '#1d4ed8',
+  blockquoteBorderColor: '#2563eb',
+  blockquoteBg: '#f8fafc',
+  blockquoteColor: '#475569',
+  codeBg: '#f6f8fa',
+  codeColor: '#d73a49',
+  codeBlockBg: '#f6f8fa',
+  codeBlockBorder: '#d0d7de',
+  tableBorderColor: '#d0d7de',
+  tableHeaderBg: '#f6f8fa',
+  tableHeaderColor: '#24292e',
+  tableStripeBg: '#f6f8fa',
+  hrColor: '#d0d7de',
+  strongColor: '#1a1a1a',
+  emColor: '#2563eb',
+  listMarkerColor: '#2563eb',
+};
+
+// 主题配置验证函数
+function validateTheme(themeName, themeConfig) {
+  const requiredKeys = Object.keys(baseLightTheme);
+  const missingKeys = requiredKeys.filter(key => !(key in themeConfig.styles));
+
+  if (missingKeys.length > 0) {
+    console.warn(`⚠️ Theme "${themeName}" missing properties:`, missingKeys);
+    return false;
+  }
+  return true;
+}
+
+// 向后兼容：保留 baseStyles 别名
+const baseStyles = baseDarkTheme;
 
 // ============== 模板定义 ==============
 
@@ -91,7 +124,7 @@ const templates = {
     icon: '☀️',
     isPro: true, // 专业版功能
     styles: {
-      ...baseStyles,
+      ...baseLightTheme,
       backgroundColor: '#ffffff',
       titleColor: '#1a1a1a',
       h2Color: '#1a1a1a',
@@ -127,7 +160,7 @@ const templates = {
     icon: '✨',
     isPro: true,
     styles: {
-      ...baseStyles,
+      ...baseLightTheme,
       backgroundColor: '#fafafa',
       maxWidth: '680px',
       padding: '48px 32px',
@@ -153,6 +186,10 @@ const templates = {
       emColor: '#6b7280',
       listMarkerColor: '#111827',
       hrColor: '#e5e7eb',
+      tableBorderColor: '#e5e7eb',
+      tableHeaderBg: '#f9fafb',
+      tableHeaderColor: '#111827',
+      tableStripeBg: '#fafafa',
     }
   },
 
@@ -165,7 +202,7 @@ const templates = {
     icon: '🌿',
     isPro: true,
     styles: {
-      ...baseStyles,
+      ...baseLightTheme,
       backgroundColor: '#fefdf8',
       titleFont: '"Noto Serif SC", serif',
       titleSize: '32px',
@@ -189,6 +226,9 @@ const templates = {
       emColor: '#92400e',
       listMarkerColor: '#a8a29e',
       hrColor: '#d6d3d1',
+      tableBorderColor: '#e7e5e4',
+      tableHeaderBg: '#f5f5f4',
+      tableStripeBg: '#fafaf9',
     }
   },
 
@@ -201,7 +241,7 @@ const templates = {
     icon: '🔷',
     isPro: true,
     styles: {
-      ...baseStyles,
+      ...baseDarkTheme,
       backgroundColor: '#0f172a',
       titleColor: '#e2e8f0',
       h2Color: '#38bdf8',
@@ -233,7 +273,7 @@ const templates = {
     icon: '💼',
     isPro: true,
     styles: {
-      ...baseStyles,
+      ...baseLightTheme,
       backgroundColor: '#ffffff',
       titleColor: '#0f172a',
       titleSize: '28px',
@@ -254,6 +294,9 @@ const templates = {
       emColor: '#475569',
       listMarkerColor: '#1e40af',
       hrColor: '#cbd5e1',
+      tableBorderColor: '#cbd5e1',
+      tableHeaderBg: '#f1f5f9',
+      tableStripeBg: '#f8fafc',
     }
   },
 
@@ -266,7 +309,7 @@ const templates = {
     icon: '🌅',
     isPro: true,
     styles: {
-      ...baseStyles,
+      ...baseLightTheme,
       backgroundColor: '#fef3c7',
       titleColor: '#78350f',
       h2Color: '#92400e',
@@ -286,6 +329,9 @@ const templates = {
       emColor: '#d97706',
       listMarkerColor: '#fbbf24',
       hrColor: '#fde68a',
+      tableBorderColor: '#fde68a',
+      tableHeaderBg: '#fef3c7',
+      tableStripeBg: '#fffbeb',
     }
   },
 
@@ -298,7 +344,7 @@ const templates = {
     icon: '💜',
     isPro: true,
     styles: {
-      ...baseStyles,
+      ...baseDarkTheme,
       backgroundColor: '#1e1b4b',
       titleColor: '#e9d5ff',
       h2Color: '#c084fc',
@@ -332,7 +378,7 @@ const templates = {
     icon: '💼',
     isPro: true,
     styles: {
-      ...baseStyles,
+      ...baseLightTheme,
       backgroundColor: '#ffffff',
       maxWidth: '720px',
       padding: '48px 40px',
@@ -385,7 +431,7 @@ const templates = {
     icon: '👔',
     isPro: true,
     styles: {
-      ...baseStyles,
+      ...baseDarkTheme,
       backgroundColor: '#0a0e27',
       maxWidth: '760px',
       padding: '56px 48px',
@@ -438,7 +484,7 @@ const templates = {
     icon: '📊',
     isPro: true,
     styles: {
-      ...baseStyles,
+      ...baseLightTheme,
       backgroundColor: '#f5f7fa',
       maxWidth: '700px',
       padding: '44px 36px',
@@ -491,7 +537,7 @@ const templates = {
     icon: '📰',
     isPro: true,
     styles: {
-      ...baseStyles,
+      ...baseLightTheme,
       backgroundColor: '#ffffff',
       maxWidth: '740px',
       padding: '48px 40px',
@@ -544,7 +590,7 @@ const templates = {
     icon: '🎨',
     isPro: true,
     styles: {
-      ...baseStyles,
+      ...baseLightTheme,
       backgroundColor: '#fef6e4',
       maxWidth: '680px',
       padding: '52px 44px',
@@ -597,7 +643,7 @@ const templates = {
     icon: '🌈',
     isPro: true,
     styles: {
-      ...baseStyles,
+      ...baseLightTheme,
       backgroundColor: '#fff5f7',
       maxWidth: '660px',
       padding: '40px 36px',
@@ -650,7 +696,7 @@ const templates = {
     icon: '💻',
     isPro: true,
     styles: {
-      ...baseStyles,
+      ...baseDarkTheme,
       backgroundColor: '#1e1e1e',
       maxWidth: '800px',
       padding: '40px 36px',
@@ -703,7 +749,7 @@ const templates = {
     icon: '⌨️',
     isPro: true,
     styles: {
-      ...baseStyles,
+      ...baseDarkTheme,
       backgroundColor: '#0c0c0c',
       maxWidth: '840px',
       padding: '32px 28px',
@@ -756,7 +802,7 @@ const templates = {
     icon: '🌃',
     isPro: true,
     styles: {
-      ...baseStyles,
+      ...baseDarkTheme,
       backgroundColor: '#0a0e27',
       maxWidth: '720px',
       padding: '44px 40px',
@@ -809,7 +855,7 @@ const templates = {
     icon: '🧘',
     isPro: true,
     styles: {
-      ...baseStyles,
+      ...baseLightTheme,
       backgroundColor: '#ffffff',
       maxWidth: '600px',
       padding: '64px 48px',
@@ -862,7 +908,7 @@ const templates = {
     icon: '📄',
     isPro: true,
     styles: {
-      ...baseStyles,
+      ...baseLightTheme,
       backgroundColor: '#f4f1ea',
       maxWidth: '680px',
       padding: '48px 40px',
@@ -915,7 +961,7 @@ const templates = {
     icon: '📚',
     isPro: true,
     styles: {
-      ...baseStyles,
+      ...baseLightTheme,
       backgroundColor: '#faf8f3',
       maxWidth: '640px',
       padding: '56px 44px',
@@ -968,7 +1014,7 @@ const templates = {
     icon: '📔',
     isPro: true,
     styles: {
-      ...baseStyles,
+      ...baseLightTheme,
       backgroundColor: '#fffef9',
       maxWidth: '620px',
       padding: '48px 40px',
@@ -1120,13 +1166,19 @@ function generateTemplateCSS(styles) {
       padding: 8px 12px;
     }
 
+    .markdown-body table tbody tr {
+      background: ${styles.backgroundColor} !important;
+      color: ${styles.bodyColor} !important;
+    }
+
     .markdown-body table th {
       background: ${styles.tableHeaderBg} !important;
       color: ${styles.tableHeaderColor} !important;
       font-weight: 600;
     }
 
-    .markdown-body table tr:nth-child(2n) {
+    /* 表格斑马纹样式 */
+    .markdown-body table tbody tr:nth-child(2n) {
       background: ${styles.tableStripeBg} !important;
     }
 
