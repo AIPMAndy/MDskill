@@ -105,6 +105,11 @@ async function init() {
     window.sidebar = new Sidebar();
   }
 
+  // 初始化搜索模块
+  if (typeof SearchModal !== 'undefined') {
+    window.searchModal = new SearchModal();
+  }
+
   // 更新主题选择器，标记专业版主题
   updateThemeSelector(isPro);
 

@@ -932,6 +932,42 @@ ipcMain.on('reload-folder', async (event, folderPath) => {
   }
 });
 
+// 全文搜索
+ipcMain.handle('search-content', async (event, { folderPath, query }) => {
+  try {
+    const results = [];
+    const files = await getMarkdownFiles(folderPath);
+
+    for (const file of files) {
+      if (file.type !== 'file') continue;
+
+      try {
+        const content = await fs.readFile(file.path, 'utf-8');
+        const lines = content.split('\n');
+
+        lines.forEach((line, index) => {
+          if (line.toLowerCase().includes(query.toLowerCase())) {
+            results.push({
+              path: file.path,
+              name: file.name,
+              line: line.trim(),
+              lineNumber: index + 1
+            });
+          }
+        });
+      } catch (err) {
+        console.error(`Error reading file ${file.path}:`, err);
+      }
+    }
+
+    // 限制结果数量
+    return results.slice(0, 50);
+  } catch (error) {
+    console.error('Error searching content:', error);
+    return [];
+  }
+});
+
 // ============================================================================
 
 // 处理通过 Finder 打开文件（macOS）
