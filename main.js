@@ -817,6 +817,123 @@ ipcMain.on('new-window', () => {
   createWindow();
 });
 
+// ============================================================================
+// 文件夹管理 IPC 处理器
+// ============================================================================
+
+// 打开文件夹对话框
+ipcMain.handle('open-folder-dialog', async (event) => {
+  const result = await dialog.showOpenDialog({
+    properties: ['openDirectory']
+  });
+
+  if (result.canceled) {
+    return null;
+  }
+
+  const folderPath = result.filePaths[0];
+  const files = await getMarkdownFiles(folderPath);
+
+  return {
+    folderPath,
+    files
+  };
+});
+
+// 获取文件夹中的 Markdown 文件
+async function getMarkdownFiles(folderPath) {
+  try {
+    const entries = await fs.readdir(folderPath, { withFileTypes: true });
+    const files = [];
+
+    for (const entry of entries) {
+      const fullPath = path.join(folderPath, entry.name);
+
+      if (entry.isDirectory()) {
+        // 只显示文件夹，不递归
+        files.push({
+          name: entry.name,
+          path: fullPath,
+          type: 'folder'
+        });
+      } else if (entry.isFile() && (entry.name.endsWith('.md') || entry.name.endsWith('.markdown'))) {
+        files.push({
+          name: entry.name,
+          path: fullPath,
+          type: 'file'
+        });
+      }
+    }
+
+    // 排序：文件夹在前，然后按名称排序
+    files.sort((a, b) => {
+      if (a.type === b.type) {
+        return a.name.localeCompare(b.name);
+      }
+      return a.type === 'folder' ? -1 : 1;
+    });
+
+    return files;
+  } catch (error) {
+    console.error('Error reading folder:', error);
+    return [];
+  }
+}
+
+// 从侧边栏打开文件
+ipcMain.on('open-file-from-sidebar', async (event, filePath) => {
+  try {
+    const content = await fs.readFile(filePath, 'utf-8');
+    const win = BrowserWindow.fromWebContents(event.sender);
+
+    if (win) {
+      win.webContents.send('file-loaded', {
+        filePath,
+        content
+      });
+      win.webContents.send('file-switched', filePath);
+    }
+  } catch (error) {
+    console.error('Error opening file from sidebar:', error);
+  }
+});
+
+// 从侧边栏打开文件夹
+ipcMain.on('open-folder-from-sidebar', async (event, folderPath) => {
+  try {
+    const files = await getMarkdownFiles(folderPath);
+    const win = BrowserWindow.fromWebContents(event.sender);
+
+    if (win) {
+      win.webContents.send('folder-opened', {
+        folderPath,
+        files
+      });
+    }
+  } catch (error) {
+    console.error('Error opening folder from sidebar:', error);
+  }
+});
+
+// 重新加载文件夹
+ipcMain.on('reload-folder', async (event, folderPath) => {
+  try {
+    const files = await getMarkdownFiles(folderPath);
+    const win = BrowserWindow.fromWebContents(event.sender);
+
+    if (win) {
+      win.webContents.send('folder-opened', {
+        folderPath,
+        files
+      });
+    }
+  } catch (error) {
+    console.error('Error reloading folder:', error);
+  }
+});
+
+// ============================================================================
+
 // 处理通过 Finder 打开文件（macOS）
 app.on('open-file', (event, filePath) => {
   event.preventDefault();

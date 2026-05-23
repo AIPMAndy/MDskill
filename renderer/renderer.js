@@ -100,6 +100,11 @@ async function init() {
     window.themePreview.initThemePreview();
   }
 
+  // 初始化侧边栏
+  if (typeof Sidebar !== 'undefined') {
+    window.sidebar = new Sidebar();
+  }
+
   // 更新主题选择器，标记专业版主题
   updateThemeSelector(isPro);
 
@@ -907,6 +912,15 @@ ipcRenderer.on('file-save-as', async () => {
 ipcRenderer.on('file-opened', (event, { path, content }) => {
   editor.value = content;
   currentFilePath = path;
+  isModified = false;
+  updateFileStatus();
+  updatePreview();
+});
+
+// 从侧边栏加载文件
+ipcRenderer.on('file-loaded', (event, { filePath, content }) => {
+  editor.value = content;
+  currentFilePath = filePath;
   isModified = false;
   updateFileStatus();
   updatePreview();
