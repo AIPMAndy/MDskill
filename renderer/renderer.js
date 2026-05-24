@@ -1101,4 +1101,8 @@ function showActivationPrompt(featureName) {
 }
 
 // 初始化应用
-init();
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
