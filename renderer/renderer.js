@@ -465,6 +465,11 @@ function registerIPCListeners() {
   });
 
   ipcRenderer.on('file-opened', (event, { path, content }) => {
+    if (!editor) {
+      console.error('ERROR: editor element is null!');
+      return;
+    }
+
     editor.value = content;
     currentFilePath = path;
     isModified = false;

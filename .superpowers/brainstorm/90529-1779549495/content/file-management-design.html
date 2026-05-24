@@ -1,0 +1,217 @@
+<h2>核心使用性优化：文件管理 + 搜索历史</h2>
+<p class="subtitle">聚焦真正影响使用体验的功能，其他暂不优化</p>
+
+<div class="section">
+  <h3>你提出的两个核心需求</h3>
+</div>
+
+<div class="options">
+  <div class="option" data-choice="folder-management" onclick="toggleSelect(this)">
+    <div class="letter">需求1</div>
+    <div class="content">
+      <h3>文件夹管理 - 项目式工作流</h3>
+      <p><strong>用户场景：</strong></p>
+      <ul style="margin: 10px 0; padding-left: 20px; font-size: 14px;">
+        <li>导入一个文件夹（如：我的知识库、项目文档）</li>
+        <li>在侧边栏看到所有 .md 文件</li>
+        <li>快速切换不同文件，无需重复打开</li>
+        <li>保持工作上下文，不丢失编辑状态</li>
+      </ul>
+
+      <p style="margin-top: 15px;"><strong>参考产品：</strong></p>
+      <ul style="margin: 10px 0; padding-left: 20px; font-size: 14px;">
+        <li>VS Code - 左侧文件树</li>
+        <li>Typora - 文件列表侧边栏</li>
+        <li>Obsidian - 文件管理器</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="option" data-choice="search-history" onclick="toggleSelect(this)">
+    <div class="letter">需求2</div>
+    <div class="content">
+      <h3>搜索 + 历史记录</h3>
+      <p><strong>用户场景：</strong></p>
+      <ul style="margin: 10px 0; padding-left: 20px; font-size: 14px;">
+        <li>快速搜索文件名或内容</li>
+        <li>查看最近打开的文件</li>
+        <li>快速回到之前编辑的文档</li>
+        <li>不用记住文件路径</li>
+      </ul>
+
+      <p style="margin-top: 15px;"><strong>参考功能：</strong></p>
+      <ul style="margin: 10px 0; padding-left: 20px; font-size: 14px;">
+        <li>Cmd+P 快速搜索（VS Code 风格）</li>
+        <li>最近文件列表（Cmd+E）</li>
+        <li>全文搜索（Cmd+Shift+F）</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="section" style="margin-top: 40px;">
+  <h3>🎯 具体实现方案</h3>
+</div>
+
+<div class="section">
+  <h4>方案A：轻量级文件管理（推荐）</h4>
+  <div class="mockup">
+    <div class="mockup-header">界面布局预览</div>
+    <div class="mockup-body" style="display: flex; height: 400px;">
+      <!-- 左侧边栏 -->
+      <div style="width: 250px; background: #f8f9fa; border-right: 1px solid #ddd; padding: 10px;">
+        <div style="margin-bottom: 15px;">
+          <button class="mock-button" style="width: 100%; font-size: 12px;">📁 打开文件夹</button>
+        </div>
+
+        <div style="margin-bottom: 15px;">
+          <input class="mock-input" placeholder="🔍 搜索文件..." style="width: 100%; font-size: 12px;">
+        </div>
+
+        <div style="font-size: 11px; color: #666; margin-bottom: 8px; text-transform: uppercase;">最近打开</div>
+        <div style="font-size: 13px; padding: 6px 8px; background: #e3f2fd; border-radius: 4px; margin-bottom: 4px; cursor: pointer;">
+          📄 产品设计文档.md
+        </div>
+        <div style="font-size: 13px; padding: 6px 8px; border-radius: 4px; margin-bottom: 4px; cursor: pointer;">
+          📄 会议记录.md
+        </div>
+
+        <div style="font-size: 11px; color: #666; margin: 15px 0 8px 0; text-transform: uppercase;">当前文件夹</div>
+        <div style="font-size: 13px; padding: 6px 8px; border-radius: 4px; margin-bottom: 4px; cursor: pointer;">
+          📄 README.md
+        </div>
+        <div style="font-size: 13px; padding: 6px 8px; border-radius: 4px; margin-bottom: 4px; cursor: pointer;">
+          📄 CHANGELOG.md
+        </div>
+        <div style="font-size: 13px; padding: 6px 8px; border-radius: 4px; margin-bottom: 4px; cursor: pointer;">
+          📁 docs/
+        </div>
+      </div>
+
+      <!-- 主编辑区 -->
+      <div style="flex: 1; display: flex; flex-direction: column;">
+        <div style="padding: 10px 15px; background: #fff; border-bottom: 1px solid #ddd; display: flex; align-items: center; justify-content: space-between;">
+          <div style="font-size: 14px; font-weight: 500;">📄 产品设计文档.md</div>
+          <div style="font-size: 12px; color: #666;">已保存</div>
+        </div>
+        <div style="flex: 1; padding: 20px; background: #fff;">
+          <div class="placeholder" style="height: 100%;">编辑器区域</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pros-cons" style="margin-top: 15px;">
+    <div class="pros">
+      <h4>优势</h4>
+      <ul>
+        <li>简单直观，学习成本低</li>
+        <li>满足核心需求</li>
+        <li>开发成本可控（1-2周）</li>
+      </ul>
+    </div>
+    <div class="cons">
+      <h4>限制</h4>
+      <ul>
+        <li>不支持嵌套文件夹展开</li>
+        <li>不支持文件重命名/移动</li>
+        <li>专注阅读和编辑，不是文件管理器</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="section" style="margin-top: 30px;">
+  <h4>方案B：完整文件管理器</h4>
+  <div class="mockup">
+    <div class="mockup-header">VS Code 风格文件树</div>
+    <div class="mockup-body" style="display: flex; height: 400px;">
+      <div style="width: 280px; background: #f8f9fa; border-right: 1px solid #ddd; padding: 10px;">
+        <div style="margin-bottom: 15px;">
+          <input class="mock-input" placeholder="🔍 搜索..." style="width: 100%; font-size: 12px;">
+        </div>
+
+        <div style="font-size: 13px; margin-bottom: 8px;">
+          <span style="cursor: pointer;">▼ 📁 我的项目</span>
+        </div>
+        <div style="padding-left: 20px;">
+          <div style="font-size: 13px; padding: 4px 0; cursor: pointer;">📄 README.md</div>
+          <div style="font-size: 13px; padding: 4px 0; cursor: pointer;">▶ 📁 docs</div>
+          <div style="font-size: 13px; padding: 4px 0; cursor: pointer;">▶ 📁 images</div>
+          <div style="font-size: 13px; padding: 4px 0; cursor: pointer; background: #e3f2fd; padding-left: 8px; margin-left: -8px; border-radius: 4px;">📄 产品设计.md</div>
+        </div>
+      </div>
+
+      <div style="flex: 1; padding: 20px; background: #fff;">
+        <div class="placeholder" style="height: 100%;">编辑器区域</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pros-cons" style="margin-top: 15px;">
+    <div class="pros">
+      <h4>优势</h4>
+      <ul>
+        <li>功能完整，体验专业</li>
+        <li>支持文件夹嵌套</li>
+        <li>可扩展性强</li>
+      </ul>
+    </div>
+    <div class="cons">
+      <h4>限制</h4>
+      <ul>
+        <li>开发成本高（3-4周）</li>
+        <li>复杂度增加</li>
+        <li>可能偏离核心定位</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="section" style="margin-top: 40px;">
+  <h3>💡 我的建议</h3>
+  <div style="background: #e8f5e9; padding: 20px; border-radius: 8px; border-left: 4px solid #4caf50;">
+    <p style="margin: 0 0 10px 0;"><strong>推荐方案A：轻量级文件管理</strong></p>
+    <p style="margin: 0; font-size: 14px;">原因：</p>
+    <ul style="margin: 10px 0 0 20px; padding: 0; font-size: 14px;">
+      <li>满足你提出的核心需求：打开文件夹、快速切换、搜索历史</li>
+      <li>开发快速，1-2周可以上线</li>
+      <li>保持产品简洁，不会变成文件管理器</li>
+      <li>明天给投资人演示时，可以展示这个功能规划</li>
+    </ul>
+  </div>
+</div>
+
+<div class="section" style="margin-top: 30px;">
+  <h3>🔍 搜索功能细节</h3>
+  <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+    <thead>
+      <tr style="background: #f5f5f5;">
+        <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">功能</th>
+        <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">快捷键</th>
+        <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">说明</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="padding: 12px; border: 1px solid #ddd;">快速搜索文件</td>
+        <td style="padding: 12px; border: 1px solid #ddd;"><code>Cmd+P</code></td>
+        <td style="padding: 12px; border: 1px solid #ddd;">模糊搜索文件名</td>
+      </tr>
+      <tr>
+        <td style="padding: 12px; border: 1px solid #ddd;">最近文件</td>
+        <td style="padding: 12px; border: 1px solid #ddd;"><code>Cmd+E</code></td>
+        <td style="padding: 12px; border: 1px solid #ddd;">显示最近打开的 10 个文件</td>
+      </tr>
+      <tr>
+        <td style="padding: 12px; border: 1px solid #ddd;">全文搜索</td>
+        <td style="padding: 12px; border: 1px solid #ddd;"><code>Cmd+Shift+F</code></td>
+        <td style="padding: 12px; border: 1px solid #ddd;">在当前文件夹中搜索内容</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<p style="text-align: center; margin-top: 40px; color: #666;">
+  <strong>方案A（轻量级）还是方案B（完整版）？或者有其他想法？</strong>
+</p>
