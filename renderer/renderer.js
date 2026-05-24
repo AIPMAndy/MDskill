@@ -52,11 +52,11 @@ renderer.code = function(code, language) {
 
 marked.use({ renderer });
 
-// DOM 元素
-const editor = document.getElementById('editor');
-const preview = document.getElementById('preview');
-const editorContainer = document.querySelector('.editor-container');
-const fileStatus = document.getElementById('fileStatus');
+// DOM 元素 - 将在 init() 中初始化
+let editor;
+let preview;
+let editorContainer;
+let fileStatus;
 
 // 状态
 let currentFilePath = null;
@@ -67,6 +67,12 @@ let updateTimer = null; // 防抖定时器
 
 // 初始化
 async function init() {
+  // 初始化 DOM 元素引用
+  editor = document.getElementById('editor');
+  preview = document.getElementById('preview');
+  editorContainer = document.querySelector('.editor-container');
+  fileStatus = document.getElementById('fileStatus');
+
   // 调试：检查模块是否加载
   console.log('=== 模块加载检查 ===');
   console.log('window.copyUtils:', window.copyUtils);
@@ -121,7 +127,396 @@ async function init() {
 
   // 初始预览
   updatePreview();
+
+  // 注册 DOM 事件监听器
+  registerDOMListeners();
+
+  // 注册 IPC 事件监听器
+  registerIPCListeners();
 }
+
+// 注册所有 DOM 事件监听器
+function registerDOMListeners() {
+  // 编辑器输入事件
+  editor.addEventListener('input', () => {
+    isModified = true;
+    updateFileStatus();
+    debouncedUpdatePreview();
+  });
+
+  // 工具栏按钮
+  document.getElementById('newBtn').addEventListener('click', () => {
+    ipcRenderer.send('new-window');
+  });
+
+  document.getElementById('openBtn').addEventListener('click', async () => {
+    ipcRenderer.send('file-open');
+  });
+
+  document.getElementById('saveBtn').addEventListener('click', async () => {
+    if (currentFilePath) {
+      const result = await ipcRenderer.invoke('save-file', {
+        filePath: currentFilePath,
+        content: editor.value
+      });
+      if (result.success) {
+        isModified = false;
+        updateFileStatus();
+      }
+    } else {
+      const result = await ipcRenderer.invoke('save-file-as', editor.value);
+      if (result.success) {
+        currentFilePath = result.filePath;
+        isModified = false;
+        updateFileStatus();
+      }
+    }
+  });
+
+  document.getElementById('togglePreviewBtn').addEventListener('click', () => {
+    previewVisible = !previewVisible;
+    if (previewVisible) {
+      editorContainer.classList.remove('editor-only');
+    } else {
+      editorContainer.classList.add('editor-only');
+    }
+  });
+
+  // AI 格式化按钮
+  document.getElementById('aiFormatBtn').addEventListener('click', async () => {
+    const config = await ipcRenderer.invoke('get-ai-config');
+    if (!config || !config.apiKey) {
+      ipcRenderer.send('open-ai-config');
+    } else {
+      await formatWithAI(config);
+    }
+  });
+
+  // AI 取消按钮
+  const aiCancelBtn = document.getElementById('aiCancelBtn');
+  if (aiCancelBtn) {
+    aiCancelBtn.addEventListener('click', () => {
+      if (aiFormatAbortController) {
+        aiFormatAbortController.abort();
+      }
+    });
+  }
+
+  // 模板选择器
+  const templateSelect = document.getElementById('templateSelect');
+  if (templateSelect) {
+    templateSelect.addEventListener('change', (e) => {
+      const templateId = e.target.value;
+      const template = getTemplateById(templateId);
+      const isPro = licenseManager.isPro();
+
+      if (template.isPremium && !isPro) {
+        showActivationPrompt('主题');
+        e.target.value = currentTemplate.id;
+        return;
+      }
+
+      currentTemplate = template;
+      window.currentTemplate = currentTemplate;
+      applyTemplate(currentTemplate);
+      localStorage.setItem('mdskill_template', templateId);
+      updatePreview();
+    });
+  }
+
+  // 主题选择器（下拉列表）
+  const themeSelector = document.getElementById('themeSelector');
+  if (themeSelector) {
+    const templates = getAllTemplates();
+    templates.forEach(template => {
+      const option = document.createElement('option');
+      option.value = template.id;
+      option.textContent = template.name + (template.isPremium ? ' 🔒' : '');
+      if (template.id === currentTemplate.id) {
+        option.selected = true;
+      }
+      themeSelector.appendChild(option);
+    });
+
+    themeSelector.addEventListener('change', async (e) => {
+      const templateId = e.target.value;
+      if (!templateId) return;
+
+      const template = getTemplateById(templateId);
+
+      if (template.isPremium) {
+        const hasAccess = await checkFeatureAccess('premium_themes');
+        if (!hasAccess) {
+          showFeatureLockedPrompt('精美主题');
+          e.target.value = currentTemplate.id;
+          return;
+        }
+      }
+
+      currentTemplate = template;
+      window.currentTemplate = currentTemplate;
+      applyTemplate(currentTemplate);
+      localStorage.setItem('mdskill_template', templateId);
+      updatePreview();
+    });
+  }
+
+  // 主题切换按钮
+  document.getElementById('themeBtn').addEventListener('click', () => {
+    const currentId = currentTemplate.id;
+    let newId;
+
+    if (currentId === 'github-dark' || currentId === 'default') {
+      newId = 'github-light';
+    } else if (currentId === 'github-light') {
+      newId = 'github-dark';
+    } else {
+      newId = 'github-dark';
+    }
+
+    currentTemplate = getTemplateById(newId);
+    window.currentTemplate = currentTemplate;
+    applyTemplate(currentTemplate);
+    localStorage.setItem('mdskill_template', newId);
+    updatePreview();
+  });
+
+  // Markdown 格式化按钮
+  document.getElementById('boldBtn').addEventListener('click', () => {
+    insertMarkdown('**', '**', 'bold text');
+  });
+
+  document.getElementById('italicBtn').addEventListener('click', () => {
+    insertMarkdown('*', '*', 'italic text');
+  });
+
+  document.getElementById('codeBtn').addEventListener('click', () => {
+    insertMarkdown('`', '`', 'code');
+  });
+
+  document.getElementById('linkBtn').addEventListener('click', () => {
+    insertMarkdown('[', '](url)', 'link text');
+  });
+
+  // 导出 PDF 按钮
+  document.getElementById('exportPdfBtn').addEventListener('click', async () => {
+    const hasAccess = await checkFeatureAccess('pdf_export');
+    if (!hasAccess) {
+      showFeatureLockedPrompt('PDF 导出');
+      return;
+    }
+    await exportToPDF();
+  });
+
+  // 复制到微信公众号按钮
+  document.getElementById('copyWeChatBtn')?.addEventListener('click', async () => {
+    const hasAccess = await checkFeatureAccess('wechat_copy');
+    if (!hasAccess) {
+      showFeatureLockedPrompt('复制到微信公众号');
+      return;
+    }
+
+    if (!window.wechatRenderer) {
+      alert('微信渲染器未加载，请刷新页面重试');
+      return;
+    }
+
+    try {
+      const markdown = editor.value;
+      if (!markdown || markdown.trim() === '') {
+        window.copyUtils.showToast('编辑器内容为空', 'error');
+        return;
+      }
+
+      const wechatHTML = window.wechatRenderer.renderMarkdownForWeChat(markdown, currentTemplate);
+      const success = await window.copyUtils.writeHTMLToClipboard(wechatHTML, markdown);
+
+      if (success) {
+        window.copyUtils.showToast('已复制到剪贴板，可直接粘贴到微信公众号编辑器', 'success');
+      } else {
+        window.copyUtils.showToast('复制失败，请重试', 'error');
+      }
+    } catch (error) {
+      console.error('WeChat copy error:', error);
+      window.copyUtils.showToast('复制失败: ' + error.message, 'error');
+    }
+  });
+
+  // 复制到博客按钮
+  document.getElementById('copyBlogBtn')?.addEventListener('click', async () => {
+    const hasAccess = await checkFeatureAccess('blog_copy');
+    if (!hasAccess) {
+      showFeatureLockedPrompt('复制到博客');
+      return;
+    }
+
+    if (!window.copyUtils) {
+      alert('复制功能模块未加载，请刷新页面重试');
+      return;
+    }
+
+    try {
+      const success = await window.copyUtils.copyForBlog(preview, currentTemplate);
+      if (success) {
+        window.copyUtils.showToast('已复制到剪贴板，可粘贴到知乎、简书等博客平台', 'success');
+      } else {
+        window.copyUtils.showToast('复制失败，请重试', 'error');
+      }
+    } catch (error) {
+      console.error('Blog copy error:', error);
+      window.copyUtils.showToast('复制失败: ' + error.message, 'error');
+    }
+  });
+
+  // 复制 HTML 源码按钮
+  document.getElementById('copyHTMLBtn')?.addEventListener('click', async () => {
+    const hasAccess = await checkFeatureAccess('html_export');
+    if (!hasAccess) {
+      showFeatureLockedPrompt('复制 HTML 源码');
+      return;
+    }
+
+    if (!window.copyUtils) {
+      alert('复制功能模块未加载，请刷新页面重试');
+      return;
+    }
+
+    try {
+      const html = preview.innerHTML;
+      const success = await window.copyUtils.copyHTMLSource(html, currentTemplate);
+      if (success) {
+        window.copyUtils.showToast('HTML 源码已复制到剪贴板', 'success');
+      } else {
+        window.copyUtils.showToast('复制失败，请重试', 'error');
+      }
+    } catch (error) {
+      console.error('HTML copy error:', error);
+      window.copyUtils.showToast('复制失败: ' + error.message, 'error');
+    }
+  });
+
+  // 键盘快捷键
+  editor.addEventListener('keydown', (e) => {
+    // Tab 键插入空格
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      const start = editor.selectionStart;
+      const end = editor.selectionEnd;
+      editor.value = editor.value.substring(0, start) + '  ' + editor.value.substring(end);
+      editor.selectionStart = editor.selectionEnd = start + 2;
+    }
+
+    // Cmd+B 加粗
+    if ((e.metaKey || e.ctrlKey) && e.key === 'b') {
+      e.preventDefault();
+      insertMarkdown('**', '**', 'bold text');
+    }
+
+    // Cmd+I 斜体
+    if ((e.metaKey || e.ctrlKey) && e.key === 'i') {
+      e.preventDefault();
+      insertMarkdown('*', '*', 'italic text');
+    }
+
+    // Cmd+K 链接
+    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      e.preventDefault();
+      insertMarkdown('[', '](url)', 'link text');
+    }
+
+    // Cmd+Shift+W 复制到微信
+    if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === 'W') {
+      e.preventDefault();
+      document.getElementById('copyWeChatBtn')?.click();
+    }
+
+    // Cmd+Shift+B 复制到博客
+    if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === 'B') {
+      e.preventDefault();
+      document.getElementById('copyBlogBtn')?.click();
+    }
+
+    // Cmd+Shift+H 复制 HTML
+    if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === 'H') {
+      e.preventDefault();
+      document.getElementById('copyHTMLBtn')?.click();
+    }
+  });
+}
+
+// 注册所有 IPC 事件监听器
+function registerIPCListeners() {
+  // 文件操作
+  ipcRenderer.on('file-new', () => {
+    document.getElementById('newBtn').click();
+  });
+
+  ipcRenderer.on('file-save', () => {
+    document.getElementById('saveBtn').click();
+  });
+
+  ipcRenderer.on('file-save-as', async () => {
+    const result = await ipcRenderer.invoke('save-file-as', editor.value);
+    if (result.success) {
+      currentFilePath = result.filePath;
+      isModified = false;
+      updateFileStatus();
+    }
+  });
+
+  ipcRenderer.on('file-opened', (event, { path, content }) => {
+    editor.value = content;
+    currentFilePath = path;
+    isModified = false;
+    updateFileStatus();
+    updatePreview();
+  });
+
+  // 从侧边栏加载文件
+  ipcRenderer.on('file-loaded', (event, { filePath, content }) => {
+    editor.value = content;
+    currentFilePath = filePath;
+    isModified = false;
+    updateFileStatus();
+    updatePreview();
+  });
+
+  ipcRenderer.on('toggle-preview', () => {
+    document.getElementById('togglePreviewBtn').click();
+  });
+
+  // PDF 导出
+  ipcRenderer.on('export-pdf', async () => {
+    const isPro = licenseManager.isPro();
+    if (!isPro) {
+      showActivationPrompt('PDF 导出');
+      return;
+    }
+    await exportToPDF();
+  });
+
+  // 复制功能
+  ipcRenderer.on('copy-wechat', () => {
+    document.getElementById('copyWeChatBtn')?.click();
+  });
+
+  ipcRenderer.on('copy-blog', () => {
+    document.getElementById('copyBlogBtn')?.click();
+  });
+
+  ipcRenderer.on('copy-html', () => {
+    document.getElementById('copyHTMLBtn')?.click();
+  });
+
+  // AI 格式化
+  ipcRenderer.on('start-ai-format', async () => {
+    const config = await ipcRenderer.invoke('get-ai-config');
+    if (config) {
+      await formatWithAI(config);
+    }
+  });
+}
+
 
 // 检查订阅状态
 async function checkSubscriptionStatus() {
@@ -237,86 +632,6 @@ function updateFileStatus() {
   } else {
     fileStatus.textContent = 'Untitled' + (isModified ? ' •' : '');
   }
-}
-
-// 编辑器输入事件
-editor.addEventListener('input', () => {
-  isModified = true;
-  updateFileStatus();
-  debouncedUpdatePreview(); // 使用防抖更新
-});
-
-// 工具栏按钮
-document.getElementById('newBtn').addEventListener('click', () => {
-  // 创建新窗口
-  ipcRenderer.send('new-window');
-});
-
-document.getElementById('openBtn').addEventListener('click', async () => {
-  // 触发主进程的打开文件对话框
-  ipcRenderer.send('file-open');
-});
-
-document.getElementById('saveBtn').addEventListener('click', async () => {
-  if (currentFilePath) {
-    const result = await ipcRenderer.invoke('save-file', {
-      filePath: currentFilePath,
-      content: editor.value
-    });
-    if (result.success) {
-      isModified = false;
-      updateFileStatus();
-    }
-  } else {
-    // Save As
-    const result = await ipcRenderer.invoke('save-file-as', editor.value);
-    if (result.success) {
-      currentFilePath = result.filePath;
-      isModified = false;
-      updateFileStatus();
-    }
-  }
-});
-
-document.getElementById('togglePreviewBtn').addEventListener('click', () => {
-  previewVisible = !previewVisible;
-  if (previewVisible) {
-    editorContainer.classList.remove('editor-only');
-  } else {
-    editorContainer.classList.add('editor-only');
-  }
-});
-
-// AI 格式化按钮
-document.getElementById('aiFormatBtn').addEventListener('click', async () => {
-  // 检查是否有 AI 配置
-  const config = await ipcRenderer.invoke('get-ai-config');
-
-  if (!config || !config.apiKey) {
-    // 没有配置，通知主进程打开配置窗口
-    ipcRenderer.send('open-ai-config');
-  } else {
-    // 已有配置，直接格式化
-    await formatWithAI(config);
-  }
-});
-
-// 监听配置保存后的格式化请求
-ipcRenderer.on('start-ai-format', async () => {
-  const config = await ipcRenderer.invoke('get-ai-config');
-  if (config) {
-    await formatWithAI(config);
-  }
-});
-
-// AI 取消按钮
-const aiCancelBtn = document.getElementById('aiCancelBtn');
-if (aiCancelBtn) {
-  aiCancelBtn.addEventListener('click', () => {
-    if (aiFormatAbortController) {
-      aiFormatAbortController.abort();
-    }
-  });
 }
 
 // 使用 AI 格式化文本
@@ -582,122 +897,7 @@ function updatePdfButtonState(isPro) {
   }
 }
 
-// 模板选择器
-const templateSelect = document.getElementById('templateSelect');
-if (templateSelect) {
-  templateSelect.addEventListener('change', (e) => {
-    const templateId = e.target.value;
-    const template = getTemplateById(templateId);
-    const isPro = licenseManager.isPro();
-
-    // 检查是否是专业版主题
-    if (template.isPremium && !isPro) {
-      // 显示激活提示
-      showActivationPrompt('主题');
-      // 恢复到当前主题
-      e.target.value = currentTemplate.id;
-      return;
-    }
-
-    currentTemplate = template;
-    window.currentTemplate = currentTemplate;
-    applyTemplate(currentTemplate);
-    localStorage.setItem('mdskill_template', templateId);
-    updatePreview();
-  });
-}
-
-// 主题选择器（下拉列表）
-const themeSelector = document.getElementById('themeSelector');
-if (themeSelector) {
-  // 填充主题选项
-  const templates = getAllTemplates();
-  templates.forEach(template => {
-    const option = document.createElement('option');
-    option.value = template.id;
-    option.textContent = template.name + (template.isPremium ? ' 🔒' : '');
-    if (template.id === currentTemplate.id) {
-      option.selected = true;
-    }
-    themeSelector.appendChild(option);
-  });
-
-  // 监听主题切换
-  themeSelector.addEventListener('change', async (e) => {
-    const templateId = e.target.value;
-    if (!templateId) return;
-
-    const template = getTemplateById(templateId);
-
-    // 检查是否是专业版主题
-    if (template.isPremium) {
-      const hasAccess = await checkFeatureAccess('premium_themes');
-
-      if (!hasAccess) {
-        showFeatureLockedPrompt('精美主题');
-        // 恢复到当前主题
-        e.target.value = currentTemplate.id;
-        return;
-      }
-    }
-
-    currentTemplate = template;
-    window.currentTemplate = currentTemplate;
-    applyTemplate(currentTemplate);
-    localStorage.setItem('mdskill_template', templateId);
-    updatePreview();
-  });
-}
-
-// 主题切换按钮（快速切换亮/暗）
-document.getElementById('themeBtn').addEventListener('click', () => {
-  const currentId = currentTemplate.id;
-  let newId;
-
-  if (currentId === 'github-dark' || currentId === 'default') {
-    newId = 'github-light';
-  } else if (currentId === 'github-light') {
-    newId = 'github-dark';
-  } else {
-    // 其他主题切换到 GitHub Dark
-    newId = 'github-dark';
-  }
-
-  currentTemplate = getTemplateById(newId);
-  window.currentTemplate = currentTemplate;
-  applyTemplate(currentTemplate);
-  localStorage.setItem('mdskill_template', newId);
-  updatePreview();
-});
-
 // Markdown 格式化按钮
-document.getElementById('boldBtn').addEventListener('click', () => {
-  insertMarkdown('**', '**', 'bold text');
-});
-
-document.getElementById('italicBtn').addEventListener('click', () => {
-  insertMarkdown('*', '*', 'italic text');
-});
-
-document.getElementById('codeBtn').addEventListener('click', () => {
-  insertMarkdown('`', '`', 'code');
-});
-
-document.getElementById('linkBtn').addEventListener('click', () => {
-  insertMarkdown('[', '](url)', 'link text');
-});
-
-// 导出 PDF 按钮
-document.getElementById('exportPdfBtn').addEventListener('click', async () => {
-  const hasAccess = await checkFeatureAccess('pdf_export');
-
-  if (!hasAccess) {
-    showFeatureLockedPrompt('PDF 导出');
-    return;
-  }
-
-  await exportToPDF();
-});
 
 // 检查功能权限（统一的权限检查函数）
 async function checkFeatureAccess(featureName) {
@@ -727,102 +927,6 @@ function showFeatureLockedPrompt(featureName) {
   }
 }
 
-// 复制到微信公众号按钮
-document.getElementById('copyWeChatBtn')?.addEventListener('click', async () => {
-  const hasAccess = await checkFeatureAccess('wechat_copy');
-
-  if (!hasAccess) {
-    showFeatureLockedPrompt('复制到微信公众号');
-    return;
-  }
-
-  if (!window.wechatRenderer) {
-    alert('微信渲染器未加载，请刷新页面重试');
-    return;
-  }
-
-  try {
-    // 获取 Markdown 源文本
-    const markdown = editor.value;
-
-    if (!markdown || markdown.trim() === '') {
-      window.copyUtils.showToast('编辑器内容为空', 'error');
-      return;
-    }
-
-    // 使用新的微信渲染器直接从 Markdown 生成 HTML，传入当前主题
-    const wechatHTML = window.wechatRenderer.renderMarkdownForWeChat(markdown, currentTemplate);
-
-    // 复制到剪贴板
-    const success = await window.copyUtils.writeHTMLToClipboard(wechatHTML, markdown);
-
-    if (success) {
-      window.copyUtils.showToast('已复制到剪贴板，可直接粘贴到微信公众号编辑器', 'success');
-    } else {
-      window.copyUtils.showToast('复制失败，请重试', 'error');
-    }
-  } catch (error) {
-    console.error('WeChat copy error:', error);
-    window.copyUtils.showToast('复制失败: ' + error.message, 'error');
-  }
-});
-
-// 复制到博客按钮
-document.getElementById('copyBlogBtn')?.addEventListener('click', async () => {
-  const hasAccess = await checkFeatureAccess('blog_copy');
-
-  if (!hasAccess) {
-    showFeatureLockedPrompt('复制到博客');
-    return;
-  }
-
-  if (!window.copyUtils) {
-    alert('复制功能模块未加载，请刷新页面重试');
-    return;
-  }
-
-  try {
-    // 传递预览元素而不是 innerHTML
-    const success = await window.copyUtils.copyForBlog(preview, currentTemplate);
-    if (success) {
-      window.copyUtils.showToast('已复制到剪贴板，可粘贴到知乎、简书等博客平台', 'success');
-    } else {
-      window.copyUtils.showToast('复制失败，请重试', 'error');
-    }
-  } catch (error) {
-    console.error('Blog copy error:', error);
-    window.copyUtils.showToast('复制失败: ' + error.message, 'error');
-  }
-});
-
-// 复制 HTML 源码按钮
-document.getElementById('copyHTMLBtn')?.addEventListener('click', async () => {
-  const hasAccess = await checkFeatureAccess('html_export');
-
-  if (!hasAccess) {
-    showFeatureLockedPrompt('复制 HTML 源码');
-    return;
-  }
-
-  if (!window.copyUtils) {
-    alert('复制功能模块未加载，请刷新页面重试');
-    return;
-  }
-
-  try {
-    const html = preview.innerHTML;
-    const success = await window.copyUtils.copyHTMLSource(html, currentTemplate);
-    if (success) {
-      window.copyUtils.showToast('HTML 源码已复制到剪贴板', 'success');
-    } else {
-      window.copyUtils.showToast('复制失败，请重试', 'error');
-    }
-  } catch (error) {
-    console.error('HTML copy error:', error);
-    window.copyUtils.showToast('复制失败: ' + error.message, 'error');
-  }
-});
-
 // 插入 Markdown 语法
 function insertMarkdown(before, after, placeholder) {
   const start = editor.selectionStart;
@@ -847,93 +951,6 @@ function insertMarkdown(before, after, placeholder) {
   updateFileStatus();
   updatePreview();
 }
-
-// 键盘快捷键
-editor.addEventListener('keydown', (e) => {
-  // Tab 键插入空格
-  if (e.key === 'Tab') {
-    e.preventDefault();
-    const start = editor.selectionStart;
-    const end = editor.selectionEnd;
-    editor.value = editor.value.substring(0, start) + '  ' + editor.value.substring(end);
-    editor.selectionStart = editor.selectionEnd = start + 2;
-  }
-
-  // Cmd+B 加粗
-  if ((e.metaKey || e.ctrlKey) && e.key === 'b') {
-    e.preventDefault();
-    insertMarkdown('**', '**', 'bold text');
-  }
-
-  // Cmd+I 斜体
-  if ((e.metaKey || e.ctrlKey) && e.key === 'i') {
-    e.preventDefault();
-    insertMarkdown('*', '*', 'italic text');
-  }
-
-  // Cmd+K 链接
-  if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-    e.preventDefault();
-    insertMarkdown('[', '](url)', 'link text');
-  }
-
-  // Cmd+Shift+W 复制到微信
-  if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === 'W') {
-    e.preventDefault();
-    document.getElementById('copyWeChatBtn')?.click();
-  }
-
-  // Cmd+Shift+B 复制到博客
-  if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === 'B') {
-    e.preventDefault();
-    document.getElementById('copyBlogBtn')?.click();
-  }
-
-  // Cmd+Shift+H 复制 HTML
-  if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === 'H') {
-    e.preventDefault();
-    document.getElementById('copyHTMLBtn')?.click();
-  }
-});
-
-// IPC 事件监听
-ipcRenderer.on('file-new', () => {
-  document.getElementById('newBtn').click();
-});
-
-ipcRenderer.on('file-save', () => {
-  document.getElementById('saveBtn').click();
-});
-
-ipcRenderer.on('file-save-as', async () => {
-  const result = await ipcRenderer.invoke('save-file-as', editor.value);
-  if (result.success) {
-    currentFilePath = result.filePath;
-    isModified = false;
-    updateFileStatus();
-  }
-});
-
-ipcRenderer.on('file-opened', (event, { path, content }) => {
-  editor.value = content;
-  currentFilePath = path;
-  isModified = false;
-  updateFileStatus();
-  updatePreview();
-});
-
-// 从侧边栏加载文件
-ipcRenderer.on('file-loaded', (event, { filePath, content }) => {
-  editor.value = content;
-  currentFilePath = filePath;
-  isModified = false;
-  updateFileStatus();
-  updatePreview();
-});
-
-ipcRenderer.on('toggle-preview', () => {
-  document.getElementById('togglePreviewBtn').click();
-});
 
 // 导出 PDF 函数
 async function exportToPDF() {
@@ -1062,30 +1079,6 @@ async function exportToPDF() {
     alert(`PDF 导出出错: ${error.message}`);
   }
 }
-
-ipcRenderer.on('export-pdf', async () => {
-  const isPro = licenseManager.isPro();
-
-  if (!isPro) {
-    showActivationPrompt('PDF 导出');
-    return;
-  }
-
-  await exportToPDF();
-});
-
-// IPC 监听器 - 复制功能
-ipcRenderer.on('copy-wechat', () => {
-  document.getElementById('copyWeChatBtn')?.click();
-});
-
-ipcRenderer.on('copy-blog', () => {
-  document.getElementById('copyBlogBtn')?.click();
-});
-
-ipcRenderer.on('copy-html', () => {
-  document.getElementById('copyHTMLBtn')?.click();
-});
 
 // 显示激活提示
 function showActivationPrompt(featureName) {
