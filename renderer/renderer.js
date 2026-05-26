@@ -145,6 +145,13 @@ function registerDOMListeners() {
   });
 
   // 工具栏按钮
+  // 侧边栏切换按钮
+  document.getElementById('toggleSidebarBtn')?.addEventListener('click', () => {
+    if (window.sidebar) {
+      window.sidebar.toggle();
+    }
+  });
+
   document.getElementById('newBtn').addEventListener('click', () => {
     ipcRenderer.send('new-window');
   });
