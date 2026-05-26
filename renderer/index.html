@@ -114,15 +114,20 @@
       </div>
     </div>
 
-    <!-- 主编辑区域 -->
-    <div class="editor-container">
-      <div class="editor-pane" id="editorPane">
-        <textarea id="editor" placeholder="Start writing your markdown here..."></textarea>
-      </div>
-      <div class="editor-resize-handle" id="editorResizeHandle"></div>
-      <div class="preview-pane" id="previewPane">
-        <div class="markdown-body" id="preview"></div>
-      </div>
+    <!-- 主内容区域（侧边栏 + 编辑器） -->
+    <div class="main-content">
+      <!-- 侧边栏占位符，由 sidebar.js 填充内容 -->
+      <div id="sidebarPlaceholder"></div>
+
+      <!-- 主编辑区域 -->
+      <div class="editor-container">
+        <div class="editor-pane" id="editorPane">
+          <textarea id="editor" placeholder="Start writing your markdown here..."></textarea>
+        </div>
+        <div class="editor-resize-handle" id="editorResizeHandle"></div>
+        <div class="preview-pane" id="previewPane">
+          <div class="markdown-body" id="preview"></div>
+        </div>
 
       <!-- AI 格式化进度提示 -->
       <div id="aiProgressOverlay" class="ai-progress-overlay" style="display: none;">

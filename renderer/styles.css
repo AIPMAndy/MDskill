@@ -20,6 +20,13 @@ body {
   height: 100vh;
 }
 
+/* 主内容区域（侧边栏 + 编辑器） */
+.main-content {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
 /* 工具栏 */
 .toolbar {
   display: flex;
