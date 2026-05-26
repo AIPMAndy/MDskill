@@ -326,13 +326,14 @@ class Sidebar {
 
     try {
       const state = JSON.parse(saved);
-      this.isVisible = state.isVisible !== false;
+      // 侧边栏始终默认显示
+      this.isVisible = true;
       this.currentFolder = state.currentFolder;
       this.recentFiles = state.recentFiles || [];
 
       const sidebar = document.getElementById('sidebar');
       if (sidebar) {
-        sidebar.style.display = this.isVisible ? 'flex' : 'none';
+        sidebar.style.display = 'flex';
         if (state.width) {
           sidebar.style.width = state.width + 'px';
         }

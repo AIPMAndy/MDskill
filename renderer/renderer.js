@@ -442,6 +442,63 @@ function registerDOMListeners() {
       document.getElementById('copyHTMLBtn')?.click();
     }
   });
+
+  // 编辑器和预览区域拖拽调整大小
+  const resizeHandle = document.getElementById('editorResizeHandle');
+  const editorPane = document.getElementById('editorPane');
+  const container = document.querySelector('.editor-container');
+
+  if (resizeHandle && editorPane && container) {
+    let isResizing = false;
+    let startX = 0;
+    let startWidth = 0;
+
+    resizeHandle.addEventListener('mousedown', (e) => {
+      isResizing = true;
+      startX = e.clientX;
+      startWidth = editorPane.offsetWidth;
+      resizeHandle.classList.add('dragging');
+      document.body.style.cursor = 'col-resize';
+      document.body.style.userSelect = 'none';
+      e.preventDefault();
+    });
+
+    document.addEventListener('mousemove', (e) => {
+      if (!isResizing) return;
+
+      const deltaX = e.clientX - startX;
+      const newWidth = startWidth + deltaX;
+      const containerWidth = container.offsetWidth;
+      const minWidth = 200;
+      const maxWidth = containerWidth - 200;
+
+      if (newWidth >= minWidth && newWidth <= maxWidth) {
+        const percentage = (newWidth / containerWidth) * 100;
+        editorPane.style.width = percentage + '%';
+        resizeHandle.style.left = percentage + '%';
+      }
+    });
+
+    document.addEventListener('mouseup', () => {
+      if (isResizing) {
+        isResizing = false;
+        resizeHandle.classList.remove('dragging');
+        document.body.style.cursor = '';
+        document.body.style.userSelect = '';
+
+        // 保存编辑器宽度到 localStorage
+        const percentage = (editorPane.offsetWidth / container.offsetWidth) * 100;
+        localStorage.setItem('mdskill_editor_width', percentage.toString());
+      }
+    });
+
+    // 加载保存的编辑器宽度
+    const savedWidth = localStorage.getItem('mdskill_editor_width');
+    if (savedWidth) {
+      editorPane.style.width = savedWidth + '%';
+      resizeHandle.style.left = savedWidth + '%';
+    }
+  }
 }
 
 // 注册所有 IPC 事件监听器

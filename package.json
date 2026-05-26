@@ -1,6 +1,6 @@
 {
   "name": "mdskill",
-  "version": "1.2.7",
+  "version": "1.2.8",
   "description": "Modern Markdown Editor for Mac - AI-powered editing and beautiful rendering with multiple themes",
   "main": "main.js",
   "scripts": {
