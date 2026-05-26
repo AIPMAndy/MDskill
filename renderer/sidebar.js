@@ -1,5 +1,5 @@
 // 侧边栏管理模块
-const { ipcRenderer } = require('electron');
+// ipcRenderer 已在 renderer.js 中声明，这里直接使用全局变量
 const path = require('path');
 
 class Sidebar {
