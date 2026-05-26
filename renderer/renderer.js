@@ -538,6 +538,11 @@ function registerIPCListeners() {
   });
 
   ipcRenderer.on('file-opened', (event, { path, content }) => {
+    console.log('[file-opened] Event received');
+    console.log('[file-opened] path:', path);
+    console.log('[file-opened] content length:', content?.length);
+    console.log('[file-opened] editor element:', editor);
+
     if (!editor) {
       console.error('ERROR: editor element is null!');
       return;
@@ -548,6 +553,7 @@ function registerIPCListeners() {
     isModified = false;
     updateFileStatus();
     updatePreview();
+    console.log('[file-opened] File loaded successfully');
   });
 
   // 从侧边栏加载文件

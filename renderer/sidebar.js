@@ -23,12 +23,32 @@ class Sidebar {
     const container = document.querySelector('.app-container');
     const editorContainer = document.querySelector('.editor-container');
 
-    // 创建一个水平容器来包裹侧边栏和编辑器
-    const mainContent = document.createElement('div');
-    mainContent.className = 'main-content';
-    mainContent.style.display = 'flex';
-    mainContent.style.flex = '1';
-    mainContent.style.overflow = 'hidden';
+    if (!container || !editorContainer) {
+      console.error('Container or editorContainer not found');
+      return;
+    }
+
+    // 检查是否已经有 main-content 容器
+    let mainContent = container.querySelector('.main-content');
+    if (mainContent) {
+      // 如果已经存在，只需添加侧边栏
+      const existingSidebar = document.getElementById('sidebar');
+      if (existingSidebar) {
+        return; // 侧边栏已存在，不重复创建
+      }
+    } else {
+      // 创建一个水平容器来包裹侧边栏和编辑器
+      mainContent = document.createElement('div');
+      mainContent.className = 'main-content';
+      mainContent.style.display = 'flex';
+      mainContent.style.flex = '1';
+      mainContent.style.overflow = 'hidden';
+
+      // 将编辑器容器移到新的主内容容器中
+      editorContainer.parentNode.removeChild(editorContainer);
+      mainContent.appendChild(editorContainer);
+      container.appendChild(mainContent);
+    }
 
     const sidebarHTML = `
       <div class="sidebar" id="sidebar">
@@ -61,11 +81,8 @@ class Sidebar {
       </div>
     `;
 
-    // 将编辑器容器移到新的主内容容器中
-    container.removeChild(editorContainer);
-    mainContent.appendChild(this.createElementFromHTML(sidebarHTML));
-    mainContent.appendChild(editorContainer);
-    container.appendChild(mainContent);
+    // 将侧边栏插入到编辑器容器之前
+    mainContent.insertBefore(this.createElementFromHTML(sidebarHTML), editorContainer);
   }
 
   createElementFromHTML(htmlString) {
