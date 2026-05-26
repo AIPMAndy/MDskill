@@ -111,6 +111,15 @@ async function init() {
     window.sidebar = new Sidebar();
   }
 
+  // 验证 editor 元素是否仍然有效
+  console.log('[After Sidebar] editor element:', editor);
+  console.log('[After Sidebar] editor is null?', editor === null);
+  if (!editor) {
+    console.error('[CRITICAL] editor element lost after Sidebar creation!');
+    editor = document.getElementById('editor');
+    console.log('[CRITICAL] Re-fetched editor:', editor);
+  }
+
   // 初始化搜索模块
   if (typeof SearchModal !== 'undefined') {
     window.searchModal = new SearchModal();

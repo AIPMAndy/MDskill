@@ -115,17 +115,17 @@
     </div>
 
     <!-- 主内容区域（侧边栏 + 编辑器） -->
-    <div class="main-content">
+    <div class="main-content" style="display: flex; flex: 1; overflow: hidden;">
       <!-- 侧边栏占位符，由 sidebar.js 填充内容 -->
-      <div id="sidebarPlaceholder"></div>
+      <div id="sidebarPlaceholder" style="flex-shrink: 0;"></div>
 
       <!-- 主编辑区域 -->
-      <div class="editor-container">
-        <div class="editor-pane" id="editorPane">
-          <textarea id="editor" placeholder="Start writing your markdown here..."></textarea>
+      <div class="editor-container" style="display: flex; flex: 1; overflow: hidden; position: relative;">
+        <div class="editor-pane" id="editorPane" style="width: 50%; min-width: 200px; overflow: auto; padding: 20px; background: #1e1e1e; border-right: 1px solid #3e3e42;">
+          <textarea id="editor" placeholder="Start writing your markdown here..." style="width: 100%; height: 100%; background: transparent; border: none; outline: none; resize: none; font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace; font-size: 14px; line-height: 1.6; color: #d4d4d4;"></textarea>
         </div>
         <div class="editor-resize-handle" id="editorResizeHandle"></div>
-        <div class="preview-pane" id="previewPane">
+        <div class="preview-pane" id="previewPane" style="flex: 1; overflow: auto; padding: 20px; background: #252526;">
           <div class="markdown-body" id="preview"></div>
         </div>
 
