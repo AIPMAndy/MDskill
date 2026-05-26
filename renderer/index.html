@@ -5,18 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MDSKILL - Markdown Editor</title>
   <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="sidebar.css">
-  <link rel="stylesheet" href="search-modal.css">
+  <!-- <link rel="stylesheet" href="sidebar.css"> -->
+  <!-- <link rel="stylesheet" href="search-modal.css"> -->
   <link rel="stylesheet" href="../node_modules/github-markdown-css/github-markdown.css">
   <link rel="stylesheet" href="../node_modules/highlight.js/styles/github-dark.css">
   <link rel="stylesheet" href="../node_modules/katex/dist/katex.min.css">
 </head>
 <body>
-  <div class="app-container">
+  <div class="app-container" style="background: #1e1e1e;">
     <!-- 工具栏 -->
-    <div class="toolbar">
+    <div class="toolbar" style="background: #252526;">
       <div class="toolbar-left">
-        <button class="toolbar-btn" id="toggleSidebarBtn" title="切换侧边栏 (Cmd+Shift+B)">
+        <button class="toolbar-btn" id="toggleSidebarBtn" title="切换侧边栏 (Cmd+Shift+B)" style="display: none;">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
             <path d="M0 1.5A1.5 1.5 0 0 1 1.5 0h13A1.5 1.5 0 0 1 16 1.5v13a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 14.5v-13zM1.5 1a.5.5 0 0 0-.5.5V13h5V1H1.5zM7 1v12h8V1H7z"/>
           </svg>
@@ -114,11 +114,8 @@
       </div>
     </div>
 
-    <!-- 主内容区域（侧边栏 + 编辑器） -->
+    <!-- 主内容区域 -->
     <div class="main-content" style="display: flex; flex: 1; overflow: hidden;">
-      <!-- 侧边栏占位符，由 sidebar.js 填充内容 -->
-      <div id="sidebarPlaceholder" style="flex-shrink: 0;"></div>
-
       <!-- 主编辑区域 -->
       <div class="editor-container" style="display: flex; flex: 1; overflow: hidden; position: relative;">
         <div class="editor-pane" id="editorPane" style="width: 50%; min-width: 200px; overflow: auto; padding: 20px; background: #1e1e1e; border-right: 1px solid #3e3e42;">
@@ -438,7 +435,7 @@
   <script src="wechat-renderer.js"></script>
   <script src="copy-utils.js"></script>
   <script src="theme-preview.js"></script>
-  <script src="sidebar.js"></script>
-  <script src="search-modal.js"></script>
+  <!-- <script src="sidebar.js"></script> -->
+  <!-- <script src="search-modal.js"></script> -->
 </body>
 </html>

@@ -67,81 +67,154 @@ let updateTimer = null; // 防抖定时器
 
 // 初始化
 async function init() {
-  // 初始化 DOM 元素引用
-  editor = document.getElementById('editor');
-  preview = document.getElementById('preview');
-  editorContainer = document.querySelector('.editor-container');
-  fileStatus = document.getElementById('fileStatus');
+  try {
+    console.log('=== 开始初始化 ===');
 
-  // 调试：检查模块是否加载
-  console.log('=== 模块加载检查 ===');
-  console.log('window.copyUtils:', window.copyUtils);
-  console.log('window.themePreview:', window.themePreview);
-  console.log('window.getAllTemplates:', typeof window.getAllTemplates);
-  console.log('window.getTemplateById:', typeof window.getTemplateById);
-
-  // 检查订阅状态
-  await checkSubscriptionStatus();
-
-  // 检查授权状态（兼容旧的买断制）
-  const isPro = licenseManager.isPro();
-
-  // 加载保存的模板
-  const savedTemplateId = localStorage.getItem('mdskill_template') || 'github-dark';
-  currentTemplate = getTemplateById(savedTemplateId);
-
-  // 如果保存的模板是专业版但用户不是专业版，回退到免费主题
-  if (currentTemplate.isPremium && !isPro) {
-    currentTemplate = getTemplateById('github-dark');
-    localStorage.setItem('mdskill_template', 'github-dark');
-  }
-
-  // 暴露为全局变量
-  window.currentTemplate = currentTemplate;
-
-  applyTemplate(currentTemplate);
-
-  // 初始化主题预览面板（确保 window.themePreview 已加载）
-  if (window.themePreview && window.themePreview.initThemePreview) {
-    window.themePreview.initThemePreview();
-  }
-
-  // 初始化侧边栏
-  if (typeof Sidebar !== 'undefined') {
-    window.sidebar = new Sidebar();
-  }
-
-  // 验证 editor 元素是否仍然有效
-  console.log('[After Sidebar] editor element:', editor);
-  console.log('[After Sidebar] editor is null?', editor === null);
-  if (!editor) {
-    console.error('[CRITICAL] editor element lost after Sidebar creation!');
+    // 初始化 DOM 元素引用
     editor = document.getElementById('editor');
-    console.log('[CRITICAL] Re-fetched editor:', editor);
+    preview = document.getElementById('preview');
+    editorContainer = document.querySelector('.editor-container');
+    fileStatus = document.getElementById('fileStatus');
+
+    // 检查关键 DOM 元素
+    if (!editor || !preview || !editorContainer) {
+      console.error('关键 DOM 元素缺失:', { editor: !!editor, preview: !!preview, editorContainer: !!editorContainer });
+      alert('应用初始化失败：关键界面元素缺失');
+      return;
+    }
+
+    console.log('DOM 元素检查通过');
+
+    // 调试：检查模块是否加载
+    console.log('=== 模块加载检查 ===');
+    console.log('window.copyUtils:', window.copyUtils);
+    console.log('window.themePreview:', window.themePreview);
+    console.log('window.getAllTemplates:', typeof window.getAllTemplates);
+    console.log('window.getTemplateById:', typeof window.getTemplateById);
+
+    // 检查订阅状态（非阻塞）
+    try {
+      await checkSubscriptionStatus();
+    } catch (error) {
+      console.error('订阅状态检查失败:', error);
+    }
+
+    // 检查授权状态（兼容旧的买断制）
+    let isPro = false;
+    try {
+      isPro = licenseManager.isPro();
+    } catch (error) {
+      console.error('授权检查失败:', error);
+    }
+
+    // 加载保存的模板
+    const savedTemplateId = localStorage.getItem('mdskill_template') || 'github-dark';
+
+    try {
+      currentTemplate = getTemplateById(savedTemplateId);
+
+      // 如果保存的模板是专业版但用户不是专业版，回退到免费主题
+      if (currentTemplate.isPremium && !isPro) {
+        currentTemplate = getTemplateById('github-dark');
+        localStorage.setItem('mdskill_template', 'github-dark');
+      }
+
+      // 暴露为全局变量
+      window.currentTemplate = currentTemplate;
+
+      applyTemplate(currentTemplate);
+    } catch (error) {
+      console.error('模板加载失败:', error);
+      // 使用默认样式继续
+    }
+
+    // 初始化主题预览面板（确保 window.themePreview 已加载）
+    try {
+      if (window.themePreview && window.themePreview.initThemePreview) {
+        window.themePreview.initThemePreview();
+      }
+    } catch (error) {
+      console.error('主题预览初始化失败:', error);
+    }
+
+      // 初始化侧边栏 - 已完全移除
+    // try {
+    //   if (typeof Sidebar !== 'undefined') {
+    //     window.sidebar = new Sidebar();
+    //     console.log('侧边栏初始化成功');
+    //   }
+    // } catch (error) {
+    //   console.error('侧边栏初始化失败:', error);
+    // }
+
+    // 验证 editor 元素是否仍然有效
+    console.log('[Init] editor element:', editor);
+    console.log('[Init] editor is null?', editor === null);
+    if (!editor) {
+      console.error('[CRITICAL] editor element lost!');
+      editor = document.getElementById('editor');
+      console.log('[CRITICAL] Re-fetched editor:', editor);
+      if (!editor) {
+        alert('编辑器元素丢失，应用无法正常工作');
+        return;
+      }
+    }
+
+    // 初始化搜索模块 - 已移除
+    // try {
+    //   if (typeof SearchModal !== 'undefined') {
+    //     window.searchModal = new SearchModal();
+    //     console.log('搜索模块初始化成功');
+    //   }
+    // } catch (error) {
+    //   console.error('搜索模块初始化失败:', error);
+    // }
+
+    // 更新主题选择器，标记专业版主题
+    try {
+      updateThemeSelector(isPro);
+    } catch (error) {
+      console.error('主题选择器更新失败:', error);
+    }
+
+    // 更新 PDF 按钮状态
+    try {
+      updatePdfButtonState(isPro);
+    } catch (error) {
+      console.error('PDF 按钮状态更新失败:', error);
+    }
+
+    // 不自动加载上次打开的文件，让用户主动选择
+    // 如果是通过双击文件打开，会通过 'file-opened' 事件加载
+
+    // 初始预览
+    try {
+      updatePreview();
+    } catch (error) {
+      console.error('预览更新失败:', error);
+    }
+
+    // 注册 DOM 事件监听器
+    try {
+      registerDOMListeners();
+      console.log('DOM 事件监听器注册成功');
+    } catch (error) {
+      console.error('DOM 事件监听器注册失败:', error);
+    }
+
+    // 注册 IPC 事件监听器
+    try {
+      registerIPCListeners();
+      console.log('IPC 事件监听器注册成功');
+    } catch (error) {
+      console.error('IPC 事件监听器注册失败:', error);
+    }
+
+    console.log('=== 初始化完成 ===');
+  } catch (error) {
+    console.error('初始化过程中发生严重错误:', error);
+    alert(`应用初始化失败: ${error.message}`);
   }
-
-  // 初始化搜索模块
-  if (typeof SearchModal !== 'undefined') {
-    window.searchModal = new SearchModal();
-  }
-
-  // 更新主题选择器，标记专业版主题
-  updateThemeSelector(isPro);
-
-  // 更新 PDF 按钮状态
-  updatePdfButtonState(isPro);
-
-  // 不自动加载上次打开的文件，让用户主动选择
-  // 如果是通过双击文件打开，会通过 'file-opened' 事件加载
-
-  // 初始预览
-  updatePreview();
-
-  // 注册 DOM 事件监听器
-  registerDOMListeners();
-
-  // 注册 IPC 事件监听器
-  registerIPCListeners();
 }
 
 // 注册所有 DOM 事件监听器
@@ -154,21 +227,21 @@ function registerDOMListeners() {
   });
 
   // 工具栏按钮
-  // 侧边栏切换按钮
-  const toggleSidebarBtn = document.getElementById('toggleSidebarBtn');
-  if (toggleSidebarBtn) {
-    toggleSidebarBtn.addEventListener('click', () => {
-      console.log('Toggle sidebar button clicked');
-      if (window.sidebar) {
-        console.log('Calling sidebar.toggle()');
-        window.sidebar.toggle();
-      } else {
-        console.error('window.sidebar is not defined');
-      }
-    });
-  } else {
-    console.error('toggleSidebarBtn not found');
-  }
+  // 侧边栏切换按钮 - 已移除
+  // const toggleSidebarBtn = document.getElementById('toggleSidebarBtn');
+  // if (toggleSidebarBtn) {
+  //   toggleSidebarBtn.addEventListener('click', () => {
+  //     console.log('Toggle sidebar button clicked');
+  //     if (window.sidebar) {
+  //       console.log('Calling sidebar.toggle()');
+  //       window.sidebar.toggle();
+  //     } else {
+  //       console.error('window.sidebar is not defined');
+  //     }
+  //   });
+  // } else {
+  //   console.error('toggleSidebarBtn not found');
+  // }
 
   document.getElementById('newBtn').addEventListener('click', () => {
     ipcRenderer.send('new-window');

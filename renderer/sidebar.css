@@ -144,46 +144,9 @@
   background-color: #1976d2;
 }
 
-/* 调整主容器布局 */
-.app-container {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-}
-
-.app-container > .toolbar {
-  flex-shrink: 0;
-}
-
-.app-container > .sidebar {
-  flex-shrink: 0;
-}
-
-.app-container > .editor-container {
-  flex: 1;
-  min-height: 0;
-}
-
-/* 修改编辑器容器布局 */
-body:has(.sidebar) .app-container {
-  flex-direction: row;
-  flex-wrap: wrap;
-}
-
-body:has(.sidebar) .toolbar {
-  width: 100%;
-  order: 1;
-}
-
-body:has(.sidebar) .sidebar {
-  order: 2;
-  height: calc(100vh - 40px); /* 减去工具栏高度 */
-}
-
-body:has(.sidebar) .editor-container {
-  order: 3;
-  width: calc(100% - 250px); /* 减去侧边栏宽度 */
-  height: calc(100vh - 40px);
+/* 侧边栏隐藏状态 */
+.sidebar.hidden {
+  display: none;
 }
 
 /* 滚动条样式 */
