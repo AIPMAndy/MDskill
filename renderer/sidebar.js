@@ -322,6 +322,13 @@ class Sidebar {
 
   loadState() {
     const saved = localStorage.getItem('mdskill_sidebar_state');
+
+    // 确保侧边栏始终显示
+    const sidebar = document.getElementById('sidebar');
+    if (sidebar) {
+      sidebar.style.display = 'flex';
+    }
+
     if (!saved) return;
 
     try {
@@ -331,12 +338,8 @@ class Sidebar {
       this.currentFolder = state.currentFolder;
       this.recentFiles = state.recentFiles || [];
 
-      const sidebar = document.getElementById('sidebar');
-      if (sidebar) {
-        sidebar.style.display = 'flex';
-        if (state.width) {
-          sidebar.style.width = state.width + 'px';
-        }
+      if (sidebar && state.width) {
+        sidebar.style.width = state.width + 'px';
       }
 
       this.renderRecentFiles();
