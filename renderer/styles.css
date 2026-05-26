@@ -27,6 +27,11 @@ body {
   overflow: hidden;
 }
 
+/* 侧边栏占位符 */
+#sidebarPlaceholder {
+  flex-shrink: 0;
+}
+
 /* 工具栏 */
 .toolbar {
   display: flex;
