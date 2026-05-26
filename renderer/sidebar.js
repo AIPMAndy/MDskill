@@ -23,6 +23,13 @@ class Sidebar {
     const container = document.querySelector('.app-container');
     const editorContainer = document.querySelector('.editor-container');
 
+    // 创建一个水平容器来包裹侧边栏和编辑器
+    const mainContent = document.createElement('div');
+    mainContent.className = 'main-content';
+    mainContent.style.display = 'flex';
+    mainContent.style.flex = '1';
+    mainContent.style.overflow = 'hidden';
+
     const sidebarHTML = `
       <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
@@ -54,10 +61,11 @@ class Sidebar {
       </div>
     `;
 
-    container.insertBefore(
-      this.createElementFromHTML(sidebarHTML),
-      editorContainer
-    );
+    // 将编辑器容器移到新的主内容容器中
+    container.removeChild(editorContainer);
+    mainContent.appendChild(this.createElementFromHTML(sidebarHTML));
+    mainContent.appendChild(editorContainer);
+    container.appendChild(mainContent);
   }
 
   createElementFromHTML(htmlString) {
