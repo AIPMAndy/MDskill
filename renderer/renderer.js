@@ -146,11 +146,20 @@ function registerDOMListeners() {
 
   // 工具栏按钮
   // 侧边栏切换按钮
-  document.getElementById('toggleSidebarBtn')?.addEventListener('click', () => {
-    if (window.sidebar) {
-      window.sidebar.toggle();
-    }
-  });
+  const toggleSidebarBtn = document.getElementById('toggleSidebarBtn');
+  if (toggleSidebarBtn) {
+    toggleSidebarBtn.addEventListener('click', () => {
+      console.log('Toggle sidebar button clicked');
+      if (window.sidebar) {
+        console.log('Calling sidebar.toggle()');
+        window.sidebar.toggle();
+      } else {
+        console.error('window.sidebar is not defined');
+      }
+    });
+  } else {
+    console.error('toggleSidebarBtn not found');
+  }
 
   document.getElementById('newBtn').addEventListener('click', () => {
     ipcRenderer.send('new-window');
