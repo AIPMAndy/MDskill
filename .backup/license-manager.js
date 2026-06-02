@@ -7,7 +7,6 @@
 const crypto = require('crypto');
 const os = require('os');
 const Store = require('electron-store');
-const integrityCheck = require('./integrity-check');
 
 const store = new Store();
 
@@ -125,18 +124,6 @@ function activateLicense(licenseKey) {
  * @returns {boolean}
  */
 function isPro() {
-  // 完整性检查
-  if (!integrityCheck.verifyIntegrity()) {
-    console.error('[Security] Integrity check failed');
-    return false;
-  }
-
-  // 反调试检测
-  if (integrityCheck.detectDebugger()) {
-    console.error('[Security] Debugger detected');
-    return false;
-  }
-
   const license = store.get('license');
 
   if (!license || !license.key) {
