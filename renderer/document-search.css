@@ -1,0 +1,341 @@
+/* 文档内搜索功能样式 */
+.doc-search-panel {
+  position: fixed;
+  top: 60px;
+  right: 20px;
+  width: 380px;
+  max-height: calc(100vh - 100px);
+  background: #2b2b2b;
+  border: 1px solid #3e3e42;
+  border-radius: 8px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  z-index: 9999;
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+  animation: slideInRight 0.2s ease-out;
+  backdrop-filter: blur(10px);
+}
+
+.doc-search-panel.active {
+  display: flex;
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* 搜索头部 */
+.doc-search-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  border-bottom: 1px solid #3e3e42;
+  background: #252526;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.doc-search-tabs {
+  display: flex;
+  gap: 4px;
+  flex: 1;
+}
+
+.doc-search-tab {
+  padding: 6px 12px;
+  border: none;
+  background: transparent;
+  color: #ccc;
+  font-size: 12px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s;
+  user-select: none;
+  -webkit-user-select: none;
+  white-space: nowrap;
+}
+
+.doc-search-tab:hover {
+  background: #3e3e42;
+}
+
+.doc-search-tab.active {
+  background: #3e3e42;
+  color: #fff;
+  font-weight: 600;
+}
+
+.doc-search-close {
+  padding: 4px;
+  border: none;
+  background: transparent;
+  color: #999;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.doc-search-close:hover {
+  background: #3e3e42;
+  color: #fff;
+}
+
+/* 搜索输入区 */
+.doc-search-input-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border-bottom: 1px solid #3e3e42;
+  background: #252526;
+}
+
+.doc-search-input-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.doc-search-input {
+  flex: 1;
+  padding: 8px 10px;
+  background: #1e1e1e;
+  border: 1px solid #3e3e42;
+  border-radius: 4px;
+  color: #d4d4d4;
+  font-size: 13px;
+  outline: none;
+  transition: all 0.2s;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.doc-search-input:focus {
+  border-color: #007acc;
+  box-shadow: 0 0 0 3px rgba(0, 122, 204, 0.1);
+}
+
+.doc-search-input::placeholder {
+  color: #666;
+  font-size: 12px;
+}
+
+.doc-search-nav-btn {
+  padding: 6px 8px;
+  border: none;
+  background: #3e3e42;
+  color: #ccc;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 12px;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.doc-search-nav-btn:hover:not(:disabled) {
+  background: #505050;
+  color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.doc-search-nav-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.doc-search-counter {
+  padding: 6px 10px;
+  background: #1e1e1e;
+  border-radius: 4px;
+  color: #ccc;
+  font-size: 12px;
+  font-family: monospace;
+  white-space: nowrap;
+}
+
+.doc-search-options {
+  display: flex;
+  gap: 6px;
+}
+
+.doc-search-option-btn {
+  padding: 6px 10px;
+  border: none;
+  background: #3e3e42;
+  color: #ccc;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 11px;
+  font-family: monospace;
+  transition: all 0.2s;
+}
+
+.doc-search-option-btn:hover {
+  background: #505050;
+}
+
+.doc-search-option-btn.active {
+  background: #007acc;
+  color: #fff;
+  font-weight: bold;
+}
+
+/* 大纲列表 */
+.doc-search-content {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 200px;
+}
+
+.doc-outline-list {
+  padding: 8px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.doc-outline-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.15s;
+  margin-bottom: 2px;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.doc-outline-item:hover {
+  background: #3e3e42;
+  transform: translateX(2px);
+}
+
+.doc-outline-item.active {
+  background: #007acc;
+  color: #fff;
+  box-shadow: 0 2px 6px rgba(0, 122, 204, 0.3);
+}
+
+.doc-outline-icon {
+  flex-shrink: 0;
+  color: #666;
+  font-size: 11px;
+  font-family: monospace;
+  min-width: 32px;
+}
+
+.doc-outline-item.active .doc-outline-icon {
+  color: #fff;
+}
+
+.doc-outline-text {
+  flex: 1;
+  font-size: 13px;
+  color: #d4d4d4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.doc-outline-item.active .doc-outline-text {
+  color: #fff;
+  font-weight: 500;
+}
+
+.doc-outline-badge {
+  flex-shrink: 0;
+  padding: 2px 6px;
+  background: #3e3e42;
+  color: #ccc;
+  border-radius: 10px;
+  font-size: 10px;
+  font-family: monospace;
+}
+
+.doc-outline-item.active .doc-outline-badge {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+}
+
+/* 大纲层级缩进 */
+.doc-outline-item[data-level="1"] { padding-left: 10px; }
+.doc-outline-item[data-level="2"] { padding-left: 22px; }
+.doc-outline-item[data-level="3"] { padding-left: 34px; }
+.doc-outline-item[data-level="4"] { padding-left: 46px; }
+.doc-outline-item[data-level="5"] { padding-left: 58px; }
+.doc-outline-item[data-level="6"] { padding-left: 70px; }
+
+/* 空状态 */
+.doc-search-empty {
+  padding: 60px 20px;
+  text-align: center;
+  color: #666;
+  font-size: 13px;
+  line-height: 1.8;
+  white-space: pre-line;
+}
+
+.doc-search-empty-icon {
+  font-size: 32px;
+  margin-bottom: 12px;
+  opacity: 0.5;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 0.3; }
+}
+
+/* 滚动条 */
+.doc-search-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.doc-search-content::-webkit-scrollbar-track {
+  background: #1e1e1e;
+}
+
+.doc-search-content::-webkit-scrollbar-thumb {
+  background: #3e3e42;
+  border-radius: 4px;
+}
+
+.doc-search-content::-webkit-scrollbar-thumb:hover {
+  background: #505050;
+}
+
+/* 编辑器高亮样式 */
+.editor-search-highlight {
+  background-color: #ffd700;
+  color: #000;
+}
+
+.editor-search-highlight.current {
+  background-color: #ff6b35;
+  color: #fff;
+}

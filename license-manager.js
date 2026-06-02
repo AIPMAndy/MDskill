@@ -1,26 +1,21 @@
 /**
- * MDskill 授权管理模块
- *
- * 负责授权码的验证、存储和状态管理
+ * MDskill 授权管理模块（服务端验证版本）
  */
 
 const crypto = require('crypto');
 const os = require('os');
 const Store = require('electron-store');
-const integrityCheck = require('./integrity-check');
+const https = require('https');
+const http = require('http');
 
 const store = new Store();
 
-// 公钥（用于验证授权码签名）
-const PUBLIC_KEY = `-----BEGIN PUBLIC KEY-----
-MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA5W0meVpPtjfuos38EPtg
-2ffR8q2mwwHJcsq1ElWl0MWaQBQEm5nGn72HXmnqnY+r41SKLHwaYq3sn69/Hp81
-/gaHHM9Y/kkjnJ/P9rfaRe28rP2CBY3jsrS177nggI5A9mk16NXt5EeWwmR7XcmO
-luSXNPY2gaK4Srxg5Akrzb0bHEeobfgu7JaYB00Xq+UUYmXUgH4HhgbzBEs8Mvar
-Ygvwrva5T24tweKXaqpVx/EUeTi6+JIO+y0aR0a8wtHYoffNohhOpR+CQGeCn0TO
-L74E+ZFYA66b0zmlLx9Qh8T1l7cjfQ48oHc4CRVPPQSPYnkl0S2sBrlm+LS3uM7W
-OwIDAQAB
------END PUBLIC KEY-----`;
+// 配置
+const CONFIG = {
+  API_BASE_URL: 'http://124.222.208.117:3000',
+  API_SECRET: '73b5eb4f89888c4637814ad108197981e7bcc88bdbb8724c0e34af1cad3dbc8f',
+  OFFLINE_GRACE_DAYS: 5,
+};
 
 /**
  * 生成当前设备指纹
@@ -40,117 +35,215 @@ function generateDeviceFingerprint() {
 }
 
 /**
- * 验证授权码
- * @param {string} licenseKey - 授权码
- * @returns {Object} { valid: boolean, error?: string, data?: Object }
+ * 获取设备详细信息
  */
-function verifyLicense(licenseKey) {
-  try {
-    // 检查授权码格式
-    if (!licenseKey || !licenseKey.startsWith('MDSK-')) {
-      return { valid: false, error: '授权码格式错误' };
-    }
+function getDeviceInfo() {
+  return {
+    hostname: os.hostname(),
+    platform: os.platform(),
+    arch: os.arch(),
+    type: os.type(),
+    release: os.release(),
+  };
+}
 
-    // 分割授权码
-    const parts = licenseKey.split('-');
-    if (parts.length !== 3) {
-      return { valid: false, error: '授权码格式错误' };
-    }
+/**
+ * HTTP 请求封装
+ */
+function apiRequest(endpoint, method = 'GET', data = null) {
+  return new Promise((resolve, reject) => {
+    const url = new URL(endpoint, CONFIG.API_BASE_URL);
+    const client = url.protocol === 'https:' ? https : http;
 
-    const [prefix, encodedData, signature] = parts;
-
-    // 解码数据
-    const dataString = Buffer.from(encodedData, 'base64').toString('utf8');
-    const licenseData = JSON.parse(dataString);
-
-    // 验证签名
-    const verify = crypto.createVerify('SHA256');
-    verify.update(dataString);
-    verify.end();
-
-    const isValid = verify.verify(PUBLIC_KEY, signature, 'base64');
-
-    if (!isValid) {
-      return { valid: false, error: '授权码签名验证失败' };
-    }
-
-    // 验证设备指纹
-    const currentDeviceId = generateDeviceFingerprint();
-    if (licenseData.deviceId !== currentDeviceId) {
-      return {
-        valid: false,
-        error: '此授权码不适用于当前设备',
-        details: {
-          expected: licenseData.deviceId,
-          current: currentDeviceId
-        }
-      };
-    }
-
-    // 验证成功
-    return {
-      valid: true,
-      data: licenseData
+    const options = {
+      method,
+      headers: {
+        'Content-Type': 'application/json',
+        'X-API-Key': CONFIG.API_SECRET
+      },
+      timeout: 10000
     };
 
-  } catch (error) {
-    return { valid: false, error: '授权码解析失败: ' + error.message };
-  }
-}
+    const req = client.request(url, options, (res) => {
+      let body = '';
+      res.on('data', chunk => body += chunk);
+      res.on('end', () => {
+        try {
+          const result = JSON.parse(body);
+          resolve(result);
+        } catch (error) {
+          reject(new Error('响应解析失败'));
+        }
+      });
+    });
 
-/**
- * 激活授权码
- * @param {string} licenseKey - 授权码
- * @returns {Object} { success: boolean, error?: string }
- */
-function activateLicense(licenseKey) {
-  const result = verifyLicense(licenseKey);
+    req.on('error', reject);
+    req.on('timeout', () => {
+      req.destroy();
+      reject(new Error('请求超时'));
+    });
 
-  if (!result.valid) {
-    return { success: false, error: result.error };
-  }
+    if (data) {
+      req.write(JSON.stringify(data));
+    }
 
-  // 保存授权信息
-  store.set('license', {
-    key: licenseKey,
-    data: result.data,
-    activatedAt: Date.now()
+    req.end();
   });
-
-  return { success: true };
 }
 
 /**
- * 检查是否已激活专业版
- * @returns {boolean}
+ * 在线激活授权码
  */
-function isPro() {
-  // 完整性检查
-  if (!integrityCheck.verifyIntegrity()) {
-    console.error('[Security] Integrity check failed');
-    return false;
-  }
+async function activateLicenseOnline(licenseKey) {
+  try {
+    const deviceId = generateDeviceFingerprint();
+    const deviceInfo = getDeviceInfo();
 
-  // 反调试检测
-  if (integrityCheck.detectDebugger()) {
-    console.error('[Security] Debugger detected');
-    return false;
-  }
+    const result = await apiRequest('/api/activate', 'POST', {
+      licenseKey,
+      deviceId,
+      deviceInfo
+    });
 
+    if (result.success) {
+      store.set('license', {
+        key: licenseKey,
+        token: result.data.token,
+        expiresIn: result.data.expiresIn,
+        activatedAt: Date.now(),
+        lastVerifiedAt: Date.now(),
+        license: result.data.license
+      });
+
+      return { success: true };
+    } else {
+      return { success: false, error: result.error };
+    }
+
+  } catch (error) {
+    console.error('激活失败:', error);
+    return {
+      success: false,
+      error: '网络错误，无法连接到授权服务器'
+    };
+  }
+}
+
+/**
+ * 在线验证授权
+ */
+async function verifyLicenseOnline(featureName = null) {
+  try {
+    const license = store.get('license');
+
+    if (!license || !license.token) {
+      return { valid: false, error: '未激活', needActivate: true };
+    }
+
+    const result = await apiRequest('/api/verify', 'POST', {
+      token: license.token,
+      featureName
+    });
+
+    if (result.success && result.data.valid) {
+      license.lastVerifiedAt = Date.now();
+      store.set('license', license);
+      return { valid: true };
+    } else {
+      if (result.data?.needReactivate) {
+        return {
+          valid: false,
+          error: '授权已失效',
+          needReactivate: true
+        };
+      }
+      return { valid: false, error: result.error };
+    }
+
+  } catch (error) {
+    console.error('在线验证失败:', error);
+    return { valid: false, error: '网络错误', offline: true };
+  }
+}
+
+/**
+ * 离线验证授权（容错机制）
+ */
+function verifyLicenseOffline() {
   const license = store.get('license');
 
-  if (!license || !license.key) {
-    return false;
+  if (!license || !license.token) {
+    return { valid: false, error: '未激活' };
   }
 
-  // 验证存储的授权码
-  const result = verifyLicense(license.key);
-  return result.valid;
+  const lastVerified = license.lastVerifiedAt || license.activatedAt;
+  const daysSinceVerified = (Date.now() - lastVerified) / (1000 * 60 * 60 * 24);
+
+  if (daysSinceVerified > CONFIG.OFFLINE_GRACE_DAYS) {
+    return {
+      valid: false,
+      error: `离线时间超过 ${CONFIG.OFFLINE_GRACE_DAYS} 天，请联网验证`
+    };
+  }
+
+  return { valid: true, offline: true };
+}
+
+/**
+ * 检查是否为专业版（混合验证）
+ */
+async function isPro() {
+  const onlineResult = await verifyLicenseOnline();
+
+  if (onlineResult.valid) {
+    return true;
+  }
+
+  if (onlineResult.offline) {
+    const offlineResult = verifyLicenseOffline();
+    return offlineResult.valid;
+  }
+
+  return false;
+}
+
+/**
+ * 检查功能访问权限（关键功能强制在线验证）
+ */
+async function checkFeatureAccess(featureName) {
+  const criticalFeatures = ['pdf_export', 'ai_format'];
+
+  if (criticalFeatures.includes(featureName)) {
+    const result = await verifyLicenseOnline(featureName);
+    return result.valid;
+  }
+
+  return await isPro();
+}
+
+/**
+ * 激活授权码（兼容旧接口）
+ */
+function activateLicense(licenseKey) {
+  return activateLicenseOnline(licenseKey);
+}
+
+/**
+ * 验证授权码（兼容旧接口）
+ */
+function verifyLicense(licenseKey) {
+  return { valid: false, error: '请使用在线激活' };
+}
+
+/**
+ * 获取设备指纹
+ */
+function getDeviceFingerprint() {
+  return generateDeviceFingerprint();
 }
 
 /**
  * 获取授权信息
- * @returns {Object|null}
  */
 function getLicenseInfo() {
   const license = store.get('license');
@@ -160,22 +253,14 @@ function getLicenseInfo() {
   }
 
   return {
-    userId: license.data?.userId,
+    userId: license.license?.userId,
     activatedAt: license.activatedAt,
-    isPro: isPro()
+    isPro: true
   };
 }
 
 /**
- * 获取当前设备指纹（用于用户获取授权码）
- * @returns {string}
- */
-function getDeviceFingerprint() {
-  return generateDeviceFingerprint();
-}
-
-/**
- * 清除授权信息（用于测试或重置）
+ * 清除授权信息
  */
 function clearLicense() {
   store.delete('license');
@@ -187,5 +272,6 @@ module.exports = {
   isPro,
   getLicenseInfo,
   getDeviceFingerprint,
-  clearLicense
+  clearLicense,
+  checkFeatureAccess,
 };

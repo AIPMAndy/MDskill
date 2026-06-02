@@ -68,8 +68,6 @@ let updateTimer = null; // 防抖定时器
 // 初始化
 async function init() {
   try {
-    console.log('=== 开始初始化 ===');
-
     // 初始化 DOM 元素引用
     editor = document.getElementById('editor');
     preview = document.getElementById('preview');
@@ -78,19 +76,14 @@ async function init() {
 
     // 检查关键 DOM 元素
     if (!editor || !preview || !editorContainer) {
-      console.error('关键 DOM 元素缺失:', { editor: !!editor, preview: !!preview, editorContainer: !!editorContainer });
-      alert('应用初始化失败：关键界面元素缺失');
+      console.error('关键 DOM 元素缺失');
+      if (window.toast) {
+        toast.error('应用初始化失败：关键界面元素缺失');
+      } else {
+        alert('应用初始化失败：关键界面元素缺失');
+      }
       return;
     }
-
-    console.log('DOM 元素检查通过');
-
-    // 调试：检查模块是否加载
-    console.log('=== 模块加载检查 ===');
-    console.log('window.copyUtils:', window.copyUtils);
-    console.log('window.themePreview:', window.themePreview);
-    console.log('window.getAllTemplates:', typeof window.getAllTemplates);
-    console.log('window.getTemplateById:', typeof window.getTemplateById);
 
     // 检查订阅状态（非阻塞）
     try {
@@ -155,7 +148,11 @@ async function init() {
       editor = document.getElementById('editor');
       console.log('[CRITICAL] Re-fetched editor:', editor);
       if (!editor) {
-        alert('编辑器元素丢失，应用无法正常工作');
+        if (window.toast) {
+          toast.error('编辑器元素丢失，应用无法正常工作');
+        } else {
+          alert('编辑器元素丢失，应用无法正常工作');
+        }
         return;
       }
     }
@@ -205,15 +202,21 @@ async function init() {
     // 注册 IPC 事件监听器
     try {
       registerIPCListeners();
-      console.log('IPC 事件监听器注册成功');
     } catch (error) {
       console.error('IPC 事件监听器注册失败:', error);
     }
 
-    console.log('=== 初始化完成 ===');
+    // 初始化文档搜索功能
+    if (typeof initDocumentSearch === 'function') {
+      initDocumentSearch();
+    }
   } catch (error) {
     console.error('初始化过程中发生严重错误:', error);
-    alert(`应用初始化失败: ${error.message}`);
+    if (window.toast) {
+      toast.error(`应用初始化失败: ${error.message}`);
+    } else {
+      alert(`应用初始化失败: ${error.message}`);
+    }
   }
 }
 
@@ -252,22 +255,48 @@ function registerDOMListeners() {
   });
 
   document.getElementById('saveBtn').addEventListener('click', async () => {
-    if (currentFilePath) {
-      const result = await ipcRenderer.invoke('save-file', {
-        filePath: currentFilePath,
-        content: editor.value
-      });
-      if (result.success) {
-        isModified = false;
-        updateFileStatus();
+    const saveBtn = document.getElementById('saveBtn');
+    saveBtn.disabled = true;
+
+    try {
+      if (currentFilePath) {
+        const result = await ipcRenderer.invoke('save-file', {
+          filePath: currentFilePath,
+          content: editor.value
+        });
+        if (result.success) {
+          isModified = false;
+          updateFileStatus();
+          if (window.toast) {
+            toast.success('文件已保存');
+          }
+        } else {
+          if (window.toast) {
+            toast.error('保存失败：' + (result.error || '未知错误'));
+          }
+        }
+      } else {
+        const result = await ipcRenderer.invoke('save-file-as', editor.value);
+        if (result.success) {
+          currentFilePath = result.filePath;
+          isModified = false;
+          updateFileStatus();
+          if (window.toast) {
+            toast.success('文件已保存');
+          }
+        } else if (result.error) {
+          if (window.toast) {
+            toast.error('保存失败：' + result.error);
+          }
+        }
       }
-    } else {
-      const result = await ipcRenderer.invoke('save-file-as', editor.value);
-      if (result.success) {
-        currentFilePath = result.filePath;
-        isModified = false;
-        updateFileStatus();
+    } catch (error) {
+      console.error('保存文件时出错:', error);
+      if (window.toast) {
+        toast.error('保存失败：' + error.message);
       }
+    } finally {
+      saveBtn.disabled = false;
     }
   });
 
@@ -379,6 +408,26 @@ function registerDOMListeners() {
     updatePreview();
   });
 
+  // 搜索和大纲按钮
+  const searchBtn = document.getElementById('searchBtn');
+  const outlineBtn = document.getElementById('outlineBtn');
+
+  if (searchBtn) {
+    searchBtn.addEventListener('click', () => {
+      if (window.documentSearch) {
+        window.documentSearch.show('search');
+      }
+    });
+  }
+
+  if (outlineBtn) {
+    outlineBtn.addEventListener('click', () => {
+      if (window.documentSearch) {
+        window.documentSearch.show('outline');
+      }
+    });
+  }
+
   // Markdown 格式化按钮
   document.getElementById('boldBtn').addEventListener('click', () => {
     insertMarkdown('**', '**', 'bold text');
@@ -415,7 +464,11 @@ function registerDOMListeners() {
     }
 
     if (!window.wechatRenderer) {
-      alert('微信渲染器未加载，请刷新页面重试');
+      if (window.toast) {
+        toast.error('微信渲染器未加载，请刷新页面重试');
+      } else {
+        alert('微信渲染器未加载，请刷新页面重试');
+      }
       return;
     }
 
@@ -449,7 +502,11 @@ function registerDOMListeners() {
     }
 
     if (!window.copyUtils) {
-      alert('复制功能模块未加载，请刷新页面重试');
+      if (window.toast) {
+        toast.error('复制功能模块未加载，请刷新页面重试');
+      } else {
+        alert('复制功能模块未加载，请刷新页面重试');
+      }
       return;
     }
 
@@ -475,7 +532,11 @@ function registerDOMListeners() {
     }
 
     if (!window.copyUtils) {
-      alert('复制功能模块未加载，请刷新页面重试');
+      if (window.toast) {
+        toast.error('复制功能模块未加载，请刷新页面重试');
+      } else {
+        alert('复制功能模块未加载，请刷新页面重试');
+      }
       return;
     }
 
@@ -807,7 +868,11 @@ async function formatWithAI(config) {
   const content = editor.value;
 
   if (!content.trim()) {
-    alert('编辑器内容为空');
+    if (window.toast) {
+      toast.warning('编辑器内容为空');
+    } else {
+      alert('编辑器内容为空');
+    }
     return;
   }
 
@@ -848,7 +913,11 @@ async function formatWithAI(config) {
       console.log('AI 格式化已取消');
     } else {
       console.error('AI 格式化失败:', error);
-      alert('AI 格式化失败: ' + error.message);
+      if (window.toast) {
+        toast.error('AI 格式化失败: ' + error.message);
+      } else {
+        alert('AI 格式化失败: ' + error.message);
+      }
     }
   } finally {
     // 隐藏进度提示
@@ -1233,16 +1302,28 @@ async function exportToPDF() {
 
     if (result.success) {
       console.log('PDF exported successfully:', result.filePath);
-      alert(`PDF 导出成功！\n保存位置: ${result.filePath}`);
+      if (window.toast) {
+        toast.success(`PDF 已导出！\n保存位置: ${result.filePath}`, 5000);
+      } else {
+        alert(`PDF 导出成功！\n保存位置: ${result.filePath}`);
+      }
     } else if (result.canceled) {
       console.log('PDF export canceled by user');
     } else {
       console.error('Failed to export PDF:', result.error);
-      alert(`PDF 导出失败: ${result.error}`);
+      if (window.toast) {
+        toast.error(`PDF 导出失败: ${result.error}`);
+      } else {
+        alert(`PDF 导出失败: ${result.error}`);
+      }
     }
   } catch (error) {
     console.error('Error during PDF export:', error);
-    alert(`PDF 导出出错: ${error.message}`);
+    if (window.toast) {
+      toast.error(`PDF 导出出错: ${error.message}`);
+    } else {
+      alert(`PDF 导出出错: ${error.message}`);
+    }
   }
 }
 
@@ -1256,7 +1337,11 @@ function showActivationPrompt(featureName) {
     `微信: AIPMAndy\n\n` +
     `获取授权码后，请在"帮助"菜单中选择"激活专业版"进行激活。`;
 
-  alert(message);
+  if (window.toast) {
+    toast.warning(message.replace(/\n\n/g, '\n'), 6000);
+  } else {
+    alert(message);
+  }
 }
 
 // 初始化应用

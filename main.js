@@ -549,7 +549,51 @@ ipcMain.handle('save-file', async (event, { filePath, content }) => {
 
 ipcMain.handle('save-file-as', async (event, content) => {
   const win = BrowserWindow.fromWebContents(event.sender);
+
+  // 生成智能默认文件名
+  let defaultFileName = 'Untitled.md';
+
+  // 尝试从内容中提取第一个标题作为文件名
+  if (content && content.trim()) {
+    const lines = content.split('\n');
+    for (const line of lines) {
+      const trimmedLine = line.trim();
+      // 匹配 Markdown 标题 (# 标题)
+      const match = trimmedLine.match(/^#{1,6}\s+(.+)$/);
+      if (match) {
+        let title = match[1].trim();
+        // 清理文件名：移除特殊字符
+        title = title
+          .replace(/[<>:"/\\|?*]/g, '') // 移除不允许的字符
+          .replace(/\s+/g, '-') // 空格替换为连字符
+          .substring(0, 100); // 限制长度
+
+        if (title) {
+          defaultFileName = `${title}.md`;
+          break;
+        }
+      }
+    }
+
+    // 如果没有找到标题，使用第一个非空行的前几个字
+    if (defaultFileName === 'Untitled.md') {
+      const firstLine = lines.find(l => l.trim());
+      if (firstLine) {
+        let title = firstLine.trim()
+          .replace(/^[#\s*\->]+/, '') // 移除 Markdown 符号
+          .replace(/[<>:"/\\|?*]/g, '')
+          .replace(/\s+/g, '-')
+          .substring(0, 50);
+
+        if (title) {
+          defaultFileName = `${title}.md`;
+        }
+      }
+    }
+  }
+
   const result = await dialog.showSaveDialog(win, {
+    defaultPath: defaultFileName,
     filters: [
       { name: 'Markdown', extensions: ['md'] },
       { name: 'All Files', extensions: ['*'] }

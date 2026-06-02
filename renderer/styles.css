@@ -64,13 +64,17 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+  -webkit-user-select: none;
+  position: relative;
 }
 
 .toolbar-btn:hover {
   background: #3e3e42;
   color: #ffffff;
   transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .toolbar-btn:active {
@@ -97,6 +101,8 @@ body {
 .toolbar-btn-primary:hover {
   background: #5568d3;
   color: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
 }
 
 .toolbar-divider {
@@ -172,7 +178,7 @@ body {
 
 .template-dropdown:focus {
   border-color: #667eea;
-  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
 }
 
 /* 编辑器容器 */
@@ -597,4 +603,15 @@ body.pdf-export-mode #preview {
     white-space: pre-wrap;
     word-wrap: break-word;
   }
+}
+
+/* 编辑器选区高亮 */
+#editor::selection {
+  background-color: var(--selection-bg, #264f78);
+  color: #ffffff;
+}
+
+#editor::-moz-selection {
+  background-color: var(--selection-bg, #264f78);
+  color: #ffffff;
 }
