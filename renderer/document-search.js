@@ -130,12 +130,25 @@ class DocumentSearch {
       this.performSearch();
     });
 
-    // 点击大纲项
+    // 点击大纲项或搜索结果
     content.addEventListener('click', (e) => {
       const item = e.target.closest('.doc-outline-item');
-      if (item && this.currentTab === 'outline') {
+      if (!item) return;
+
+      if (this.currentTab === 'outline') {
+        // 大纲模式：跳转到行
         const line = parseInt(item.dataset.line);
-        this.jumpToLine(line);
+        if (!isNaN(line)) {
+          this.jumpToLine(line);
+        }
+      } else if (this.currentTab === 'search') {
+        // 搜索模式：跳转到匹配项
+        const index = parseInt(item.dataset.index);
+        if (!isNaN(index) && index >= 0 && index < this.matches.length) {
+          this.currentMatchIndex = index;
+          this.jumpToMatch(index);
+          this.showSearchResults();
+        }
       }
     });
   }
@@ -312,7 +325,7 @@ class DocumentSearch {
       const isActive = index === this.currentMatchIndex;
 
       return `
-        <div class="doc-outline-item ${isActive ? 'active' : ''}" data-index="${index}">
+        <div class="doc-outline-item ${isActive ? 'active' : ''}" data-index="${index}" style="cursor: pointer;">
           <span class="doc-outline-icon">L${line + 1}</span>
           <span class="doc-outline-text">${this.escapeHtml(lineText.trim())}</span>
         </div>
@@ -321,12 +334,17 @@ class DocumentSearch {
 
     content.innerHTML = resultsHTML;
 
-    // 绑定点击事件
-    content.querySelectorAll('.doc-outline-item').forEach((item, index) => {
-      item.addEventListener('click', () => {
-        this.currentMatchIndex = index;
-        this.jumpToMatch(index);
-        this.showSearchResults(); // 更新高亮
+    // 绑定点击事件 - 使用事件委托
+    content.querySelectorAll('.doc-outline-item').forEach((item) => {
+      item.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const index = parseInt(item.dataset.index);
+        if (!isNaN(index) && index >= 0 && index < this.matches.length) {
+          this.currentMatchIndex = index;
+          this.jumpToMatch(index);
+          this.showSearchResults(); // 更新高亮
+        }
       });
     });
   }
