@@ -383,40 +383,9 @@ class DocumentSearch {
     // 移除之前的高亮
     this.removeVisualHighlight();
 
-    // 创建高亮覆盖层
-    const highlight = document.createElement('div');
-    highlight.className = 'search-highlight-overlay';
-    highlight.id = 'searchHighlightOverlay';
-
-    // 计算位置
-    const lineHeight = parseInt(window.getComputedStyle(editor).lineHeight) || 20;
-    const textBeforeCursor = editor.value.substring(0, match.index);
-    const lineNumber = (textBeforeCursor.match(/\n/g) || []).length;
-    const lineText = textBeforeCursor.split('\n').pop();
-
-    // 粗略估算字符宽度（等宽字体）
-    const fontSize = parseInt(window.getComputedStyle(editor).fontSize) || 14;
-    const charWidth = fontSize * 0.6;
-
-    const top = lineNumber * lineHeight - editor.scrollTop;
-    const left = lineText.length * charWidth + 10; // +10 for padding
-
-    highlight.style.position = 'absolute';
-    highlight.style.top = `${top}px`;
-    highlight.style.left = `${left}px`;
-    highlight.style.height = `${lineHeight}px`;
-    highlight.style.width = `${match.length * charWidth}px`;
-    highlight.style.backgroundColor = 'rgba(255, 193, 7, 0.4)';
-    highlight.style.border = '2px solid #ffc107';
-    highlight.style.borderRadius = '3px';
-    highlight.style.pointerEvents = 'none';
-    highlight.style.zIndex = '10';
-    highlight.style.animation = 'searchPulse 0.6s ease-in-out 3';
-
-    // 添加到编辑器容器
-    const editorContainer = editor.parentElement;
-    editorContainer.style.position = 'relative';
-    editorContainer.appendChild(highlight);
+    // 简化方案：不用覆盖层，直接用编辑器的选中颜色
+    // 添加临时 CSS 类来增强选中效果
+    editor.classList.add('search-highlight-active');
 
     // 3秒后移除
     setTimeout(() => {
@@ -425,9 +394,9 @@ class DocumentSearch {
   }
 
   removeVisualHighlight() {
-    const existing = document.getElementById('searchHighlightOverlay');
-    if (existing) {
-      existing.remove();
+    const editor = document.getElementById('editor');
+    if (editor) {
+      editor.classList.remove('search-highlight-active');
     }
   }
 

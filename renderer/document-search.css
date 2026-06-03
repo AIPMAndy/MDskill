@@ -362,3 +362,25 @@
   background-color: #ffc107;
   color: #000;
 }
+
+/* 搜索高亮激活状态 - 增强选中效果 */
+#editor.search-highlight-active::selection {
+  background-color: #ffc107;
+  color: #000;
+  animation: searchTextPulse 0.6s ease-in-out 3;
+}
+
+#editor.search-highlight-active::-moz-selection {
+  background-color: #ffc107;
+  color: #000;
+  animation: searchTextPulse 0.6s ease-in-out 3;
+}
+
+@keyframes searchTextPulse {
+  0%, 100% {
+    background-color: #ffc107;
+  }
+  50% {
+    background-color: #ff9800;
+  }
+}
