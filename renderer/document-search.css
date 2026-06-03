@@ -339,3 +339,26 @@
   background-color: #ff6b35;
   color: #fff;
 }
+
+/* 搜索高亮动画 */
+@keyframes searchPulse {
+  0%, 100% {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+}
+
+/* 编辑器选中文本高亮 */
+#editor::selection {
+  background-color: #ffc107;
+  color: #000;
+}
+
+#editor::-moz-selection {
+  background-color: #ffc107;
+  color: #000;
+}
