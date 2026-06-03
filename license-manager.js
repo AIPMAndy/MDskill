@@ -59,7 +59,7 @@ function apiRequest(endpoint, method = 'GET', data = null) {
       method,
       headers: {
         'Content-Type': 'application/json',
-        'X-API-Key': CONFIG.API_SECRET
+        'x-api-key': CONFIG.API_SECRET  // 统一使用小写
       },
       timeout: 10000
     };
