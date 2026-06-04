@@ -188,6 +188,45 @@ const locales = {
     verifying: 'Verifying license...',
     connected: 'Connected',
 
+    // Runtime messages (alerts/confirms)
+    messages: {
+      initFailed: 'App initialization failed: missing critical UI elements',
+      initError: 'App initialization failed: {error}',
+      editorLost: 'Editor element lost, app cannot work properly',
+      emptyContent: 'Editor content is empty',
+      wechatRendererNotLoaded: 'WeChat renderer not loaded, please refresh and try again',
+      copyModuleNotLoaded: 'Copy module not loaded, please refresh and try again',
+      aiFormatFailed: 'AI formatting failed: {error}',
+      pdfExportSuccess: 'PDF exported successfully!\nSaved to: {path}',
+      pdfExportFailed: 'PDF export failed: {error}',
+      pdfExportError: 'PDF export error: {error}'
+    },
+
+    confirmations: {
+      membershipExpiring: '⏰ Membership Expiring\n\n{message}\n\nRenew now?',
+      membershipExpired: '😢 Membership Expired\n\n{message}\n\nRenew now?',
+      viewMembershipBenefits: '{message}\n\nView membership benefits?'
+    },
+
+    // Document search panel
+    search: {
+      tabSearch: '🔍 Search',
+      tabOutline: '📋 Outline',
+      placeholder: 'Search in document...',
+      emptyHint: 'Enter keywords to search',
+      prevMatch: 'Previous (Shift+Enter)',
+      nextMatch: 'Next (Enter)',
+      caseSensitive: 'Case sensitive',
+      regex: 'Regular expression',
+      noResults: 'No results found',
+      resultsCount: '{current}/{total}'
+    },
+
+    // Editor
+    editor: {
+      placeholder: 'Start writing your Markdown document...\n\nSupported features:\n• Headers: # ## ###\n• Bold: **text**\n• Italic: *text*\n• Links: [text](url)\n• Code: `code` or ```language\n• Lists, tables, and more'
+    },
+
     // Common
     ok: 'OK',
     yes: 'Yes',
@@ -386,6 +425,45 @@ const locales = {
     verifying: '正在验证授权...',
     connected: '已连接',
 
+    // 运行时消息（弹窗）
+    messages: {
+      initFailed: '应用初始化失败：关键界面元素缺失',
+      initError: '应用初始化失败：{error}',
+      editorLost: '编辑器元素丢失，应用无法正常工作',
+      emptyContent: '编辑器内容为空',
+      wechatRendererNotLoaded: '微信渲染器未加载，请刷新页面重试',
+      copyModuleNotLoaded: '复制功能模块未加载，请刷新页面重试',
+      aiFormatFailed: 'AI 格式化失败：{error}',
+      pdfExportSuccess: 'PDF 导出成功！\n保存位置：{path}',
+      pdfExportFailed: 'PDF 导出失败：{error}',
+      pdfExportError: 'PDF 导出出错：{error}'
+    },
+
+    confirmations: {
+      membershipExpiring: '⏰ 会员即将到期\n\n{message}\n\n是否立即续费？',
+      membershipExpired: '😢 会员已过期\n\n{message}\n\n是否立即续费？',
+      viewMembershipBenefits: '{message}\n\n是否查看会员权益？'
+    },
+
+    // 文档搜索面板
+    search: {
+      tabSearch: '🔍 搜索',
+      tabOutline: '📋 大纲',
+      placeholder: '在文档中搜索...',
+      emptyHint: '输入关键词开始搜索',
+      prevMatch: '上一个 (Shift+Enter)',
+      nextMatch: '下一个 (Enter)',
+      caseSensitive: '区分大小写',
+      regex: '正则表达式',
+      noResults: '未找到结果',
+      resultsCount: '{current}/{total}'
+    },
+
+    // 编辑器
+    editor: {
+      placeholder: '开始编写你的 Markdown 文档...\n\n支持的功能：\n• 标题：# ## ###\n• 加粗：**文本**\n• 斜体：*文本*\n• 链接：[文本](url)\n• 代码：`代码` 或 ```语言\n• 列表、表格等更多功能'
+    },
+
     // 通用
     ok: '确定',
     yes: '是',
@@ -424,8 +502,19 @@ function setLanguage(lang) {
   }
 }
 
-// 获取翻译文本
-function t(key, lang = null) {
+// 获取翻译文本（支持变量替换）
+function t(key, langOrParams = null, params = null) {
+  // 兼容两种调用方式：
+  // t('key', 'en') 或 t('key', {var: 'value'})
+  let lang, variables;
+  if (typeof langOrParams === 'string') {
+    lang = langOrParams;
+    variables = params || {};
+  } else {
+    lang = null;
+    variables = langOrParams || {};
+  }
+
   const currentLang = lang || getCurrentLanguage();
   const keys = key.split('.');
   let value = locales[currentLang];
@@ -445,6 +534,13 @@ function t(key, lang = null) {
       }
       break;
     }
+  }
+
+  // 替换变量 {varName}
+  if (typeof value === 'string' && Object.keys(variables).length > 0) {
+    value = value.replace(/\{(\w+)\}/g, (match, varName) => {
+      return variables[varName] !== undefined ? variables[varName] : match;
+    });
   }
 
   return value;

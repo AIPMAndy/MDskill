@@ -82,10 +82,11 @@ async function init() {
     // 检查关键 DOM 元素
     if (!editor || !preview || !editorContainer) {
       console.error('关键 DOM 元素缺失');
+      const msg = window.i18nHelpers ? window.i18nHelpers.t('messages.initFailed') : 'App initialization failed';
       if (window.toast) {
-        toast.error('应用初始化失败：关键界面元素缺失');
+        toast.error(msg);
       } else {
-        alert('应用初始化失败：关键界面元素缺失');
+        alert(msg);
       }
       return;
     }
@@ -153,10 +154,11 @@ async function init() {
       editor = document.getElementById('editor');
       console.log('[CRITICAL] Re-fetched editor:', editor);
       if (!editor) {
+        const msg = window.i18nHelpers ? window.i18nHelpers.t('messages.editorLost') : 'Editor element lost';
         if (window.toast) {
-          toast.error('编辑器元素丢失，应用无法正常工作');
+          toast.error(msg);
         } else {
-          alert('编辑器元素丢失，应用无法正常工作');
+          alert(msg);
         }
         return;
       }
