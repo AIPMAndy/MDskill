@@ -471,10 +471,11 @@ function registerDOMListeners() {
     }
 
     if (!window.wechatRenderer) {
+      const msg = window.i18nHelpers ? window.i18nHelpers.t('messages.wechatRendererNotLoaded') : 'WeChat renderer not loaded';
       if (window.toast) {
-        toast.error('微信渲染器未加载，请刷新页面重试');
+        toast.error(msg);
       } else {
-        alert('微信渲染器未加载，请刷新页面重试');
+        alert(msg);
       }
       return;
     }
@@ -780,7 +781,11 @@ async function checkSubscriptionStatus() {
 function showRenewalReminder(status) {
   const message = `您的会员将在 ${status.daysLeft} 天后到期，续费仅需 19元/月`;
 
-  if (confirm(`⏰ 会员即将到期\n\n${message}\n\n是否立即续费？`)) {
+  if (window.i18nHelpers && window.i18nHelpers.showConfirm) {
+    if (window.i18nHelpers.showConfirm('confirmations.membershipExpiring', { message })) {
+      openSubscriptionWindow();
+    }
+  } else if (confirm(`⏰ 会员即将到期\n\n${message}\n\n是否立即续费？`)) {
     openSubscriptionWindow();
   }
 
@@ -792,7 +797,11 @@ function showRenewalReminder(status) {
 function showExpiredNotice(status) {
   const message = '您的会员已过期，续费后立即恢复所有功能\n\n月会员：19元/月';
 
-  if (confirm(`😢 会员已过期\n\n${message}\n\n是否立即续费？`)) {
+  if (window.i18nHelpers && window.i18nHelpers.showConfirm) {
+    if (window.i18nHelpers.showConfirm('confirmations.membershipExpired', { message })) {
+      openSubscriptionWindow();
+    }
+  } else if (confirm(`😢 会员已过期\n\n${message}\n\n是否立即续费？`)) {
     openSubscriptionWindow();
   }
 }
@@ -875,10 +884,11 @@ async function formatWithAI(config) {
   const content = editor.value;
 
   if (!content.trim()) {
+    const msg = window.i18nHelpers ? window.i18nHelpers.t('messages.emptyContent') : 'Editor content is empty';
     if (window.toast) {
-      toast.warning('编辑器内容为空');
+      toast.warning(msg);
     } else {
-      alert('编辑器内容为空');
+      alert(msg);
     }
     return;
   }
@@ -1164,7 +1174,11 @@ async function checkFeatureAccess(featureName) {
 function showFeatureLockedPrompt(featureName) {
   const message = `🔒 ${featureName}是会员专享功能\n\n月会员：19元/月\n新用户享7天免费试用`;
 
-  if (confirm(`${message}\n\n是否查看会员权益？`)) {
+  if (window.i18nHelpers && window.i18nHelpers.showConfirm) {
+    if (window.i18nHelpers.showConfirm('confirmations.viewMembershipBenefits', { message })) {
+      openSubscriptionWindow();
+    }
+  } else if (confirm(`${message}\n\n是否查看会员权益？`)) {
     openSubscriptionWindow();
   }
 }
@@ -1309,27 +1323,36 @@ async function exportToPDF() {
 
     if (result.success) {
       console.log('PDF exported successfully:', result.filePath);
+      const msg = window.i18nHelpers
+        ? window.i18nHelpers.t('messages.pdfExportSuccess', { path: result.filePath })
+        : `PDF exported successfully!\nSaved to: ${result.filePath}`;
       if (window.toast) {
-        toast.success(`PDF 已导出！\n保存位置: ${result.filePath}`, 5000);
+        toast.success(msg, 5000);
       } else {
-        alert(`PDF 导出成功！\n保存位置: ${result.filePath}`);
+        alert(msg);
       }
     } else if (result.canceled) {
       console.log('PDF export canceled by user');
     } else {
       console.error('Failed to export PDF:', result.error);
+      const msg = window.i18nHelpers
+        ? window.i18nHelpers.t('messages.pdfExportFailed', { error: result.error })
+        : `PDF export failed: ${result.error}`;
       if (window.toast) {
-        toast.error(`PDF 导出失败: ${result.error}`);
+        toast.error(msg);
       } else {
-        alert(`PDF 导出失败: ${result.error}`);
+        alert(msg);
       }
     }
   } catch (error) {
     console.error('Error during PDF export:', error);
+    const msg = window.i18nHelpers
+      ? window.i18nHelpers.t('messages.pdfExportError', { error: error.message })
+      : `PDF export error: ${error.message}`;
     if (window.toast) {
-      toast.error(`PDF 导出出错: ${error.message}`);
+      toast.error(msg);
     } else {
-      alert(`PDF 导出出错: ${error.message}`);
+      alert(msg);
     }
   }
 }
