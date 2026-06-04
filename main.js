@@ -9,109 +9,26 @@ const store = new Store();
 
 let windows = []; // 存储所有窗口
 let pendingFilePath = null; // 缓存 app ready 前的文件路径
-let currentLanguage = store.get('language', 'en'); // 默认英文
 
-// 菜单文本国际化
-const menuTexts = {
-  en: {
-    file: 'File',
-    newWindow: 'New Window',
-    open: 'Open',
-    save: 'Save',
-    saveAs: 'Save As',
-    export: 'Export',
-    copyForWeChat: 'Copy for WeChat',
-    copyForBlog: 'Copy for Blog',
-    copyHTMLSource: 'Copy HTML Source',
-    exportAsPDF: 'Export as PDF',
-    close: 'Close',
-    quit: 'Quit',
-    edit: 'Edit',
-    undo: 'Undo',
-    redo: 'Redo',
-    cut: 'Cut',
-    copy: 'Copy',
-    paste: 'Paste',
-    selectAll: 'Select All',
-    view: 'View',
-    togglePreview: 'Toggle Preview',
-    reload: 'Reload',
-    toggleDevTools: 'Toggle Developer Tools',
-    resetZoom: 'Actual Size',
-    zoomIn: 'Zoom In',
-    zoomOut: 'Zoom Out',
-    toggleFullscreen: 'Toggle Full Screen',
-    window: 'Window',
-    minimize: 'Minimize',
-    zoom: 'Zoom',
-    front: 'Bring All to Front',
-    help: 'Help',
-    about: 'About MDskill',
-    activatePro: 'Activate Pro Version',
-    getDeviceFingerprint: 'Get Device Fingerprint',
-    contactDeveloper: 'Contact Developer',
-    language: 'Language',
-    switchToEnglish: 'English',
-    switchToChinese: '中文',
-    aiConfig: 'AI Configuration'
-  },
-  zh: {
-    file: '文件',
-    newWindow: '新建窗口',
-    open: '打开',
-    save: '保存',
-    saveAs: '另存为',
-    export: '导出',
-    copyForWeChat: '复制到微信公众号',
-    copyForBlog: '复制到博客',
-    copyHTMLSource: '复制 HTML 源码',
-    exportAsPDF: '导出为 PDF',
-    close: '关闭',
-    quit: '退出',
-    edit: '编辑',
-    undo: '撤销',
-    redo: '重做',
-    cut: '剪切',
-    copy: '复制',
-    paste: '粘贴',
-    selectAll: '全选',
-    view: '视图',
-    togglePreview: '切换预览',
-    reload: '重新加载',
-    toggleDevTools: '切换开发者工具',
-    resetZoom: '实际大小',
-    zoomIn: '放大',
-    zoomOut: '缩小',
-    toggleFullscreen: '切换全屏',
-    window: '窗口',
-    minimize: '最小化',
-    zoom: '缩放',
-    front: '前置所有窗口',
-    help: '帮助',
-    about: '关于 MDskill',
-    activatePro: '激活专业版',
-    getDeviceFingerprint: '获取设备指纹',
-    contactDeveloper: '联系开发者',
-    language: '语言',
-    switchToEnglish: 'English',
-    switchToChinese: '中文',
-    aiConfig: 'AI 配置'
-  }
-};
+// 加载 i18n 配置
+const { t: i18nT, getCurrentLanguage, setLanguage } = require('./i18n/locales');
+let currentLanguage = getCurrentLanguage();
 
 // 获取当前语言的文本
 function t(key) {
-  return menuTexts[currentLanguage][key] || key;
+  return i18nT(key, currentLanguage);
 }
 
 // 切换语言
 function switchLanguage(lang) {
   currentLanguage = lang;
-  store.set('language', lang);
+  setLanguage(lang);
   // 重建所有窗口的菜单
   windows.forEach(win => {
     if (win && !win.isDestroyed()) {
       buildMenu(win);
+      // 通知渲染进程语言已切换
+      win.webContents.send('language-changed', lang);
     }
   });
 }

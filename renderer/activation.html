@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>激活专业版 - MDSKILL</title>
+  <title data-i18n="activateTitle">激活专业版 - MDSKILL</title>
   <style>
     * {
       margin: 0;
@@ -12,7 +12,7 @@
     }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", "Helvetica Neue", Arial, "Noto Sans CJK SC", sans-serif;
       background: #f5f5f7;
       display: flex;
       align-items: center;
@@ -56,38 +56,58 @@
       line-height: 1.5;
     }
 
-    /* 试用信息 */
-    .trial-info {
-      padding: 20px 24px;
-      background: #fff9e6;
+    /* 隐私信息区域 - NEW */
+    .privacy-section {
+      padding: 16px 24px;
+      background: #f0f8ff;
       border-bottom: 1px solid #e5e5e7;
-      text-align: center;
     }
 
-    .trial-badge {
-      display: inline-block;
-      padding: 6px 12px;
-      background: #ffc107;
-      color: white;
-      border-radius: 12px;
-      font-size: 12px;
+    .privacy-title {
+      font-size: 13px;
       font-weight: 600;
+      color: #0078D2;
       margin-bottom: 8px;
+      display: flex;
+      align-items: center;
     }
 
-    .trial-text {
-      font-size: 14px;
-      color: #856404;
+    .privacy-icon {
+      margin-right: 6px;
     }
 
-    .trial-days {
-      font-size: 20px;
-      font-weight: 700;
-      color: #856404;
+    .privacy-content {
+      font-size: 12px;
+      color: #555;
+      line-height: 1.6;
     }
 
-    /* 功能列表 */
-    .features-section {
+    .privacy-list {
+      margin: 8px 0;
+      padding-left: 16px;
+    }
+
+    .privacy-list li {
+      margin: 4px 0;
+    }
+
+    .privacy-links {
+      margin-top: 8px;
+      font-size: 11px;
+    }
+
+    .privacy-links a {
+      color: #0078D2;
+      text-decoration: none;
+      margin-right: 12px;
+    }
+
+    .privacy-links a:hover {
+      text-decoration: underline;
+    }
+
+    /* 设备ID区域 */
+    .device-section {
       padding: 20px 24px;
       border-bottom: 1px solid #e5e5e7;
     }
@@ -101,109 +121,45 @@
       margin-bottom: 12px;
     }
 
-    .feature-list {
-      list-style: none;
-    }
-
-    .feature-item {
+    .device-id-container {
       display: flex;
       align-items: center;
-      padding: 10px 0;
-      border-bottom: 1px solid #f5f5f7;
+      gap: 8px;
     }
 
-    .feature-item:last-child {
-      border-bottom: none;
-    }
-
-    .feature-icon {
-      font-size: 18px;
-      margin-right: 12px;
-      width: 24px;
-      text-align: center;
-    }
-
-    .feature-text {
+    .device-id {
       flex: 1;
-      font-size: 15px;
+      padding: 10px 12px;
+      background: #f5f5f7;
+      border-radius: 6px;
+      font-family: 'SF Mono', Monaco, Consolas, monospace;
+      font-size: 12px;
       color: #1d1d1f;
+      word-break: break-all;
+      user-select: all;
     }
 
-    .feature-check {
-      color: #34c759;
-      font-size: 18px;
-    }
-
-    /* 价格区域 */
-    .pricing-section {
-      padding: 20px 24px;
-      background: #fafafa;
-      border-bottom: 1px solid #e5e5e7;
-    }
-
-    .pricing-options {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin-bottom: 16px;
-    }
-
-    .pricing-card {
-      padding: 16px;
-      background: white;
-      border: 2px solid #e5e5e7;
-      border-radius: 8px;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .pricing-card:hover {
-      border-color: #0078D2;
-    }
-
-    .pricing-card.recommended {
-      border-color: #0078D2;
-      background: #f0f8ff;
-      position: relative;
-    }
-
-    .pricing-card.recommended::before {
-      content: "推荐";
-      position: absolute;
-      top: -8px;
-      right: 8px;
+    .copy-btn-small {
+      padding: 8px 12px;
       background: #0078D2;
       color: white;
-      padding: 2px 8px;
-      border-radius: 4px;
-      font-size: 11px;
-      font-weight: 600;
-    }
-
-    .pricing-period {
-      font-size: 14px;
-      color: #86868b;
-      margin-bottom: 8px;
-    }
-
-    .pricing-amount {
-      font-size: 28px;
-      font-weight: 700;
-      color: #0078D2;
-      margin-bottom: 4px;
-    }
-
-    .pricing-save {
+      border: none;
+      border-radius: 6px;
       font-size: 12px;
-      color: #34c759;
-      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.2s;
     }
 
-    .pricing-note {
-      text-align: center;
-      font-size: 13px;
+    .copy-btn-small:hover {
+      background: #006bb3;
+    }
+
+    .device-hint {
+      font-size: 11px;
       color: #86868b;
+      margin-top: 8px;
+      line-height: 1.5;
     }
 
     /* 激活码输入 */
@@ -270,22 +226,9 @@
       background: #006bb3;
     }
 
-    .btn-primary:active {
-      background: #005a94;
-    }
-
     .btn-primary:disabled {
       background: #d1d1d6;
       cursor: not-allowed;
-    }
-
-    .btn-secondary {
-      background: #f5f5f7;
-      color: #1d1d1f;
-    }
-
-    .btn-secondary:hover {
-      background: #e5e5e7;
     }
 
     .btn-text {
@@ -298,56 +241,15 @@
       background: #f5f5f7;
     }
 
-    /* 支付信息 */
-    .payment-section {
+    /* 联系方式区域 */
+    .contact-section {
       padding: 20px 24px;
       background: #fafafa;
       border-top: 1px solid #e5e5e7;
       text-align: center;
     }
 
-    .payment-tabs {
-      display: flex;
-      gap: 12px;
-      justify-content: center;
-      margin-bottom: 16px;
-    }
-
-    .payment-tab {
-      padding: 8px 16px;
-      border-radius: 8px;
-      background: white;
-      border: 1px solid #e5e5e7;
-      cursor: pointer;
-      transition: all 0.2s;
-      font-size: 14px;
-    }
-
-    .payment-tab:hover {
-      border-color: #0078D2;
-    }
-
-    .payment-tab.active {
-      background: #0078D2;
-      color: white;
-      border-color: #0078D2;
-    }
-
-    .qr-placeholder {
-      width: 200px;
-      height: 200px;
-      margin: 0 auto 12px;
-      background: white;
-      border: 1px solid #e5e5e7;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #86868b;
-      font-size: 14px;
-    }
-
-    .payment-note {
+    .contact-note {
       font-size: 13px;
       color: #86868b;
       margin-bottom: 8px;
@@ -359,22 +261,10 @@
       font-weight: 500;
     }
 
-    /* 帮助链接 */
-    .help-section {
-      padding: 16px 24px;
-      text-align: center;
-      border-top: 1px solid #e5e5e7;
-    }
-
-    .help-link {
-      color: #0078D2;
-      text-decoration: none;
-      font-size: 14px;
-      transition: opacity 0.2s;
-    }
-
-    .help-link:hover {
-      opacity: 0.7;
+    /* 加载状态 */
+    .loading {
+      opacity: 0.6;
+      pointer-events: none;
     }
   </style>
 </head>
@@ -383,172 +273,220 @@
     <!-- 头部 -->
     <div class="header">
       <div class="header-icon">🎉</div>
-      <div class="header-title">升级到专业版</div>
-      <div class="header-subtitle">
-        解锁全部高级功能，让创作更高效
+      <div class="header-title" data-i18n="activateTitle">Upgrade to Pro</div>
+      <div class="header-subtitle" data-i18n="activateSubtitle">
+        Unlock all premium features
       </div>
     </div>
 
-    <!-- 试用信息 -->
-    <div class="trial-info" id="trialInfo">
-      <div class="trial-badge">试用期</div>
-      <div class="trial-text">
-        还剩 <span class="trial-days" id="daysLeft">7</span> 天试用时间
+    <!-- 隐私信息 -->
+    <div class="privacy-section">
+      <div class="privacy-title">
+        <span class="privacy-icon">🔒</span>
+        <span data-i18n="privacyTitle">Privacy & Data Collection</span>
       </div>
-    </div>
-
-    <!-- 专业功能 -->
-    <div class="features-section">
-      <div class="section-title">专业功能</div>
-      <ul class="feature-list">
-        <li class="feature-item">
-          <span class="feature-icon">📱</span>
-          <span class="feature-text">复制到微信公众号</span>
-          <span class="feature-check">✓</span>
-        </li>
-        <li class="feature-item">
-          <span class="feature-icon">📝</span>
-          <span class="feature-text">复制到博客平台</span>
-          <span class="feature-check">✓</span>
-        </li>
-        <li class="feature-item">
-          <span class="feature-icon">💻</span>
-          <span class="feature-text">复制HTML源码</span>
-          <span class="feature-check">✓</span>
-        </li>
-        <li class="feature-item">
-          <span class="feature-icon">📄</span>
-          <span class="feature-text">导出PDF</span>
-          <span class="feature-check">✓</span>
-        </li>
-        <li class="feature-item">
-          <span class="feature-icon">🎨</span>
-          <span class="feature-text">13种精美主题</span>
-          <span class="feature-check">✓</span>
-        </li>
-      </ul>
-    </div>
-
-    <!-- 价格选项 -->
-    <div class="pricing-section">
-      <div class="section-title">选择订阅时长</div>
-      <div class="pricing-options">
-        <div class="pricing-card">
-          <div class="pricing-period">月付</div>
-          <div class="pricing-amount">¥19</div>
-          <div class="pricing-save">灵活选择</div>
-        </div>
-        <div class="pricing-card recommended">
-          <div class="pricing-period">年付</div>
-          <div class="pricing-amount">¥99</div>
-          <div class="pricing-save">省 ¥129</div>
+      <div class="privacy-content">
+        <div data-i18n="whatWeCollect"><strong>What we collect:</strong></div>
+        <ul class="privacy-list" id="collectList">
+          <li>Device hostname (hashed for privacy)</li>
+          <li>Operating system type</li>
+          <li>CPU architecture</li>
+          <li>Application version</li>
+        </ul>
+        <div data-i18n="whatWeDoNotCollect"><strong>What we do NOT collect:</strong></div>
+        <ul class="privacy-list" id="doNotCollectList">
+          <li>Your documents or file contents</li>
+          <li>Browsing history or usage patterns</li>
+          <li>Location data or IP address</li>
+          <li>Personal information</li>
+        </ul>
+        <div class="privacy-links">
+          <a href="#" data-i18n="privacyPolicy">Privacy Policy</a>
+          <a href="#" data-i18n="termsOfService">Terms of Service</a>
         </div>
       </div>
-      <div class="pricing-note">
-        年付相当于 ¥8.25/月，超值优惠
+    </div>
+
+    <!-- 设备ID -->
+    <div class="device-section">
+      <div class="section-title" data-i18n="deviceFingerprint">Device ID</div>
+      <div class="device-id-container">
+        <div class="device-id" id="deviceId">Loading...</div>
+        <button class="copy-btn-small" id="copyBtn" data-i18n="copyDeviceId">Copy</button>
+      </div>
+      <div class="device-hint" data-i18n="deviceHint">
+        This ID is generated from your hardware information and does not contain any personal data. It is used only for license verification.
       </div>
     </div>
 
     <!-- 激活码输入 -->
     <div class="activation-section">
-      <div class="input-label">输入激活码</div>
+      <div class="input-label" data-i18n="licenseKey">License Key</div>
       <input
         type="text"
         class="input-field"
-        id="activationCodeInput"
+        id="licenseKeyInput"
         placeholder="eyJ1-c2Vy-SWQi-...|df52-b5e6-..."
       />
-      <div class="input-hint">
-        支付后客服会将激活码发送给您
+      <div class="input-hint" data-i18n="helpText">
+        Copy your Device ID and email us to get your license key.
       </div>
     </div>
 
     <!-- 操作按钮 -->
     <div class="actions-section">
-      <button class="btn btn-primary" id="activateBtn">立即激活</button>
-      <button class="btn btn-text" id="laterBtn">稍后</button>
+      <button class="btn btn-primary" id="activateBtn" data-i18n="activate">Activate</button>
+      <button class="btn btn-text" id="laterBtn" data-i18n="cancel">Cancel</button>
     </div>
 
-    <!-- 购买提示 -->
-    <div class="payment-section">
-      <div class="section-title">购买激活码</div>
-      <div class="payment-note">请联系客服购买激活码</div>
-      <div class="contact-info">
-        微信：AIPMAndy<br>
-        邮箱：supera6@qq.com
+    <!-- 联系方式 -->
+    <div class="contact-section">
+      <div class="section-title" data-i18n="getKey">Get License Key</div>
+      <div class="contact-note" data-i18n="contactNote">Please contact us to purchase a license key</div>
+      <div class="contact-info" id="contactInfo">
+        Email: support@mdskill.io
       </div>
-    </div>
-
-    <!-- 帮助链接 -->
-    <div class="help-section">
-      <a href="#" class="help-link" id="helpLink">需要帮助？查看使用指南</a>
     </div>
   </div>
 
+  <script src="../i18n/locales.js"></script>
   <script>
     const ipcRenderer = window.electron?.ipcRenderer;
+    let currentLang = 'en';
 
-    // 加载试用信息
-    async function loadTrialInfo() {
-      if (!ipcRenderer) return;
+    // 加载语言配置
+    async function loadLanguage() {
+      currentLang = getCurrentLanguage();
+      updateUIText();
+    }
 
-      try {
-        const info = await ipcRenderer.invoke('get-subscription-info');
+    // 更新界面文本
+    function updateUIText() {
+      // 更新所有带 data-i18n 属性的元素
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        el.textContent = t(key, currentLang);
+      });
 
-        if (info.status === 'trial') {
-          document.getElementById('daysLeft').textContent = info.daysLeft || 0;
-          document.getElementById('trialInfo').style.display = 'block';
-        } else {
-          document.getElementById('trialInfo').style.display = 'none';
-        }
-      } catch (error) {
-        console.error('加载试用信息失败:', error);
+      // 更新 title
+      document.title = t('activatePro', currentLang);
+
+      // 更新列表项
+      const collectList = document.getElementById('collectList');
+      const doNotCollectList = document.getElementById('doNotCollectList');
+
+      const locale = currentLang === 'zh' ? locales.zh : locales.en;
+
+      collectList.innerHTML = locale.collectList.map(item => `<li>${item}</li>`).join('');
+      doNotCollectList.innerHTML = locale.doNotCollectList.map(item => `<li>${item}</li>`).join('');
+
+      // 更新联系方式
+      const contactInfo = document.getElementById('contactInfo');
+      contactInfo.innerHTML = t('contactInfo', currentLang);
+
+      // 更新输入框 placeholder
+      const input = document.getElementById('licenseKeyInput');
+      if (input) {
+        input.placeholder = currentLang === 'zh'
+          ? 'eyJ1-c2Vy-SWQi-...|df52-b5e6-...'
+          : 'eyJ1-c2Vy-SWQi-...|df52-b5e6-...';
       }
     }
 
+    // 加载设备指纹
+    async function loadDeviceFingerprint() {
+      if (!ipcRenderer) return;
+
+      try {
+        const fingerprint = await ipcRenderer.invoke('get-device-fingerprint');
+        document.getElementById('deviceId').textContent = fingerprint;
+      } catch (error) {
+        console.error('Failed to load device fingerprint:', error);
+        document.getElementById('deviceId').textContent = 'Error loading';
+      }
+    }
+
+    // 复制设备ID
+    document.getElementById('copyBtn').addEventListener('click', async () => {
+      const deviceId = document.getElementById('deviceId').textContent;
+
+      if (navigator.clipboard) {
+        try {
+          await navigator.clipboard.writeText(deviceId);
+          const btn = document.getElementById('copyBtn');
+          const originalText = btn.textContent;
+          btn.textContent = currentLang === 'zh' ? '已复制!' : 'Copied!';
+          setTimeout(() => {
+            btn.textContent = originalText;
+          }, 2000);
+        } catch (err) {
+          console.error('Failed to copy:', err);
+        }
+      }
+    });
+
     // 激活按钮
     document.getElementById('activateBtn').addEventListener('click', async () => {
-      const code = document.getElementById('activationCodeInput').value.trim();
+      const licenseKey = document.getElementById('licenseKeyInput').value.trim();
 
-      if (!code) {
-        alert('请输入激活码');
+      if (!licenseKey) {
+        alert(currentLang === 'zh' ? '请输入授权码' : 'Please enter license key');
         return;
       }
 
       if (!ipcRenderer) {
-        alert('IPC 通信不可用');
+        alert(currentLang === 'zh' ? 'IPC 通信不可用' : 'IPC communication unavailable');
         return;
       }
 
+      const btn = document.getElementById('activateBtn');
+      btn.disabled = true;
+      btn.textContent = t('activating', currentLang);
+
       try {
-        const result = await ipcRenderer.invoke('activate-with-code', code);
+        const result = await ipcRenderer.invoke('activate-license', licenseKey);
 
         if (result.success) {
-          alert(`激活成功！\n会员时长：${result.months} 个月\n到期日期：${new Date(result.expiryDate).toLocaleDateString('zh-CN')}`);
+          alert(t('activationSuccess', currentLang));
           window.close();
         } else {
-          alert('激活失败：' + (result.message || '未知错误'));
+          // 显示友好的错误消息
+          const errorKey = result.errorCode || 'networkError';
+          const errorMsg = locales[currentLang].errors[errorKey];
+
+          if (errorMsg) {
+            const message = `${errorMsg.title}\n\n${errorMsg.message}\n\n${errorMsg.suggestions.map((s, i) => `${i + 1}. ${s}`).join('\n')}`;
+            alert(message);
+          } else {
+            alert(result.message || t('activationFailed', currentLang));
+          }
         }
       } catch (error) {
-        alert('激活失败：' + error.message);
+        console.error('Activation error:', error);
+        alert(t('errors.serverError.message', currentLang));
+      } finally {
+        btn.disabled = false;
+        btn.textContent = t('activate', currentLang);
       }
     });
 
-    // 稍后按钮
+    // 取消按钮
     document.getElementById('laterBtn').addEventListener('click', () => {
       window.close();
     });
 
-    // 帮助链接
-    document.getElementById('helpLink').addEventListener('click', (e) => {
-      e.preventDefault();
-      if (ipcRenderer) {
-        ipcRenderer.send('open-help');
-      }
-    });
+    // 监听语言切换
+    if (ipcRenderer) {
+      ipcRenderer.on('language-changed', (event, lang) => {
+        currentLang = lang;
+        setLanguage(lang);
+        updateUIText();
+      });
+    }
 
-    // 页面加载时加载试用信息
-    loadTrialInfo();
+    // 页面加载时初始化
+    loadLanguage();
+    loadDeviceFingerprint();
   </script>
 </body>
 </html>

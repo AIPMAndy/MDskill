@@ -99,6 +99,42 @@ async function activateLicenseOnline(licenseKey) {
     const deviceId = generateDeviceFingerprint();
     const deviceInfo = getDeviceInfo();
 
+    const result = await apiRequest('/activate', 'POST', {
+      licenseKey,
+      deviceId,
+      deviceInfo
+    });
+
+    if (result.success) {
+      store.set('license', {
+        key: licenseKey,
+        deviceId,
+        activatedAt: Date.now(),
+        lastVerified: Date.now()
+      });
+
+      return {
+        success: true,
+        errorCode: null,
+        message: 'Activation successful'
+      };
+    } else {
+      return {
+        success: false,
+        errorCode: result.code || 'invalidLicense',
+        message: result.message || 'Activation failed'
+      };
+    }
+  } catch (error) {
+    console.error('Activation error:', error);
+    return {
+      success: false,
+      errorCode: 'networkError',
+      message: error.message || 'Network error'
+    };
+  }
+}
+
     const result = await apiRequest('/api/activate', 'POST', {
       licenseKey,
       deviceId,

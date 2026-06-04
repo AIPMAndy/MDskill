@@ -74,6 +74,11 @@ async function init() {
     editorContainer = document.querySelector('.editor-container');
     fileStatus = document.getElementById('fileStatus');
 
+    // 初始化工具栏多语言
+    if (typeof initToolbarI18n === 'function') {
+      initToolbarI18n();
+    }
+
     // 检查关键 DOM 元素
     if (!editor || !preview || !editorContainer) {
       console.error('关键 DOM 元素缺失');
