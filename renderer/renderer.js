@@ -4,6 +4,15 @@ const hljs = require('highlight.js');
 const katex = require('katex');
 const licenseManager = require('../license-manager');
 
+// 模板函数包装 - 从全局 window 对象获取
+function getAllTemplates() {
+  return window.getAllTemplates ? window.getAllTemplates() : [];
+}
+
+function getTemplateById(id) {
+  return window.getTemplateById ? window.getTemplateById(id) : null;
+}
+
 // 工具函数将在脚本加载后从全局对象获取
 
 // 配置 marked
@@ -16,8 +25,9 @@ marked.setOptions({
     }
     return hljs.highlightAuto(code).value;
   },
-  breaks: true,
-  gfm: true
+  breaks: false,  // 关闭自动换行转 <br>，避免多余空行
+  gfm: true,
+  pedantic: false
 });
 
 // 扩展 marked 支持 KaTeX
@@ -47,7 +57,29 @@ renderer.code = function(code, language) {
       return '<pre><code>' + code + '</code></pre>';
     }
   }
-  return originalCode(code, language);
+
+  // 先获取高亮后的代码（不带行号）
+  const highlighted = originalCode(code, language);
+
+  // 提取 <code> 标签内的内容
+  const codeMatch = highlighted.match(/<code[^>]*>([\s\S]*)<\/code>/);
+  if (!codeMatch) {
+    return highlighted;
+  }
+
+  const highlightedCode = codeMatch[1];
+  const lines = highlightedCode.split('\n');
+
+  // 给已高亮的代码添加行号
+  const numberedLines = lines.map((line, index) => {
+    const lineNum = index + 1;
+    return `<span class="code-line" data-line="${lineNum}"><span class="line-number">${lineNum}</span>${line}</span>`;
+  }).join('\n');
+
+  // 替换原来的代码内容
+  return highlighted
+    .replace(/<code[^>]*>[\s\S]*<\/code>/, `<code>${numberedLines}</code>`)
+    .replace(/<pre>/, '<pre class="code-block-with-lines">');
 };
 
 marked.use({ renderer });
@@ -64,6 +96,8 @@ let isModified = false;
 let previewVisible = true;
 let currentTemplate = null;
 let updateTimer = null; // 防抖定时器
+let editorFontSize = 16; // 默认字体大小
+let lastSaveTime = null; // 最后保存时间
 
 // 初始化
 async function init() {
@@ -74,10 +108,7 @@ async function init() {
     editorContainer = document.querySelector('.editor-container');
     fileStatus = document.getElementById('fileStatus');
 
-    // 初始化工具栏多语言
-    if (typeof initToolbarI18n === 'function') {
-      initToolbarI18n();
-    }
+    updateLocalizedChrome();
 
     // 检查关键 DOM 元素
     if (!editor || !preview || !editorContainer) {
@@ -191,9 +222,11 @@ async function init() {
     // 不自动加载上次打开的文件，让用户主动选择
     // 如果是通过双击文件打开，会通过 'file-opened' 事件加载
 
-    // 初始预览
+    // 初始预览 - 延迟执行确保 DOM 完全就绪
     try {
-      updatePreview();
+      requestAnimationFrame(() => {
+        updatePreview();
+      });
     } catch (error) {
       console.error('预览更新失败:', error);
     }
@@ -217,24 +250,94 @@ async function init() {
     if (typeof initDocumentSearch === 'function') {
       initDocumentSearch();
     }
+
+    // 初始化查找/替换功能
+    if (typeof FindReplace !== 'undefined') {
+      window.findReplace = new FindReplace(editor);
+      console.log('查找/替换功能初始化成功');
+    }
+
+    // 初始化行号功能
+    if (typeof LineNumbers !== 'undefined') {
+      const editorPane = document.querySelector('.editor-pane');
+      window.lineNumbers = new LineNumbers(editor, editorPane);
+      window.lineNumbers.restore();
+      console.log('行号功能初始化成功');
+    }
+
+    // 初始化命令面板
+    if (typeof CommandPalette !== 'undefined') {
+      window.commandPalette = new CommandPalette();
+      console.log('命令面板初始化成功');
+    }
+
+    // 恢复代码块行号设置
+    const codeBlockLinesEnabled = localStorage.getItem('codeBlockLinesEnabled');
+    if (codeBlockLinesEnabled === 'false') {
+      preview.classList.add('code-block-lines-disabled');
+    }
+
+    // 初始化字体大小设置
+    initFontSize();
+
+    // 初始化状态栏
+    initStatusBar();
+
+    // 通知主进程渲染进程已完全就绪
+    console.log('[init] Renderer is ready, notifying main process');
+    const windowId = await ipcRenderer.invoke('get-window-id');
+    ipcRenderer.send(`renderer-ready-${windowId}`);
   } catch (error) {
     console.error('初始化过程中发生严重错误:', error);
     if (window.toast) {
-      toast.error(`应用初始化失败: ${error.message}`);
+      toast.error(window.i18nHelpers.t('alerts.initFailed', {error: error.message}));
     } else {
-      alert(`应用初始化失败: ${error.message}`);
+      window.i18nHelpers.showAlert('alerts.initFailed', {error: error.message});
     }
   }
 }
 
 // 注册所有 DOM 事件监听器
 function registerDOMListeners() {
+  // 保存编辑器状态的防抖函数
+  let saveStateTimer = null;
+  const saveEditorState = () => {
+    if (saveStateTimer) {
+      clearTimeout(saveStateTimer);
+    }
+    saveStateTimer = setTimeout(() => {
+      if (currentFilePath && editor) {
+        try {
+          const session = JSON.parse(localStorage.getItem('mdskill.session.v1') || '{}');
+          session.editorState = {
+            filePath: currentFilePath,
+            cursorPosition: editor.selectionStart,
+            scrollTop: editor.scrollTop
+          };
+          localStorage.setItem('mdskill.session.v1', JSON.stringify(session));
+        } catch (e) {
+          console.error('Failed to save editor state:', e);
+        }
+      }
+    }, 1000); // 1秒防抖
+  };
+
   // 编辑器输入事件
   editor.addEventListener('input', () => {
     isModified = true;
     updateFileStatus();
     debouncedUpdatePreview();
+    updateWordCount(); // 更新字数统计
+    saveEditorState(); // 保存编辑器状态
   });
+
+  // 监听光标位置变化
+  editor.addEventListener('selectionchange', saveEditorState);
+  editor.addEventListener('click', saveEditorState);
+  editor.addEventListener('keyup', saveEditorState);
+
+  // 监听滚动事件
+  editor.addEventListener('scroll', saveEditorState);
 
   // 工具栏按钮
   // 侧边栏切换按钮 - 已移除
@@ -273,7 +376,9 @@ function registerDOMListeners() {
         });
         if (result.success) {
           isModified = false;
+          lastSaveTime = Date.now(); // 记录保存时间
           updateFileStatus();
+          updateStatusBar(); // 更新状态栏
           if (window.toast) {
             toast.success('文件已保存');
           }
@@ -287,7 +392,9 @@ function registerDOMListeners() {
         if (result.success) {
           currentFilePath = result.filePath;
           isModified = false;
+          lastSaveTime = Date.now(); // 记录保存时间
           updateFileStatus();
+          updateStatusBar(); // 更新状态栏
           if (window.toast) {
             toast.success('文件已保存');
           }
@@ -345,7 +452,7 @@ function registerDOMListeners() {
       const isPro = licenseManager.isPro();
 
       if (template.isPremium && !isPro) {
-        showActivationPrompt('主题');
+        showActivationPrompt('themes');
         e.target.value = currentTemplate.id;
         return;
       }
@@ -381,7 +488,7 @@ function registerDOMListeners() {
       if (template.isPremium) {
         const hasAccess = await checkFeatureAccess('premium_themes');
         if (!hasAccess) {
-          showFeatureLockedPrompt('精美主题');
+          showFeatureLockedPrompt('premiumThemes');
           e.target.value = currentTemplate.id;
           return;
         }
@@ -435,6 +542,23 @@ function registerDOMListeners() {
     });
   }
 
+  // Line numbers toggle
+  const lineNumbersBtn = document.getElementById('lineNumbersBtn');
+  if (lineNumbersBtn) {
+    lineNumbersBtn.addEventListener('click', () => {
+      if (window.lineNumbers) {
+        const enabled = window.lineNumbers.toggle();
+        lineNumbersBtn.classList.toggle('active', enabled);
+      }
+    });
+
+    // Restore button state
+    const saved = localStorage.getItem('lineNumbersEnabled');
+    if (saved === 'true') {
+      lineNumbersBtn.classList.add('active');
+    }
+  }
+
   // Markdown 格式化按钮
   document.getElementById('boldBtn').addEventListener('click', () => {
     insertMarkdown('**', '**', 'bold text');
@@ -456,7 +580,7 @@ function registerDOMListeners() {
   document.getElementById('exportPdfBtn').addEventListener('click', async () => {
     const hasAccess = await checkFeatureAccess('pdf_export');
     if (!hasAccess) {
-      showFeatureLockedPrompt('PDF 导出');
+      showFeatureLockedPrompt('pdfExport');
       return;
     }
     await exportToPDF();
@@ -466,7 +590,7 @@ function registerDOMListeners() {
   document.getElementById('copyWeChatBtn')?.addEventListener('click', async () => {
     const hasAccess = await checkFeatureAccess('wechat_copy');
     if (!hasAccess) {
-      showFeatureLockedPrompt('复制到微信公众号');
+      showFeatureLockedPrompt('wechatCopy');
       return;
     }
 
@@ -483,21 +607,35 @@ function registerDOMListeners() {
     try {
       const markdown = editor.value;
       if (!markdown || markdown.trim() === '') {
-        window.copyUtils.showToast('编辑器内容为空', 'error');
+        window.copyUtils.showToast(window.i18nHelpers.t('toast.editorEmpty'), 'error');
         return;
       }
 
       const wechatHTML = window.wechatRenderer.renderMarkdownForWeChat(markdown, currentTemplate);
+      const themeName = currentTemplate.name || 'Unknown';
+
+      // Show preview modal
+      const previewModal = new window.WeChatPreviewModal();
+      const confirmed = await previewModal.show(wechatHTML, themeName);
+
+      if (!confirmed) {
+        return; // User canceled
+      }
+
+      // User confirmed, proceed with copy
       const success = await window.copyUtils.writeHTMLToClipboard(wechatHTML, markdown);
 
       if (success) {
-        window.copyUtils.showToast('已复制到剪贴板，可直接粘贴到微信公众号编辑器', 'success');
+        const message = window.i18nHelpers
+          ? window.i18nHelpers.t('toast.copyWechatSuccessWithTheme', { theme: themeName })
+          : `已使用「${themeName}」主题复制到微信`;
+        window.copyUtils.showToast(message, 'success');
       } else {
-        window.copyUtils.showToast('复制失败，请重试', 'error');
+        window.copyUtils.showToast(window.i18nHelpers.t('toast.copyFailed'), 'error');
       }
     } catch (error) {
       console.error('WeChat copy error:', error);
-      window.copyUtils.showToast('复制失败: ' + error.message, 'error');
+      window.copyUtils.showToast(window.i18nHelpers.t('toast.copyFailedError', {error: error.message}), 'error');
     }
   });
 
@@ -505,15 +643,15 @@ function registerDOMListeners() {
   document.getElementById('copyBlogBtn')?.addEventListener('click', async () => {
     const hasAccess = await checkFeatureAccess('blog_copy');
     if (!hasAccess) {
-      showFeatureLockedPrompt('复制到博客');
+      showFeatureLockedPrompt('blogCopy');
       return;
     }
 
     if (!window.copyUtils) {
       if (window.toast) {
-        toast.error('复制功能模块未加载，请刷新页面重试');
+        toast.error(window.i18nHelpers.t('alerts.copyModuleNotLoaded'));
       } else {
-        alert('复制功能模块未加载，请刷新页面重试');
+        window.i18nHelpers.showAlert('alerts.copyModuleNotLoaded');
       }
       return;
     }
@@ -521,13 +659,13 @@ function registerDOMListeners() {
     try {
       const success = await window.copyUtils.copyForBlog(preview, currentTemplate);
       if (success) {
-        window.copyUtils.showToast('已复制到剪贴板，可粘贴到知乎、简书等博客平台', 'success');
+        window.copyUtils.showToast(window.i18nHelpers.t('toast.copyBlogSuccess'), 'success');
       } else {
-        window.copyUtils.showToast('复制失败，请重试', 'error');
+        window.copyUtils.showToast(window.i18nHelpers.t('toast.copyFailed'), 'error');
       }
     } catch (error) {
       console.error('Blog copy error:', error);
-      window.copyUtils.showToast('复制失败: ' + error.message, 'error');
+      window.copyUtils.showToast(window.i18nHelpers.t('toast.copyFailedError', {error: error.message}), 'error');
     }
   });
 
@@ -535,15 +673,15 @@ function registerDOMListeners() {
   document.getElementById('copyHTMLBtn')?.addEventListener('click', async () => {
     const hasAccess = await checkFeatureAccess('html_export');
     if (!hasAccess) {
-      showFeatureLockedPrompt('复制 HTML 源码');
+      showFeatureLockedPrompt('htmlExport');
       return;
     }
 
     if (!window.copyUtils) {
       if (window.toast) {
-        toast.error('复制功能模块未加载，请刷新页面重试');
+        toast.error(window.i18nHelpers.t('alerts.copyModuleNotLoaded'));
       } else {
-        alert('复制功能模块未加载，请刷新页面重试');
+        window.i18nHelpers.showAlert('alerts.copyModuleNotLoaded');
       }
       return;
     }
@@ -552,13 +690,13 @@ function registerDOMListeners() {
       const html = preview.innerHTML;
       const success = await window.copyUtils.copyHTMLSource(html, currentTemplate);
       if (success) {
-        window.copyUtils.showToast('HTML 源码已复制到剪贴板', 'success');
+        window.copyUtils.showToast(window.i18nHelpers.t('toast.copyHtmlSuccess'), 'success');
       } else {
-        window.copyUtils.showToast('复制失败，请重试', 'error');
+        window.copyUtils.showToast(window.i18nHelpers.t('toast.copyFailed'), 'error');
       }
     } catch (error) {
       console.error('HTML copy error:', error);
-      window.copyUtils.showToast('复制失败: ' + error.message, 'error');
+      window.copyUtils.showToast(window.i18nHelpers.t('toast.copyFailedError', {error: error.message}), 'error');
     }
   });
 
@@ -607,6 +745,78 @@ function registerDOMListeners() {
     if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === 'H') {
       e.preventDefault();
       document.getElementById('copyHTMLBtn')?.click();
+    }
+  });
+
+  // Add paste event listener for image pasting
+  editor.addEventListener('paste', async (e) => {
+    const items = e.clipboardData?.items;
+    if (!items) return;
+
+    // Check if clipboard contains an image
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      if (item.type.indexOf('image') !== -1) {
+        e.preventDefault();
+
+        // Get image as blob
+        const blob = item.getAsFile();
+        if (!blob) continue;
+
+        // Convert blob to buffer
+        const arrayBuffer = await blob.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
+
+        // Show uploading toast
+        const uploadingMsg = window.i18nHelpers
+          ? window.i18nHelpers.t('toast.uploadingImage')
+          : 'Uploading image...';
+        if (window.toast) {
+          toast.info(uploadingMsg);
+        }
+
+        try {
+          // Save image via IPC
+          const result = await ipcRenderer.invoke('save-image', {
+            imageBuffer: buffer,
+            currentFilePath: currentFilePath
+          });
+
+          if (result.success) {
+            // Insert markdown image syntax at cursor position
+            const start = editor.selectionStart;
+            const end = editor.selectionEnd;
+            const imageMarkdown = `![image](${result.path})`;
+
+            editor.value = editor.value.substring(0, start) + imageMarkdown + editor.value.substring(end);
+            editor.selectionStart = editor.selectionEnd = start + imageMarkdown.length;
+
+            // Trigger preview update
+            updatePreview();
+            setModified(true);
+
+            // Show success message
+            const successMsg = window.i18nHelpers
+              ? window.i18nHelpers.t('toast.imageUploaded')
+              : 'Image uploaded successfully';
+            if (window.toast) {
+              toast.success(successMsg);
+            }
+          } else {
+            throw new Error(result.error);
+          }
+        } catch (error) {
+          console.error('Error uploading image:', error);
+          const errorMsg = window.i18nHelpers
+            ? window.i18nHelpers.t('toast.imageUploadFailed', { error: error.message })
+            : `Image upload failed: ${error.message}`;
+          if (window.toast) {
+            toast.error(errorMsg);
+          }
+        }
+
+        break;
+      }
     }
   });
 
@@ -703,8 +913,38 @@ function registerIPCListeners() {
     currentFilePath = path;
     isModified = false;
     updateFileStatus();
-    updatePreview();
+
+    // 重置缓存并立即更新预览
+    lastMarkdown = '';
+    requestAnimationFrame(() => {
+      updatePreview();
+    });
+
+    // 恢复编辑器状态（光标位置和滚动位置）
+    const session = localStorage.getItem('mdskill.session.v1');
+    if (session) {
+      try {
+        const sessionData = JSON.parse(session);
+        const editorState = sessionData.editorState;
+        if (editorState && editorState.filePath === path) {
+          // 恢复光标位置
+          if (editorState.cursorPosition !== undefined) {
+            editor.setSelectionRange(editorState.cursorPosition, editorState.cursorPosition);
+          }
+          // 恢复滚动位置
+          if (editorState.scrollTop !== undefined) {
+            editor.scrollTop = editorState.scrollTop;
+          }
+        }
+      } catch (e) {
+        console.error('Failed to restore editor state:', e);
+      }
+    }
+
     console.log('[file-opened] File loaded successfully');
+
+    // 开始监听文件外部修改
+    ipcRenderer.send('start-watching-file', path);
   });
 
   // 从侧边栏加载文件
@@ -713,7 +953,85 @@ function registerIPCListeners() {
     currentFilePath = filePath;
     isModified = false;
     updateFileStatus();
+
+    // 重置缓存并更新预览
+    lastMarkdown = '';
     updatePreview();
+
+    // 开始监听文件外部修改
+    ipcRenderer.send('start-watching-file', filePath);
+  });
+
+  // 文件外部修改通知
+  ipcRenderer.on('file-changed-externally', (event, { path, content }) => {
+    console.log('[file-changed-externally] File changed:', path);
+
+    // 如果当前文件有未保存的修改，询问用户
+    if (isModified) {
+      const message = window.i18nHelpers
+        ? window.i18nHelpers.t('messages.fileChangedExternally')
+        : 'This file has been modified externally. You have unsaved changes. Do you want to reload?';
+
+      if (window.toast) {
+        window.toast.warning(message, {
+          duration: 0, // 不自动消失
+          action: {
+            text: 'Reload',
+            onClick: () => {
+              editor.value = content;
+              isModified = false;
+              updateFileStatus();
+              lastMarkdown = '';
+              updatePreview();
+              if (window.toast) {
+                const reloadMsg = window.i18nHelpers?.t('messages.fileReloaded') || 'File reloaded';
+                window.toast.success(reloadMsg);
+              }
+            }
+          }
+        });
+      } else {
+        const shouldReload = confirm(message);
+        if (shouldReload) {
+          editor.value = content;
+          isModified = false;
+          updateFileStatus();
+          lastMarkdown = '';
+          updatePreview();
+        }
+      }
+    } else {
+      // 没有未保存的修改，直接刷新
+      editor.value = content;
+      isModified = false;
+      updateFileStatus();
+      lastMarkdown = '';
+      updatePreview();
+
+      // 提示用户文件已刷新
+      if (window.toast) {
+        const message = window.i18nHelpers?.t('messages.fileReloadedAuto') || 'File reloaded (modified externally)';
+        window.toast.info(message, { duration: 3000 });
+      }
+
+      console.log('[file-changed-externally] File reloaded automatically');
+    }
+  });
+
+  // 文件外部删除通知
+  ipcRenderer.on('file-deleted-externally', (event, { path }) => {
+    console.log('[file-deleted-externally] File deleted:', path);
+
+    const message = window.i18nHelpers?.t('messages.fileDeleted') || 'The file has been deleted externally';
+
+    if (window.toast) {
+      window.toast.error(message, { duration: 0 });
+    } else {
+      alert(message);
+    }
+
+    // 停止监听
+    ipcRenderer.send('stop-watching-file');
   });
 
   ipcRenderer.on('toggle-preview', () => {
@@ -724,7 +1042,7 @@ function registerIPCListeners() {
   ipcRenderer.on('export-pdf', async () => {
     const isPro = licenseManager.isPro();
     if (!isPro) {
-      showActivationPrompt('PDF 导出');
+      showActivationPrompt('pdfExport');
       return;
     }
     await exportToPDF();
@@ -748,6 +1066,32 @@ function registerIPCListeners() {
     const config = await ipcRenderer.invoke('get-ai-config');
     if (config) {
       await formatWithAI(config);
+    }
+  });
+
+  // 查找/替换
+  ipcRenderer.on('open-find', () => {
+    if (window.findReplace) {
+      window.findReplace.open('find');
+    }
+  });
+
+  ipcRenderer.on('open-find-replace', () => {
+    if (window.findReplace) {
+      window.findReplace.open('replace');
+    }
+  });
+
+  // 代码块行号切换
+  ipcRenderer.on('toggle-code-block-lines', (event, enabled) => {
+    const preview = document.getElementById('preview');
+    if (preview) {
+      if (enabled) {
+        preview.classList.remove('code-block-lines-disabled');
+      } else {
+        preview.classList.add('code-block-lines-disabled');
+      }
+      localStorage.setItem('codeBlockLinesEnabled', enabled);
     }
   });
 }
@@ -779,13 +1123,15 @@ async function checkSubscriptionStatus() {
 
 // 显示续费提醒
 function showRenewalReminder(status) {
-  const message = `您的会员将在 ${status.daysLeft} 天后到期，续费仅需 19元/月`;
+  const message = window.i18nHelpers
+    ? window.i18nHelpers.t('subscriptionMessages.expiring', { days: status.daysLeft })
+    : `Your membership expires in ${status.daysLeft} days. Renew for just ¥19/month.`;
 
   if (window.i18nHelpers && window.i18nHelpers.showConfirm) {
     if (window.i18nHelpers.showConfirm('confirmations.membershipExpiring', { message })) {
       openSubscriptionWindow();
     }
-  } else if (confirm(`⏰ 会员即将到期\n\n${message}\n\n是否立即续费？`)) {
+  } else if (confirm(`⏰ Membership Expiring\n\n${message}\n\nRenew now?`)) {
     openSubscriptionWindow();
   }
 
@@ -795,13 +1141,15 @@ function showRenewalReminder(status) {
 
 // 显示过期提示
 function showExpiredNotice(status) {
-  const message = '您的会员已过期，续费后立即恢复所有功能\n\n月会员：19元/月';
+  const message = window.i18nHelpers
+    ? window.i18nHelpers.t('subscriptionMessages.expired')
+    : 'Your membership has expired. Renew to restore all Pro features.\n\nMonthly membership: ¥19/month';
 
   if (window.i18nHelpers && window.i18nHelpers.showConfirm) {
     if (window.i18nHelpers.showConfirm('confirmations.membershipExpired', { message })) {
       openSubscriptionWindow();
     }
-  } else if (confirm(`😢 会员已过期\n\n${message}\n\n是否立即续费？`)) {
+  } else if (confirm(`😢 Membership Expired\n\n${message}\n\nRenew now?`)) {
     openSubscriptionWindow();
   }
 }
@@ -837,23 +1185,52 @@ function applyTemplate(template) {
 
   // 更新预览背景色
   document.querySelector('.preview-pane').style.background = template.styles.backgroundColor;
+
+  // 更新状态栏主题显示
+  updateThemeDisplay(template);
+
+  // 保存主题选择到会话
+  try {
+    const session = JSON.parse(localStorage.getItem('mdskill.session.v1') || '{}');
+    session.theme = template.id;
+    localStorage.setItem('mdskill.session.v1', JSON.stringify(session));
+  } catch (e) {
+    console.error('Failed to save theme to session:', e);
+  }
+}
+
+// 更新主题显示
+function updateThemeDisplay(template) {
+  const themeDisplay = document.getElementById('currentTheme');
+  if (themeDisplay) {
+    themeDisplay.textContent = template.name;
+  }
 }
 
 // 暴露为全局函数供 theme-preview.js 使用
 window.applyTemplate = applyTemplate;
 window.currentTemplate = currentTemplate;
 
-// 更新预览（防抖优化）
+// 更新预览（性能优化）
+let lastMarkdown = '';
 function updatePreview() {
-  const markdown = editor.value;
+  let markdown = editor.value;
+
+  // 性能优化：如果内容未变化，直接返回
+  if (markdown === lastMarkdown) {
+    return;
+  }
+  lastMarkdown = markdown;
+
+  // 预处理：压缩连续的空行为单个空行（保持段落分隔）
+  markdown = markdown.replace(/\n\s*\n\s*\n+/g, '\n\n');
+
   const html = marked.parse(markdown);
 
-  // 只在内容真正变化时才更新 DOM
-  if (preview.innerHTML !== html) {
-    requestAnimationFrame(() => {
-      preview.innerHTML = html;
-    });
-  }
+  // 使用 requestAnimationFrame 优化 DOM 更新
+  requestAnimationFrame(() => {
+    preview.innerHTML = html;
+  });
 }
 
 // 防抖更新预览
@@ -864,7 +1241,7 @@ function debouncedUpdatePreview() {
 
   updateTimer = setTimeout(() => {
     updatePreview();
-  }, 300); // 300ms 延迟，减少抖动
+  }, 150); // 150ms 延迟，更快响应
 }
 
 // 更新文件状态
@@ -931,9 +1308,9 @@ async function formatWithAI(config) {
     } else {
       console.error('AI 格式化失败:', error);
       if (window.toast) {
-        toast.error('AI 格式化失败: ' + error.message);
+        toast.error(window.i18nHelpers.t('alerts.aiFormatFailed', {error: error.message}));
       } else {
-        alert('AI 格式化失败: ' + error.message);
+        window.i18nHelpers.showAlert('alerts.aiFormatFailed', {error: error.message});
       }
     }
   } finally {
@@ -1135,6 +1512,23 @@ function updateThemeSelector(isPro) {
   if (currentTemplate) {
     select.value = currentTemplate.id;
   }
+
+  // 更新选择器的显示文本（显示当前主题名）
+  updateThemeSelectorDisplay();
+}
+
+// 更新主题选择器显示当前主题名
+function updateThemeSelectorDisplay() {
+  const select = document.getElementById('templateSelect');
+  if (!select || !currentTemplate) {
+    return;
+  }
+
+  // 如果 select 没有被替换成其他元素，更新其显示
+  const selectedOption = select.options[select.selectedIndex];
+  if (selectedOption) {
+    // 已经通过 value 选中了正确的 option，浏览器会自动显示
+  }
 }
 
 // 更新 PDF 按钮状态
@@ -1171,14 +1565,34 @@ async function checkFeatureAccess(featureName) {
 }
 
 // 显示功能限制提示
-function showFeatureLockedPrompt(featureName) {
-  const message = `🔒 ${featureName}是会员专享功能\n\n月会员：19元/月\n新用户享7天免费试用`;
+function getLocalizedFeatureName(featureKey) {
+  if (window.i18nHelpers) {
+    return window.i18nHelpers.t(`featureNames.${featureKey}`);
+  }
+
+  const fallback = {
+    themes: 'Themes',
+    premiumThemes: 'Beautiful Themes',
+    pdfExport: 'PDF Export',
+    wechatCopy: 'Copy to WeChat',
+    blogCopy: 'Copy to Blog',
+    htmlExport: 'Copy HTML Source'
+  };
+  return fallback[featureKey] || featureKey;
+}
+
+// 显示功能限制提示
+function showFeatureLockedPrompt(featureKey) {
+  const featureName = getLocalizedFeatureName(featureKey);
+  const message = window.i18nHelpers
+    ? window.i18nHelpers.t('subscriptionMessages.featureLocked', { featureName })
+    : `🔒 ${featureName} is a Pro feature\n\nMonthly membership: ¥19/month\nNew users get a 7-day free trial`;
 
   if (window.i18nHelpers && window.i18nHelpers.showConfirm) {
     if (window.i18nHelpers.showConfirm('confirmations.viewMembershipBenefits', { message })) {
       openSubscriptionWindow();
     }
-  } else if (confirm(`${message}\n\n是否查看会员权益？`)) {
+  } else if (confirm(`${message}\n\nView membership benefits?`)) {
     openSubscriptionWindow();
   }
 }
@@ -1212,6 +1626,13 @@ function insertMarkdown(before, after, placeholder) {
 async function exportToPDF() {
   console.log('PDF export triggered');
 
+  let progressOverlay = null;
+
+  // 禁用导出按钮
+  const pdfBtn = document.getElementById('exportPdfBtn');
+  const originalDisabled = pdfBtn.disabled;
+  pdfBtn.disabled = true;
+
   try {
     // 获取当前文件名作为默认 PDF 名称
     let defaultName = 'document.pdf';
@@ -1220,6 +1641,12 @@ async function exportToPDF() {
       defaultName = `${fileName}.pdf`;
     }
     console.log('Default PDF name:', defaultName);
+
+    // 显示进度覆盖层
+    if (typeof PDFExportProgress !== 'undefined') {
+      progressOverlay = new PDFExportProgress();
+      progressOverlay.show(defaultName);
+    }
 
     // 获取预览内容
     const preview = document.getElementById('preview');
@@ -1354,18 +1781,23 @@ async function exportToPDF() {
     } else {
       alert(msg);
     }
+  } finally {
+    // 关闭进度提示
+    if (progressOverlay) {
+      progressOverlay.hide();
+    }
+    // 恢复导出按钮状态
+    pdfBtn.disabled = originalDisabled;
   }
 }
 
 // 显示激活提示
-function showActivationPrompt(featureName) {
+function showActivationPrompt(featureKey) {
   const deviceId = licenseManager.getDeviceFingerprint();
-
-  const message = `${featureName}是专业版功能 🔒\n\n` +
-    `您的设备指纹：${deviceId}\n\n` +
-    `请联系开发者获取授权码：\n` +
-    `微信: AIPMAndy\n\n` +
-    `获取授权码后，请在"帮助"菜单中选择"激活专业版"进行激活。`;
+  const featureName = getLocalizedFeatureName(featureKey);
+  const message = window.i18nHelpers
+    ? window.i18nHelpers.t('activationPrompt.message', { featureName, deviceId })
+    : `${featureName} is a Pro feature 🔒\n\nYour Device ID: ${deviceId}\n\nContact the developer for a license key:\nWeChat: AIPMAndy\n\nAfter getting a license key, choose "Activate Pro" from the Help menu.`;
 
   if (window.toast) {
     toast.warning(message.replace(/\n\n/g, '\n'), 6000);
@@ -1373,6 +1805,263 @@ function showActivationPrompt(featureName) {
     alert(message);
   }
 }
+
+// 初始化字体大小
+function initFontSize() {
+  // 从 localStorage 加载保存的字体大小
+  const savedSize = localStorage.getItem('mdskill_editor_font_size');
+  if (savedSize) {
+    editorFontSize = parseInt(savedSize, 10);
+  }
+
+  // 应用字体大小到编辑器
+  applyFontSize();
+
+  // 注册键盘快捷键 (Cmd+= 放大, Cmd+- 缩小)
+  document.addEventListener('keydown', (e) => {
+    // Cmd/Ctrl + F: 打开查找
+    if ((e.metaKey || e.ctrlKey) && e.key === 'f' && !e.shiftKey && !e.altKey) {
+      e.preventDefault();
+      if (window.findReplace) {
+        window.findReplace.open('find');
+      }
+    }
+    // Cmd/Ctrl + Option/Alt + F: 打开查找替换
+    else if ((e.metaKey || e.ctrlKey) && e.altKey && e.key === 'f') {
+      e.preventDefault();
+      if (window.findReplace) {
+        window.findReplace.open('replace');
+      }
+    }
+    // Cmd/Ctrl + 0-6: 块级快捷键（标题层级）
+    else if ((e.metaKey || e.ctrlKey) && /^[0-6]$/.test(e.key)) {
+      e.preventDefault();
+      convertBlockLevel(parseInt(e.key));
+    }
+    // Cmd/Ctrl + =: 增大字体
+    else if ((e.metaKey || e.ctrlKey) && e.key === '=') {
+      e.preventDefault();
+      increaseFontSize();
+    }
+    // Cmd/Ctrl + -: 减小字体
+    else if ((e.metaKey || e.ctrlKey) && e.key === '-') {
+      e.preventDefault();
+      decreaseFontSize();
+    }
+  });
+}
+
+// 块级转换（Ctrl+0-6）
+function convertBlockLevel(level) {
+  if (!editor) return;
+
+  const start = editor.selectionStart;
+  const end = editor.selectionEnd;
+  const text = editor.value;
+
+  // 找到当前行的起始位置
+  let lineStart = start;
+  while (lineStart > 0 && text[lineStart - 1] !== '\n') {
+    lineStart--;
+  }
+
+  // 找到当前行的结束位置
+  let lineEnd = end;
+  while (lineEnd < text.length && text[lineEnd] !== '\n') {
+    lineEnd++;
+  }
+
+  // 获取当前行内容
+  let line = text.substring(lineStart, lineEnd);
+
+  // 移除现有的标题标记
+  const cleaned = line.replace(/^#{1,6}\s*/, '');
+
+  // 添加新的标题标记
+  let newLine;
+  if (level === 0) {
+    // Ctrl+0: 转为普通段落
+    newLine = cleaned;
+  } else {
+    // Ctrl+1-6: 转为对应层级标题
+    newLine = '#'.repeat(level) + ' ' + cleaned;
+  }
+
+  // 替换当前行
+  const before = text.substring(0, lineStart);
+  const after = text.substring(lineEnd);
+  editor.value = before + newLine + after;
+
+  // 恢复光标位置（在新内容的相同相对位置）
+  const offset = start - lineStart;
+  const newCursorPos = lineStart + Math.min(offset, newLine.length);
+  editor.setSelectionRange(newCursorPos, newCursorPos);
+
+  // 标记为已修改并更新预览
+  isModified = true;
+  updateFileStatus();
+  updatePreview();
+}
+
+// 应用字体大小
+function applyFontSize() {
+  if (editor) {
+    editor.style.fontSize = `${editorFontSize}px`;
+  }
+
+  // 更新状态栏显示
+  updateStatusBar();
+}
+
+// 增大字体
+function increaseFontSize() {
+  if (editorFontSize < 20) {
+    editorFontSize++;
+    localStorage.setItem('mdskill_editor_font_size', editorFontSize);
+    applyFontSize();
+  }
+}
+
+// 减小字体
+function decreaseFontSize() {
+  if (editorFontSize > 14) {
+    editorFontSize--;
+    localStorage.setItem('mdskill_editor_font_size', editorFontSize);
+    applyFontSize();
+  }
+}
+
+// 初始化状态栏
+function initStatusBar() {
+  const statusBar = document.querySelector('.status-bar');
+  if (!statusBar) {
+    console.error('Status bar element not found');
+    return;
+  }
+
+  // 创建状态栏元素（如果不存在）
+  let wordCountEl = document.getElementById('wordCount');
+  if (!wordCountEl) {
+    wordCountEl = document.createElement('span');
+    wordCountEl.id = 'wordCount';
+    wordCountEl.className = 'status-item';
+    statusBar.appendChild(wordCountEl);
+  }
+
+  let fontSizeEl = document.getElementById('fontSize');
+  if (!fontSizeEl) {
+    fontSizeEl = document.createElement('span');
+    fontSizeEl.id = 'fontSize';
+    fontSizeEl.className = 'status-item';
+    statusBar.appendChild(fontSizeEl);
+  }
+
+  let autoSaveEl = document.getElementById('autoSave');
+  if (!autoSaveEl) {
+    autoSaveEl = document.createElement('span');
+    autoSaveEl.id = 'autoSave';
+    autoSaveEl.className = 'status-item';
+    statusBar.appendChild(autoSaveEl);
+  }
+
+  // 初始更新
+  updateStatusBar();
+}
+
+// 更新状态栏
+function updateStatusBar() {
+  const wordCountEl = document.getElementById('wordCount');
+  const fontSizeEl = document.getElementById('fontSize');
+  const autoSaveEl = document.getElementById('autoSave');
+  const t = window.i18nHelpers ? window.i18nHelpers.t : null;
+
+  // 更新字数统计
+  if (wordCountEl && editor) {
+    const text = editor.value;
+    const charCount = text.length;
+    const wordCount = text.trim() ? text.trim().split(/\s+/).length : 0;
+    wordCountEl.textContent = t
+      ? t('status.wordsChars', { words: wordCount, chars: charCount })
+      : `${wordCount} words, ${charCount} chars`;
+  }
+
+  // 更新字体大小
+  if (fontSizeEl) {
+    fontSizeEl.textContent = `${editorFontSize}px`;
+  }
+
+  // 更新自动保存状态
+  if (autoSaveEl) {
+    if (lastSaveTime) {
+      const now = Date.now();
+      const elapsed = Math.floor((now - lastSaveTime) / 1000);
+      if (elapsed < 60) {
+        autoSaveEl.textContent = t
+          ? t('status.savedSecondsAgo', { seconds: elapsed })
+          : `Saved ${elapsed}s ago`;
+      } else {
+        const minutes = Math.floor(elapsed / 60);
+        autoSaveEl.textContent = t
+          ? t('status.savedMinutesAgo', { minutes })
+          : `Saved ${minutes}m ago`;
+      }
+    } else {
+      autoSaveEl.textContent = t ? t('status.notSaved') : 'Not saved';
+    }
+  }
+}
+
+// 更新字数统计（在编辑器输入时调用）
+function updateWordCount() {
+  updateStatusBar();
+}
+
+function updateLocalizedChrome(lang) {
+  if (!window.i18nHelpers) {
+    return;
+  }
+
+  if (editor) {
+    editor.setAttribute('placeholder', window.i18nHelpers.t('editor.placeholder'));
+  }
+
+  const brandText = document.getElementById('brandText');
+  if (brandText) {
+    brandText.textContent = window.i18nHelpers.t('branding.madeBy');
+  }
+
+  const aiProgressText = document.getElementById('aiProgressText');
+  if (aiProgressText) {
+    aiProgressText.textContent = window.i18nHelpers.t('aiProgress.formatting');
+  }
+
+  const aiCancelBtn = document.getElementById('aiCancelBtn');
+  if (aiCancelBtn) {
+    aiCancelBtn.textContent = window.i18nHelpers.t('aiProgress.cancel');
+  }
+
+  if (typeof initToolbarI18n === 'function') {
+    initToolbarI18n(lang);
+  }
+
+  updateStatusBar();
+}
+
+// 监听语言切换事件
+ipcRenderer.on('language-changed', (event, lang) => {
+  console.log('Language changed to:', lang);
+
+  if (window.i18nHelpers && window.i18nHelpers.setLanguage) {
+    window.i18nHelpers.setLanguage(lang);
+  }
+
+  updateLocalizedChrome(lang);
+
+  // 更新欢迎弹窗多语言
+  if (window.welcomeModal && window.welcomeModal.refresh) {
+    window.welcomeModal.refresh();
+  }
+});
 
 // 初始化应用
 if (document.readyState === 'loading') {
