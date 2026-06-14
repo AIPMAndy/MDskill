@@ -504,22 +504,12 @@ function registerDOMListeners() {
 
   // 主题切换按钮
   document.getElementById('themeBtn').addEventListener('click', () => {
-    const currentId = currentTemplate.id;
-    let newId;
-
-    if (currentId === 'github-dark' || currentId === 'default') {
-      newId = 'github-light';
-    } else if (currentId === 'github-light') {
-      newId = 'github-dark';
+    // 打开主题预览面板
+    if (window.themePreview && window.themePreview.openThemePreview) {
+      window.themePreview.openThemePreview(currentTemplate.id);
     } else {
-      newId = 'github-dark';
+      console.error('主题预览模块未加载');
     }
-
-    currentTemplate = getTemplateById(newId);
-    window.currentTemplate = currentTemplate;
-    applyTemplate(currentTemplate);
-    localStorage.setItem('mdskill_template', newId);
-    updatePreview();
   });
 
   // 搜索和大纲按钮
