@@ -1672,3 +1672,28 @@ const templates = {
   },
 
 };
+
+// 导出函数到全局作用域
+function getAllTemplates() {
+  return Object.values(templates);
+}
+
+function getTemplateById(id) {
+  return templates[id] || null;
+}
+
+// 暴露到 window 对象供其他模块使用
+if (typeof window !== 'undefined') {
+  window.templates = templates;
+  window.getAllTemplates = getAllTemplates;
+  window.getTemplateById = getTemplateById;
+}
+
+// Node.js 环境支持
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    templates,
+    getAllTemplates,
+    getTemplateById,
+  };
+}
