@@ -8,7 +8,12 @@
   <!-- <link rel="stylesheet" href="sidebar.css"> -->
   <!-- <link rel="stylesheet" href="search-modal.css"> -->
   <link rel="stylesheet" href="document-search.css">
+  <link rel="stylesheet" href="find-replace.css">
+  <link rel="stylesheet" href="line-numbers.css">
+  <link rel="stylesheet" href="code-block-lines.css">
+  <link rel="stylesheet" href="pdf-export-progress.css">
   <link rel="stylesheet" href="toast.css">
+  <link rel="stylesheet" href="command-palette.css">
   <link rel="stylesheet" href="../node_modules/github-markdown-css/github-markdown.css">
   <link rel="stylesheet" href="../node_modules/highlight.js/styles/github-dark.css">
   <link rel="stylesheet" href="../node_modules/katex/dist/katex.min.css">
@@ -18,67 +23,67 @@
     <!-- 工具栏 -->
     <div class="toolbar" style="background: #252526;">
       <div class="toolbar-left">
-        <button class="toolbar-btn" id="toggleSidebarBtn" title="切换侧边栏 (Cmd+Shift+B)" style="display: none;">
+        <button class="toolbar-btn" id="toggleSidebarBtn" style="display: none;">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
             <path d="M0 1.5A1.5 1.5 0 0 1 1.5 0h13A1.5 1.5 0 0 1 16 1.5v13a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 14.5v-13zM1.5 1a.5.5 0 0 0-.5.5V13h5V1H1.5zM7 1v12h8V1H7z"/>
           </svg>
         </button>
         <div class="toolbar-divider"></div>
-        <button class="toolbar-btn" id="themeBtn" title="切换主题">
+        <button class="toolbar-btn" id="themeBtn">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
             <path d="M8 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm0 1a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0zm0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13zm8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5zM3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8zm10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0zm-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0zm9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707zM4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708z"/>
           </svg>
         </button>
         <div class="toolbar-divider"></div>
-        <button class="toolbar-btn" id="aiFormatBtn" title="AI 格式化 Markdown (Cmd+Shift+F)">
+        <button class="toolbar-btn" id="aiFormatBtn">
           <span style="font-size: 12px; font-weight: 600;">MD</span>
         </button>
         <div class="toolbar-divider"></div>
-        <button class="toolbar-btn" id="searchBtn" title="搜索文档 (Cmd+F)">
+        <button class="toolbar-btn" id="searchBtn">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
             <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
           </svg>
         </button>
-        <button class="toolbar-btn" id="outlineBtn" title="文档大纲 (Cmd+Shift+O)">
+        <button class="toolbar-btn" id="outlineBtn">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
             <path d="M1 2.5A1.5 1.5 0 0 1 2.5 1h3A1.5 1.5 0 0 1 7 2.5v3A1.5 1.5 0 0 1 5.5 7h-3A1.5 1.5 0 0 1 1 5.5v-3zM2.5 2a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3zm6.5.5A1.5 1.5 0 0 1 10.5 1h3A1.5 1.5 0 0 1 15 2.5v3A1.5 1.5 0 0 1 13.5 7h-3A1.5 1.5 0 0 1 9 5.5v-3zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3zM1 10.5A1.5 1.5 0 0 1 2.5 9h3A1.5 1.5 0 0 1 7 10.5v3A1.5 1.5 0 0 1 5.5 15h-3A1.5 1.5 0 0 1 1 13.5v-3zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3zm6.5.5A1.5 1.5 0 0 1 10.5 9h3a1.5 1.5 0 0 1 1.5 1.5v3a1.5 1.5 0 0 1-1.5 1.5h-3A1.5 1.5 0 0 1 9 13.5v-3zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3z"/>
           </svg>
         </button>
         <div class="toolbar-divider"></div>
-        <button class="toolbar-btn" id="newBtn" title="新建窗口 (Cmd+N)">
+        <button class="toolbar-btn" id="newBtn">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
             <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
           </svg>
         </button>
-        <button class="toolbar-btn" id="openBtn" title="打开文件 (Cmd+O)">
+        <button class="toolbar-btn" id="openBtn">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
             <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
             <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
           </svg>
         </button>
-        <button class="toolbar-btn" id="saveBtn" title="保存文件 (Cmd+S)">
+        <button class="toolbar-btn" id="saveBtn">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
             <path d="M8 1a1 1 0 0 1 1 1v6h6a1 1 0 1 1 0 2H9v6a1 1 0 1 1-2 0V10H1a1 1 0 0 1 0-2h6V2a1 1 0 0 1 1-1z"/>
             <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm6.5 4.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3a.5.5 0 0 1 1 0z"/>
           </svg>
         </button>
         <div class="toolbar-divider"></div>
-        <button class="toolbar-btn" id="boldBtn" title="加粗 (Cmd+B)">
+        <button class="toolbar-btn" id="boldBtn">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
             <path d="M8.21 13c2.106 0 3.412-1.087 3.412-2.823 0-1.306-.984-2.283-2.324-2.386v-.055a2.176 2.176 0 0 0 1.852-2.14c0-1.51-1.162-2.46-3.014-2.46H3.843V13H8.21zM5.908 4.674h1.696c.963 0 1.517.451 1.517 1.244 0 .834-.629 1.32-1.73 1.32H5.908V4.673zm0 6.788V8.598h1.73c1.217 0 1.88.492 1.88 1.415 0 .943-.643 1.449-1.832 1.449H5.907z"/>
           </svg>
         </button>
-        <button class="toolbar-btn" id="italicBtn" title="斜体 (Cmd+I)">
+        <button class="toolbar-btn" id="italicBtn">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
             <path d="M7.991 11.674 9.53 4.455c.123-.595.246-.71 1.347-.807l.11-.52H7.211l-.11.52c1.06.096 1.128.212 1.005.807L6.57 11.674c-.123.595-.246.71-1.346.806l-.11.52h3.774l.11-.52c-1.06-.095-1.129-.211-1.006-.806z"/>
           </svg>
         </button>
-        <button class="toolbar-btn" id="codeBtn" title="代码块">
+        <button class="toolbar-btn" id="codeBtn">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
             <path d="M5.854 4.854a.5.5 0 1 0-.708-.708l-3.5 3.5a.5.5 0 0 0 0 .708l3.5 3.5a.5.5 0 0 0 .708-.708L2.707 8l3.147-3.146zm4.292 0a.5.5 0 0 1 .708-.708l3.5 3.5a.5.5 0 0 1 0 .708l-3.5 3.5a.5.5 0 0 1-.708-.708L13.293 8l-3.147-3.146z"/>
           </svg>
         </button>
-        <button class="toolbar-btn" id="linkBtn" title="插入链接 (Cmd+K)">
+        <button class="toolbar-btn" id="linkBtn">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
             <path d="M4.715 6.542 3.343 7.914a3 3 0 1 0 4.243 4.243l1.828-1.829A3 3 0 0 0 8.586 5.5L8 6.086a1.002 1.002 0 0 0-.154.199 2 2 0 0 1 .861 3.337L6.88 11.45a2 2 0 1 1-2.83-2.83l.793-.792a4.018 4.018 0 0 1-.128-1.287z"/>
             <path d="M6.586 4.672A3 3 0 0 0 7.414 9.5l.775-.776a2 2 0 0 1-.896-3.346L9.12 3.55a2 2 0 1 1 2.83 2.83l-.793.792c.112.42.155.855.128 1.287l1.372-1.372a3 3 0 1 0-4.243-4.243L6.586 4.672z"/>
@@ -86,35 +91,35 @@
         </button>
       </div>
       <div class="toolbar-right">
-        <select class="theme-selector" id="templateSelect" title="选择主题">
+        <select class="theme-selector" id="templateSelect">
           <!-- 主题选项将由 JavaScript 动态生成 -->
         </select>
         <div class="toolbar-divider"></div>
-        <button class="toolbar-btn" id="exportPdfBtn" title="导出 PDF (Cmd+E)">
+        <button class="toolbar-btn" id="exportPdfBtn">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
             <path d="M5.523 12.424c.14-.082.293-.162.459-.238a7.878 7.878 0 0 1-.45.606c-.28.337-.498.516-.635.572a.266.266 0 0 1-.035.012.282.282 0 0 1-.026-.044c-.056-.11-.054-.216.04-.36.106-.165.319-.354.647-.548zm2.455-1.647c-.119.025-.237.05-.356.078a21.148 21.148 0 0 0 .5-1.05 12.045 12.045 0 0 0 .51.858c-.217.032-.436.07-.654.114zm2.525.939a3.881 3.881 0 0 1-.435-.41c.228.005.434.022.612.054.317.057.466.147.518.209a.095.095 0 0 1 .026.064.436.436 0 0 1-.06.2.307.307 0 0 1-.094.124.107.107 0 0 1-.069.015c-.09-.003-.258-.066-.498-.256zM8.278 6.97c-.04.244-.108.524-.2.829a4.86 4.86 0 0 1-.089-.346c-.076-.353-.087-.63-.046-.822.038-.177.11-.248.196-.283a.517.517 0 0 1 .145-.04c.013.03.028.092.032.198.005.122-.007.277-.038.465z"/>
             <path fill-rule="evenodd" d="M4 0h5.293A1 1 0 0 1 10 .293L13.707 4a1 1 0 0 1 .293.707V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2zm5.5 1.5v2a1 1 0 0 0 1 1h2l-3-3zM4.165 13.668c.09.18.23.343.438.419.207.075.412.04.58-.03.318-.13.635-.436.926-.786.333-.401.683-.927 1.021-1.51a11.651 11.651 0 0 1 1.997-.406c.3.383.61.713.91.95.28.22.603.403.934.417a.856.856 0 0 0 .51-.138c.155-.101.27-.247.354-.416.09-.181.145-.37.138-.563a.844.844 0 0 0-.2-.518c-.226-.27-.596-.4-.96-.465a5.76 5.76 0 0 0-1.335-.05 10.954 10.954 0 0 1-.98-1.686c.25-.66.437-1.284.52-1.794.036-.218.055-.426.048-.614a1.238 1.238 0 0 0-.127-.538.7.7 0 0 0-.477-.365c-.202-.043-.41 0-.601.077-.377.15-.576.47-.651.823-.073.34-.04.736.046 1.136.088.406.238.848.43 1.295a19.697 19.697 0 0 1-1.062 2.227 7.662 7.662 0 0 0-1.482.645c-.37.22-.699.48-.897.787-.21.326-.275.714-.08 1.103z"/>
           </svg>
         </button>
-        <button class="toolbar-btn copy-btn" id="copyWeChatBtn" title="复制到微信公众号 (Cmd+Shift+W)">
+        <button class="toolbar-btn copy-btn" id="copyWeChatBtn">
           <svg width="18" height="18" viewBox="0 0 1024 1024" fill="currentColor">
             <path d="M664.250054 368.541681c10.015098 0 19.892049 0.732687 29.67281 1.795902-26.647917-122.810047-159.358451-214.077703-310.826188-214.077703-169.353083 0-308.085774 114.232694-308.085774 259.274068 0 83.708494 46.165436 152.460344 123.281791 205.78483l-30.80868 91.730191 107.688651-53.455469c38.558178 7.53665 69.459978 15.308661 107.924012 15.308661 9.66308 0 19.230993-0.470721 28.752858-1.225921-6.025227-20.36584-9.521864-41.723264-9.521864-63.862493C402.328693 476.632491 517.908058 368.541681 664.250054 368.541681zM498.62897 285.87389c23.200398 0 38.557154 15.120372 38.557154 38.061874 0 22.846334-15.356756 38.156018-38.557154 38.156018-23.107277 0-46.260603-15.309684-46.260603-38.156018C452.368366 300.994262 475.522716 285.87389 498.62897 285.87389zM283.016307 362.090758c-23.107277 0-46.402843-15.309684-46.402843-38.156018 0-22.941502 23.295566-38.061874 46.402843-38.061874 23.081695 0 38.46301 15.120372 38.46301 38.061874C321.479317 346.782098 306.098002 362.090758 283.016307 362.090758zM945.448458 606.151333c0-121.888048-123.258255-221.236753-261.683954-221.236753-146.57838 0-262.015505 99.348706-262.015505 221.236753 0 122.06508 115.437126 221.200938 262.015505 221.200938 30.66644 0 61.617359-7.609305 92.423993-15.262612l84.513836 45.786813-23.178909-76.17082C899.379213 735.776599 945.448458 674.90216 945.448458 606.151333zM598.803483 567.994292c-15.332197 0-30.807656-15.096836-30.807656-30.501688 0-15.190981 15.47546-30.477129 30.807656-30.477129 23.295566 0 38.558178 15.286148 38.558178 30.477129C637.361661 552.897456 622.099049 567.994292 598.803483 567.994292zM768.25071 567.994292c-15.213493 0-30.594809-15.096836-30.594809-30.501688 0-15.190981 15.381315-30.477129 30.594809-30.477129 23.107277 0 38.558178 15.286148 38.558178 30.477129C806.808888 552.897456 791.357987 567.994292 768.25071 567.994292z"/>
           </svg>
         </button>
-        <button class="toolbar-btn copy-btn" id="copyBlogBtn" title="复制到博客 (Cmd+Shift+C)">
+        <button class="toolbar-btn copy-btn" id="copyBlogBtn">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
             <path d="M5 0h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2 2 2 0 0 1-2 2H3a2 2 0 0 1-2-2h1a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1H1a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v9a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1H3a2 2 0 0 1 2-2z"/>
             <path d="M1 6v-.5a.5.5 0 0 1 1 0V6h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1H1zm0 3v-.5a.5.5 0 0 1 1 0V9h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1H1zm0 2.5v.5H.5a.5.5 0 0 0 0 1h2a.5.5 0 0 0 0-1H2v-.5a.5.5 0 0 0-1 0z"/>
           </svg>
         </button>
-        <button class="toolbar-btn copy-btn" id="copyHTMLBtn" title="复制HTML源码 (Cmd+Shift+H)">
+        <button class="toolbar-btn copy-btn" id="copyHTMLBtn">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
             <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>
             <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>
           </svg>
         </button>
         <div class="toolbar-divider"></div>
-        <button class="toolbar-btn" id="togglePreviewBtn" title="切换预览 (Cmd+P)">
+        <button class="toolbar-btn" id="togglePreviewBtn">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
             <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z"/>
             <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z"/>
@@ -122,7 +127,7 @@
         </button>
         <span class="file-status" id="fileStatus">Untitled</span>
         <div class="branding">
-          <span class="brand-text">AI酋长Andy出品</span>
+          <span class="brand-text" id="brandText">AI酋长Andy出品</span>
         </div>
       </div>
     </div>
@@ -132,10 +137,7 @@
       <!-- 主编辑区域 -->
       <div class="editor-container" style="display: flex; flex: 1; overflow: hidden; position: relative;">
         <div class="editor-pane" id="editorPane" style="width: 50%; min-width: 200px; overflow: auto; padding: 20px; background: #1e1e1e; border-right: 1px solid #3e3e42;">
-          <textarea id="editor" placeholder="开始编写你的 Markdown 文档...
-
-按 Cmd+F 搜索内容
-按 Cmd+Shift+O 打开大纲" style="width: 100%; height: 100%; background: transparent; border: none; outline: none; resize: none; font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace; font-size: 14px; line-height: 1.6; color: #d4d4d4; caret-color: #d4d4d4;"></textarea>
+          <textarea id="editor" placeholder="" style="width: 100%; height: 100%; background: transparent; border: none; outline: none; resize: none; font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace; font-size: 14px; line-height: 1.6; color: #d4d4d4; caret-color: #d4d4d4;"></textarea>
         </div>
         <div class="editor-resize-handle" id="editorResizeHandle"></div>
         <div class="preview-pane" id="previewPane" style="flex: 1; overflow: auto; padding: 20px; background: #252526;">
@@ -146,11 +148,19 @@
         <div id="aiProgressOverlay" class="ai-progress-overlay" style="display: none;">
           <div class="ai-progress-content">
             <div class="ai-progress-spinner"></div>
-            <div class="ai-progress-text">Andy正在帮你转成Markdown...</div>
-            <button class="ai-progress-cancel" id="aiCancelBtn">取消</button>
+            <div class="ai-progress-text" id="aiProgressText">Andy is converting this to Markdown...</div>
+            <button class="ai-progress-cancel" id="aiCancelBtn">Cancel</button>
           </div>
         </div>
       </div>
+    </div>
+
+    <!-- 状态栏 -->
+    <div class="status-bar">
+      <span id="wordCount" class="status-item">0 words, 0 chars</span>
+      <span id="currentTheme" class="status-item">GitHub Dark</span>
+      <span id="fontSize" class="status-item">16px</span>
+      <span id="autoSave" class="status-item">Not saved</span>
     </div>
   </div>
 
@@ -162,7 +172,7 @@
     <div class="theme-modal-overlay"></div>
     <div class="theme-modal-content">
       <div class="theme-modal-header">
-        <h2>选择主题</h2>
+        <h2 id="themeModalTitle">选择主题</h2>
         <button id="closeThemePreview" class="theme-close-btn">
           <svg width="20" height="20" viewBox="0 0 16 16" fill="currentColor">
             <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/>
@@ -446,12 +456,24 @@
     }
   </style>
 
-  <script src="renderer.js"></script>
+  <link rel="stylesheet" href="welcome-modal.css">
+  <link rel="stylesheet" href="wechat-preview-modal.css">
+  <script src="i18n-helpers.js"></script>
   <script src="templates.js"></script>
+  <script src="renderer.js"></script>
   <script src="wechat-renderer.js"></script>
   <script src="copy-utils.js"></script>
+  <script src="toolbar-i18n.js"></script>
+  <script src="document-search-i18n.js"></script>
+  <script src="welcome-modal.js"></script>
+  <script src="wechat-preview-modal.js"></script>
+  <script src="trial-reminder.js"></script>
   <script src="theme-preview.js"></script>
   <script src="document-search.js"></script>
+  <script src="find-replace.js"></script>
+  <script src="line-numbers.js"></script>
+  <script src="pdf-export-progress.js"></script>
+  <script src="command-palette.js"></script>
   <!-- <script src="sidebar.js"></script> -->
   <!-- <script src="search-modal.js"></script> -->
 </body>
