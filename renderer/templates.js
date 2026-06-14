@@ -1262,182 +1262,413 @@ const templates = {
     }
   },
 
+
+  // ============== 来自 huasheng_editor 的高级设计主题 ==============
+
+  // 编辑部杂志（你最喜欢的）
+  'hische-editorial': {
+    id: 'hische-editorial',
+    name: 'Hische·编辑部',
+    description: '编辑部杂志风格 - 红色经典 + Bodoni 衬线',
+    category: 'creative',
+    icon: '📖',
+    isPro: true,
+    styles: {
+      ...baseLightTheme,
+      backgroundColor: '#fffef9',
+      maxWidth: '700px',
+      padding: '20px 20px 50px 20px',
+      titleFont: '"Bodoni MT", "Didot", "Crimson Text", serif',
+      titleSize: '32px',
+      titleWeight: '400',
+      titleColor: '#c9302c',
+      h2Font: '"Bodoni MT", "Didot", serif',
+      h2Size: '26px',
+      h2Weight: '400',
+      h2Color: '#2c2c2c',
+      h2BorderColor: '#c9302c',
+      bodyFont: '"Crimson Text", Garamond, serif',
+      bodySize: '17px',
+      bodyColor: '#2c2c2c',
+      bodyLineHeight: '1.8',
+      linkColor: '#c9302c',
+      blockquoteBg: 'transparent',
+      blockquoteColor: '#2c2c2c',
+      codeBg: '#f9f9f9',
+      codeColor: '#c9302c',
+      tableHeaderBg: '#f9f9f9',
+      tableHeaderColor: '#2c2c2c',
+      hrColor: '#c9302c',
+      strongColor: '#c9302c',
+      emColor: '#2c2c2c',
+      listMarkerColor: '#c9302c',
+    }
+  },
+
+  // 纽约时报
+  'wechat-nyt': {
+    id: 'wechat-nyt',
+    name: '纽约时报',
+    description: '纽约时报经典风格 - 黑白衬线',
+    category: 'business',
+    icon: '🗞️',
+    isPro: true,
+    styles: {
+      ...baseLightTheme,
+      backgroundColor: '#fff',
+      maxWidth: '680px',
+      titleFont: 'Georgia, "Times New Roman", serif',
+      titleSize: '42px',
+      titleWeight: '700',
+      titleColor: '#000',
+      h2Font: 'Georgia, serif',
+      h2Size: '32px',
+      h2Weight: '700',
+      h2Color: '#000',
+      h2BorderColor: '#000',
+      bodyFont: 'Georgia, "Times New Roman", serif',
+      bodySize: '18px',
+      bodyColor: '#121212',
+      bodyLineHeight: '1.8',
+      linkColor: '#326891',
+      blockquoteBg: '#f7f7f7',
+      blockquoteColor: '#121212',
+      blockquoteBorderColor: '#121212',
+      codeBg: '#f0f0f0',
+      codeColor: '#666',
+      codeBlockBg: '#f7f7f7',
+      tableHeaderBg: '#f7f7f7',
+      tableHeaderColor: '#121212',
+      hrColor: '#ddd',
+      strongColor: '#000',
+      emColor: '#121212',
+    }
+  },
+
+  // Apple 极简
+  'wechat-apple': {
+    id: 'wechat-apple',
+    name: 'Apple 极简',
+    description: 'Apple 设计哲学 - 极简克制',
+    category: 'minimal',
+    icon: '🌟',
+    isPro: true,
+    styles: {
+      ...baseLightTheme,
+      backgroundColor: '#fbfbfd',
+      maxWidth: '640px',
+      titleFont: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif',
+      titleSize: '32px',
+      titleWeight: '600',
+      titleColor: '#1d1d1f',
+      h2Font: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif',
+      h2Size: '26px',
+      h2Weight: '600',
+      h2Color: '#1d1d1f',
+      h2BorderColor: '#d2d2d7',
+      bodyFont: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif',
+      bodySize: '17px',
+      bodyColor: '#86868b',
+      bodyLineHeight: '1.65',
+      linkColor: '#06c',
+      blockquoteBg: 'transparent',
+      blockquoteColor: '#1d1d1f',
+      blockquoteBorderColor: 'transparent',
+      codeBg: '#f5f5f7',
+      codeColor: '#86868b',
+      codeBlockBg: '#f5f5f7',
+      tableHeaderBg: '#f5f5f7',
+      tableHeaderColor: '#1d1d1f',
+      hrColor: '#d2d2d7',
+      strongColor: '#1d1d1f',
+      emColor: '#86868b',
+      listMarkerColor: '#06c',
+    }
+  },
+
+  // Medium 长文
+  'wechat-medium': {
+    id: 'wechat-medium',
+    name: 'Medium 长文',
+    description: 'Medium 平台风格 - 优雅阅读',
+    category: 'business',
+    icon: '✍️',
+    isPro: false,
+    styles: {
+      ...baseLightTheme,
+      backgroundColor: '#fff',
+      maxWidth: '680px',
+      titleFont: 'Georgia, "Times New Roman", serif',
+      titleSize: '28px',
+      titleWeight: '700',
+      titleColor: '#242424',
+      h2Font: 'Georgia, "Times New Roman", serif',
+      h2Size: '24px',
+      h2Weight: '700',
+      h2Color: '#242424',
+      h2BorderColor: '#e6e6e6',
+      bodyFont: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      bodySize: '17px',
+      bodyColor: '#242424',
+      bodyLineHeight: '1.7',
+      linkColor: '#242424',
+      blockquoteBg: 'transparent',
+      blockquoteColor: '#242424',
+      blockquoteBorderColor: '#242424',
+      codeBg: '#f5f5f5',
+      codeColor: '#d73a49',
+      codeBlockBg: '#f7f7f7',
+      tableHeaderBg: '#f7f7f7',
+      tableHeaderColor: '#242424',
+      hrColor: '#e6e6e6',
+      strongColor: '#242424',
+      emColor: '#242424',
+    }
+  },
+
+  // Claude AI 风格
+  'wechat-claude': {
+    id: 'wechat-claude',
+    name: 'Claude AI',
+    description: 'Anthropic Claude 风格 - 科技+温暖',
+    category: 'tech',
+    icon: '🤖',
+    isPro: false,
+    styles: {
+      ...baseLightTheme,
+      backgroundColor: '#faf9f7',
+      maxWidth: '700px',
+      titleFont: '-apple-system, BlinkMacSystemFont, sans-serif',
+      titleSize: '32px',
+      titleWeight: '600',
+      titleColor: '#C15F3C',
+      h2Font: '-apple-system, BlinkMacSystemFont, sans-serif',
+      h2Size: '26px',
+      h2Weight: '600',
+      h2Color: '#C15F3C',
+      h2BorderColor: '#C15F3C',
+      bodyFont: '-apple-system, BlinkMacSystemFont, sans-serif',
+      bodySize: '17px',
+      bodyColor: '#2b2b2b',
+      bodyLineHeight: '1.8',
+      linkColor: '#C15F3C',
+      blockquoteBg: 'rgba(193, 95, 60, 0.06)',
+      blockquoteColor: '#2b2b2b',
+      blockquoteBorderColor: '#C15F3C',
+      codeBg: 'rgba(193, 95, 60, 0.08)',
+      codeColor: '#C15F3C',
+      codeBlockBg: '#2b2b2b',
+      tableHeaderColor: '#2b2b2b',
+      hrColor: 'rgba(193, 95, 60, 0.3)',
+      strongColor: '#C15F3C',
+      emColor: '#5a5a5a',
+      listMarkerColor: '#C15F3C',
+    }
+  },
+
+  // 优雅简约
+  'wechat-elegant': {
+    id: 'wechat-elegant',
+    name: '优雅简约',
+    description: '宋体衬线 + 极简风格',
+    category: 'creative',
+    icon: '✨',
+    isPro: false,
+    styles: {
+      ...baseLightTheme,
+      backgroundColor: '#fff',
+      maxWidth: '720px',
+      titleFont: '"Songti SC", "SimSun", Georgia, serif',
+      titleSize: '26px',
+      titleWeight: '400',
+      titleColor: '#1a1a1a',
+      h2Font: '"Songti SC", Georgia, serif',
+      h2Size: '22px',
+      h2Weight: '400',
+      h2Color: '#2c2c2c',
+      h2BorderColor: 'transparent',
+      bodyFont: '"Songti SC", "SimSun", Georgia, serif',
+      bodySize: '17px',
+      bodyColor: '#444',
+      bodyLineHeight: '1.85',
+      linkColor: '#8b7355',
+      blockquoteBg: 'transparent',
+      blockquoteColor: '#666',
+      blockquoteBorderColor: '#ccc',
+      codeBg: '#f5f5f5',
+      codeColor: '#8b4513',
+      codeBlockBg: '#f9f9f9',
+      tableHeaderBg: '#f8f8f8',
+      tableHeaderColor: '#555',
+      hrColor: '#e0e0e0',
+      strongColor: '#1a1a1a',
+      emColor: '#666',
+      listMarkerColor: '#8b7355',
+    }
+  },
+
+  // 技术风格
+  'wechat-tech': {
+    id: 'wechat-tech',
+    name: '技术风格',
+    description: '蓝绿色调 + 技术感',
+    category: 'tech',
+    icon: '💻',
+    isPro: false,
+    styles: {
+      ...baseLightTheme,
+      backgroundColor: '#fff',
+      maxWidth: '740px',
+      titleFont: '-apple-system, sans-serif',
+      titleSize: '26px',
+      titleWeight: '700',
+      titleColor: '#1a1a1a',
+      h2Font: '-apple-system, sans-serif',
+      h2Size: '22px',
+      h2Weight: '700',
+      h2Color: '#1a1a1a',
+      h2BorderColor: '#00a67d',
+      bodyFont: '-apple-system, sans-serif',
+      bodySize: '16px',
+      bodyColor: '#3a3a3a',
+      bodyLineHeight: '1.8',
+      linkColor: '#0066cc',
+      blockquoteBg: '#f5f9fc',
+      blockquoteColor: '#555',
+      blockquoteBorderColor: '#2196f3',
+      codeBg: '#ffe6e6',
+      codeColor: '#d63031',
+      codeBlockBg: '#1e1e1e',
+      tableHeaderBg: '#0066cc',
+      tableHeaderColor: '#fff',
+      hrColor: '#0066cc',
+      strongColor: '#1a1a1a',
+      emColor: '#666',
+      listMarkerColor: '#0066cc',
+    }
+  },
+
+  // 深度阅读
+  'wechat-deepread': {
+    id: 'wechat-deepread',
+    name: '深度阅读',
+    description: '深度长文 - 克制设计',
+    category: 'business',
+    icon: '📚',
+    isPro: false,
+    styles: {
+      ...baseLightTheme,
+      backgroundColor: '#fff',
+      maxWidth: '680px',
+      titleFont: '-apple-system, "SF Pro Text", sans-serif',
+      titleSize: '26px',
+      titleWeight: '700',
+      titleColor: '#0a0a0a',
+      h2Font: '-apple-system, sans-serif',
+      h2Size: '22px',
+      h2Weight: '700',
+      h2Color: '#0a0a0a',
+      h2BorderColor: '#e1e4e8',
+      bodyFont: '-apple-system, sans-serif',
+      bodySize: '17px',
+      bodyColor: '#1a1a1a',
+      bodyLineHeight: '1.8',
+      linkColor: '#0066cc',
+      blockquoteBg: '#f8f9fa',
+      blockquoteColor: '#1a1a1a',
+      blockquoteBorderColor: '#0a0a0a',
+      codeBg: '#f5f5f5',
+      codeColor: '#d73a49',
+      codeBlockBg: '#f6f8fa',
+      tableHeaderBg: '#f6f8fa',
+      tableHeaderColor: '#1a1a1a',
+      hrColor: '#e1e4e8',
+      strongColor: '#0a0a0a',
+      emColor: '#2a2a2a',
+      listMarkerColor: '#0066cc',
+    }
+  },
+
+  // Guardian 卫报
+  'guardian': {
+    id: 'guardian',
+    name: 'Guardian 卫报',
+    description: 'The Guardian 风格 - 蓝黄配色',
+    category: 'business',
+    icon: '🛡️',
+    isPro: true,
+    styles: {
+      ...baseLightTheme,
+      backgroundColor: '#fff',
+      maxWidth: '700px',
+      titleFont: '-apple-system, sans-serif',
+      titleSize: '42px',
+      titleWeight: '700',
+      titleColor: '#052962',
+      h2Font: '-apple-system, sans-serif',
+      h2Size: '32px',
+      h2Weight: '600',
+      h2Color: '#052962',
+      h2BorderColor: '#C70000',
+      bodyFont: '-apple-system, sans-serif',
+      bodySize: '17px',
+      bodyColor: '#121212',
+      bodyLineHeight: '1.7',
+      linkColor: '#0084C6',
+      blockquoteBg: '#FEC200',
+      blockquoteColor: '#052962',
+      blockquoteBorderColor: '#C70000',
+      codeBg: '#f6f6f6',
+      codeColor: '#C70000',
+      codeBlockBg: '#052962',
+      tableHeaderBg: '#052962',
+      tableHeaderColor: '#fff',
+      hrColor: '#052962',
+      strongColor: '#052962',
+      emColor: '#333',
+      listMarkerColor: '#C70000',
+    }
+  },
+
+  // 焦橙文档
+  'warm-docs': {
+    id: 'warm-docs',
+    name: '焦橙文档',
+    description: '焦橙色 + 温暖文档风格',
+    category: 'business',
+    icon: '🧡',
+    isPro: false,
+    styles: {
+      ...baseLightTheme,
+      backgroundColor: '#FAFAF9',
+      maxWidth: '700px',
+      titleFont: '-apple-system, sans-serif',
+      titleSize: '28px',
+      titleWeight: '700',
+      titleColor: '#1A1A1A',
+      h2Font: '-apple-system, sans-serif',
+      h2Size: '22px',
+      h2Weight: '700',
+      h2Color: '#1A1A1A',
+      h2BorderColor: '#C2410C',
+      bodyFont: '-apple-system, sans-serif',
+      bodySize: '16px',
+      bodyColor: '#1A1A1A',
+      bodyLineHeight: '1.8',
+      linkColor: '#C2410C',
+      blockquoteBg: '#FFF7ED',
+      blockquoteColor: '#1A1A1A',
+      blockquoteBorderColor: '#C2410C',
+      codeBg: '#F5F5F0',
+      codeColor: '#C2410C',
+      codeBlockBg: '#F5F5F0',
+      tableHeaderBg: '#F5F5F0',
+      tableHeaderColor: '#1A1A1A',
+      hrColor: '#E5E5E5',
+      strongColor: '#C2410C',
+      emColor: '#6B6B6B',
+      listMarkerColor: '#C2410C',
+    }
+  },
+
 };
-
-// 主题分类
-const themeCategories = [
-  { id: 'all', name: '全部主题' },
-  { id: 'business', name: '商务' },
-  { id: 'creative', name: '创意' },
-  { id: 'tech', name: '技术' },
-  { id: 'minimal', name: '极简' },
-  { id: 'story', name: '故事' }
-];
-
-// 生成 CSS
-function generateTemplateCSS(styles) {
-  return `
-    .markdown-body {
-      background: ${styles.backgroundColor} !important;
-      color: ${styles.bodyColor} !important;
-      max-width: ${styles.maxWidth};
-      margin: 0 auto;
-      padding: ${styles.padding};
-      font-family: ${styles.bodyFont};
-      font-size: ${styles.bodySize};
-      line-height: ${styles.bodyLineHeight};
-    }
-
-    .markdown-body h1 {
-      font-family: ${styles.titleFont};
-      font-size: ${styles.titleSize};
-      font-weight: ${styles.titleWeight};
-      color: ${styles.titleColor} !important;
-      margin-bottom: ${styles.titleMarginBottom};
-      border-bottom: 2px solid ${styles.h2BorderColor} !important;
-      padding-bottom: 12px;
-    }
-
-    .markdown-body h2 {
-      font-family: ${styles.h2Font};
-      font-size: ${styles.h2Size};
-      font-weight: ${styles.h2Weight};
-      color: ${styles.h2Color} !important;
-      margin-top: ${styles.h2MarginTop};
-      margin-bottom: ${styles.h2MarginBottom};
-      border-bottom: 1px solid ${styles.h2BorderColor} !important;
-      padding-bottom: 8px;
-    }
-
-    .markdown-body h3 {
-      font-size: ${styles.h3Size};
-      font-weight: ${styles.h3Weight};
-      color: ${styles.h3Color} !important;
-    }
-
-    .markdown-body p {
-      margin-top: 0;
-      margin-bottom: ${styles.paragraphSpacing};
-    }
-
-    .markdown-body a {
-      color: ${styles.linkColor} !important;
-      text-decoration: none;
-    }
-
-    .markdown-body a:hover {
-      color: ${styles.linkHoverColor} !important;
-      text-decoration: underline;
-    }
-
-    .markdown-body blockquote {
-      border-left: 4px solid ${styles.blockquoteBorderColor} !important;
-      background: ${styles.blockquoteBg} !important;
-      color: ${styles.blockquoteColor} !important;
-      padding: 12px 20px;
-      margin: 16px 0;
-    }
-
-    .markdown-body code {
-      background: ${styles.codeBg} !important;
-      color: ${styles.codeColor} !important;
-      padding: 2px 6px;
-      border-radius: 3px;
-      font-family: 'Monaco', 'Menlo', monospace;
-    }
-
-    .markdown-body pre {
-      background: ${styles.codeBlockBg} !important;
-      border: 1px solid ${styles.codeBlockBorder} !important;
-      border-radius: 6px;
-      padding: 16px;
-      overflow-x: auto;
-    }
-
-    .markdown-body pre code {
-      background: transparent !important;
-      color: ${styles.bodyColor} !important;
-      padding: 0;
-    }
-
-    .markdown-body table {
-      border-collapse: collapse;
-      width: 100%;
-      margin: 16px 0;
-    }
-
-    .markdown-body table th,
-    .markdown-body table td {
-      border: 1px solid ${styles.tableBorderColor} !important;
-      padding: 8px 12px;
-    }
-
-    .markdown-body table tbody tr {
-      background: ${styles.backgroundColor} !important;
-      color: ${styles.bodyColor} !important;
-    }
-
-    .markdown-body table th {
-      background: ${styles.tableHeaderBg} !important;
-      color: ${styles.tableHeaderColor} !important;
-      font-weight: 600;
-    }
-
-    /* 表格斑马纹样式 */
-    .markdown-body table tbody tr:nth-child(2n) {
-      background: ${styles.tableStripeBg} !important;
-    }
-
-    .markdown-body hr {
-      background-color: ${styles.hrColor} !important;
-      border: none;
-      height: 1px;
-      margin: 24px 0;
-    }
-
-    .markdown-body strong {
-      color: ${styles.strongColor} !important;
-      font-weight: 600;
-    }
-
-    .markdown-body em {
-      color: ${styles.emColor} !important;
-    }
-
-    .markdown-body ul,
-    .markdown-body ol {
-      padding-left: 24px;
-    }
-
-    .markdown-body li::marker {
-      color: ${styles.listMarkerColor} !important;
-    }
-
-    .markdown-body img {
-      max-width: 100%;
-      border-radius: 8px;
-      margin: 16px 0;
-    }
-  `;
-}
-
-// 获取所有模板
-function getAllTemplates() {
-  return Object.values(templates);
-}
-
-// 根据 ID 获取模板
-function getTemplateById(id) {
-  return Object.values(templates).find(t => t.id === id) || templates.default;
-}
-
-// 导出
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = {
-    templates,
-    themeCategories,
-    getAllTemplates,
-    getTemplateById,
-    generateTemplateCSS,
-  };
-}
