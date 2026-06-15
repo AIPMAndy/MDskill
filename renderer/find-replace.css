@@ -1,0 +1,245 @@
+/* Find/Replace Modal */
+.find-replace-modal {
+  position: fixed;
+  top: 60px;
+  right: 20px;
+  background: #2d2d2d;
+  border: 1px solid #3e3e42;
+  border-radius: 8px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  z-index: 1000;
+  min-width: 400px;
+  display: none;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.find-replace-modal.visible {
+  display: block;
+  animation: slideInRight 0.2s ease-out;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.find-replace-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid #3e3e42;
+}
+
+.find-replace-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #cccccc;
+}
+
+.find-replace-close {
+  background: none;
+  border: none;
+  color: #cccccc;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.15s;
+}
+
+.find-replace-close:hover {
+  background: #3e3e42;
+  color: #ffffff;
+}
+
+.find-replace-body {
+  padding: 16px;
+}
+
+.find-replace-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.find-replace-row:last-child {
+  margin-bottom: 0;
+}
+
+.find-replace-label {
+  font-size: 12px;
+  color: #cccccc;
+  min-width: 60px;
+  text-align: right;
+}
+
+.find-replace-input-wrapper {
+  flex: 1;
+  position: relative;
+}
+
+.find-replace-input {
+  width: 100%;
+  padding: 6px 60px 6px 10px;
+  background: #1e1e1e;
+  border: 1px solid #3e3e42;
+  border-radius: 4px;
+  color: #cccccc;
+  font-size: 13px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.find-replace-input:focus {
+  border-color: #007acc;
+}
+
+.find-replace-input::placeholder {
+  color: #6a6a6a;
+}
+
+.find-replace-counter {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 11px;
+  color: #858585;
+  pointer-events: none;
+}
+
+.find-replace-options {
+  display: flex;
+  gap: 12px;
+  margin-left: 68px;
+  margin-top: 8px;
+}
+
+.find-replace-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.find-replace-checkbox input[type="checkbox"] {
+  cursor: pointer;
+}
+
+.find-replace-checkbox label {
+  font-size: 12px;
+  color: #cccccc;
+  cursor: pointer;
+  user-select: none;
+}
+
+.find-replace-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  padding: 12px 16px;
+  border-top: 1px solid #3e3e42;
+}
+
+.find-replace-btn {
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 500;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.find-replace-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.find-replace-btn-primary {
+  background: #0e639c;
+  color: #ffffff;
+}
+
+.find-replace-btn-primary:hover:not(:disabled) {
+  background: #1177bb;
+}
+
+.find-replace-btn-secondary {
+  background: #3e3e42;
+  color: #cccccc;
+}
+
+.find-replace-btn-secondary:hover:not(:disabled) {
+  background: #505050;
+}
+
+.find-replace-btn-danger {
+  background: #d32f2f;
+  color: #ffffff;
+}
+
+.find-replace-btn-danger:hover:not(:disabled) {
+  background: #f44336;
+}
+
+/* Editor highlights */
+.find-highlight {
+  background-color: rgba(255, 255, 0, 0.3);
+  border-radius: 2px;
+}
+
+.find-highlight-current {
+  background-color: rgba(255, 165, 0, 0.5);
+  border-radius: 2px;
+  outline: 1px solid rgba(255, 165, 0, 0.8);
+}
+
+/* Navigation buttons in input */
+.find-nav-buttons {
+  position: absolute;
+  right: 35px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  gap: 2px;
+}
+
+.find-nav-btn {
+  background: none;
+  border: none;
+  color: #cccccc;
+  cursor: pointer;
+  padding: 2px 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
+  transition: all 0.15s;
+}
+
+.find-nav-btn:hover:not(:disabled) {
+  background: #3e3e42;
+  color: #ffffff;
+}
+
+.find-nav-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.find-nav-btn svg {
+  width: 12px;
+  height: 12px;
+}

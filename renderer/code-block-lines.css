@@ -1,0 +1,41 @@
+/* Code Block Line Numbers */
+
+.code-block-with-lines {
+  position: relative;
+  padding-left: 0;
+}
+
+.code-block-with-lines .code-line {
+  display: block;
+  padding-left: 60px;
+  position: relative;
+}
+
+.code-block-with-lines .line-number {
+  position: absolute;
+  left: 0;
+  width: 50px;
+  text-align: right;
+  padding-right: 10px;
+  color: #858585;
+  user-select: none;
+  border-right: 1px solid #3e3e42;
+}
+
+.code-block-with-lines .code-line:hover .line-number {
+  color: #d4d4d4;
+}
+
+/* Toggle for disabling line numbers */
+.code-block-lines-disabled .code-block-with-lines .line-number {
+  display: none;
+}
+
+.code-block-lines-disabled .code-block-with-lines .code-line {
+  padding-left: 20px;
+}
+
+/* Ensure code highlighting works with line numbers */
+.code-block-with-lines code {
+  display: block;
+}

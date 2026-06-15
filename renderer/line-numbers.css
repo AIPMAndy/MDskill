@@ -1,0 +1,75 @@
+/* Line Numbers for Editor */
+
+.editor-with-lines {
+  display: flex;
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.line-numbers {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 50px;
+  padding: 20px 0;
+  background: #1e1e1e;
+  border-right: 1px solid #3e3e42;
+  overflow: hidden;
+  user-select: none;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.line-numbers-content {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #858585;
+  text-align: right;
+  padding-right: 10px;
+}
+
+.line-number {
+  display: block;
+  height: 22.4px; /* 14px * 1.6 line-height */
+  white-space: nowrap;
+}
+
+.line-number:hover {
+  color: #d4d4d4;
+}
+
+/* Editor with line numbers needs left padding */
+.editor-with-lines #editor {
+  padding-left: 60px;
+}
+
+/* Toggle button in toolbar */
+.line-numbers-toggle {
+  background: transparent;
+  border: 1px solid #3e3e42;
+  color: #d4d4d4;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s;
+  margin-right: 8px;
+}
+
+.line-numbers-toggle:hover {
+  background: #2d2d2d;
+  border-color: #007acc;
+}
+
+.line-numbers-toggle.active {
+  background: #0e639c;
+  border-color: #007acc;
+  color: #fff;
+}
+
+/* Sync scrolling */
+.line-numbers.scrolling {
+  overflow-y: hidden;
+}
