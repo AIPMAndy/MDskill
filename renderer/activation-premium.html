@@ -22,6 +22,10 @@
       min-height: 100vh;
     }
 
+    body.i18n-loading {
+      visibility: hidden;
+    }
+
     .container {
       max-width: 100%;
       padding: 32px 24px;
@@ -616,7 +620,7 @@
     }
   </style>
 </head>
-<body>
+<body class="i18n-loading">
   <div class="container">
     <div class="header">
       <div class="header-icon" id="headerIcon">🔓</div>
@@ -798,9 +802,15 @@
     </div>
   </div>
 
+  <script src="i18n-helpers.js"></script>
   <script>
     const { ipcRenderer } = require('electron');
     const { clipboard } = require('electron');
+    const t = (key, params = {}) => window.i18nHelpers ? window.i18nHelpers.t(`activationPage.${key}`, params) : key;
+    const getCurrentLocale = () => {
+      const lang = window.i18nHelpers ? window.i18nHelpers.getCurrentLanguage() : 'en';
+      return lang === 'zh' ? 'zh-CN' : 'en-US';
+    };
 
     const deviceIdEl = document.getElementById('deviceId');
     const copyBtn = document.getElementById('copyBtn');
@@ -814,6 +824,82 @@
     const headerSubtitle = document.getElementById('headerSubtitle');
     const activatedDeviceId = document.getElementById('activatedDeviceId');
     const activatedTime = document.getElementById('activatedTime');
+    const benefitData = [
+      ['benefitAiTitle', 'benefitAiDesc'],
+      ['benefitThemeTitle', 'benefitThemeDesc'],
+      ['benefitWechatTitle', 'benefitWechatDesc'],
+      ['benefitBlogTitle', 'benefitBlogDesc'],
+      ['benefitPdfTitle', 'benefitPdfDesc']
+    ];
+
+    function setWindowTitle(title) {
+      document.title = title;
+      ipcRenderer.send('set-window-title', title);
+    }
+
+    function applyActivationI18n(isActivated = document.body.classList.contains('is-activated')) {
+      const lang = window.i18nHelpers ? window.i18nHelpers.getCurrentLanguage() : 'en';
+      document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
+      setWindowTitle(t('title'));
+
+      headerTitle.textContent = isActivated ? t('activatedTitle') : t('headerTitle');
+      headerSubtitle.textContent = isActivated ? t('activatedSubtitle') : t('headerSubtitle');
+
+      const activatedTitle = document.querySelector('.activated-title');
+      const activatedDesc = document.querySelector('.activated-desc');
+      if (activatedTitle) activatedTitle.textContent = t('activatedTitle');
+      if (activatedDesc) activatedDesc.textContent = t('activatedDesc');
+
+      const activatedLabels = document.querySelectorAll('.activated-info-label');
+      if (activatedLabels[0]) activatedLabels[0].textContent = t('activatedDeviceLabel');
+      if (activatedLabels[1]) activatedLabels[1].textContent = t('activatedTimeLabel');
+      if (activatedLabels[2]) activatedLabels[2].textContent = t('licenseTypeLabel');
+
+      const licenseTypeValue = document.querySelector('.activated-info-item:nth-child(3) .activated-info-value');
+      if (licenseTypeValue) licenseTypeValue.textContent = t('lifetimeLicense');
+
+      const sectionTitles = document.querySelectorAll('.benefits-section h3');
+      if (sectionTitles[0]) sectionTitles[0].textContent = t('unlockedFeaturesTitle');
+      if (sectionTitles[1]) sectionTitles[1].textContent = t('benefitsTitle');
+
+      document.querySelectorAll('.benefits-section').forEach((section) => {
+        const titles = section.querySelectorAll('.benefit-title');
+        const descs = section.querySelectorAll('.benefit-desc');
+        benefitData.forEach(([titleKey, descKey], index) => {
+          if (titles[index]) titles[index].textContent = t(titleKey);
+          if (descs[index]) descs[index].textContent = t(descKey);
+        });
+      });
+
+      const priceDesc = document.querySelector('.price-desc');
+      const priceBadge = document.querySelector('.price-badge');
+      const freeMember = document.querySelector('.free-member-box span:last-child');
+      if (priceDesc) priceDesc.textContent = t('priceDesc');
+      if (priceBadge) priceBadge.textContent = t('priceBadge');
+      if (freeMember) freeMember.textContent = t('freeMember');
+
+      const deviceLabel = document.querySelector('.device-section label');
+      const licenseLabel = document.querySelector('.form-section label');
+      if (deviceLabel) deviceLabel.textContent = t('deviceLabel');
+      if (licenseLabel) licenseLabel.textContent = t('licenseLabel');
+      if (licenseKeyEl) licenseKeyEl.placeholder = t('licensePlaceholder');
+
+      copyBtn.textContent = t('copiedDefault');
+      cancelBtn.textContent = t('cancel');
+      activateBtn.textContent = activateBtn.disabled ? t('activating') : t('activate');
+      if (closeBtn) closeBtn.textContent = t('close');
+
+      const contactItems = document.querySelectorAll('.contact-section p');
+      if (contactItems[0]) contactItems[0].textContent = t('noLicenseQuestion');
+      if (contactItems[1]) {
+        contactItems[1].innerHTML = `${t('contactWechat')} <strong>AIPMAndy</strong>`;
+      }
+      if (contactItems[2]) contactItems[2].textContent = t('contactInstruction');
+
+      if (window.i18nHelpers && window.i18nHelpers.markI18nReady) {
+        window.i18nHelpers.markI18nReady();
+      }
+    }
 
     // 检查激活状态
     async function checkActivationStatus() {
@@ -825,8 +911,7 @@
         if (isActivated) {
           document.body.classList.add('is-activated');
           headerIcon.textContent = '✅';
-          headerTitle.textContent = '专业版已激活';
-          headerSubtitle.textContent = '所有高级功能已解锁';
+          applyActivationI18n(true);
 
           const deviceId = await ipcRenderer.invoke('get-device-fingerprint');
           console.log('设备指纹:', deviceId);
@@ -835,12 +920,13 @@
           const licenseInfo = await ipcRenderer.invoke('get-license-info');
           if (licenseInfo && licenseInfo.activatedAt) {
             const date = new Date(licenseInfo.activatedAt);
-            activatedTime.textContent = date.toLocaleDateString('zh-CN');
+            activatedTime.textContent = date.toLocaleDateString(getCurrentLocale());
           } else {
-            activatedTime.textContent = '已激活';
+            activatedTime.textContent = t('activatedFallback');
           }
         } else {
           document.body.classList.remove('is-activated');
+          applyActivationI18n(false);
           loadDeviceId();
         }
       } catch (error) {
@@ -859,7 +945,7 @@
         deviceIdEl.textContent = deviceId;
       } catch (error) {
         console.error('加载设备指纹失败:', error);
-        deviceIdEl.textContent = '加载失败: ' + error.message;
+        deviceIdEl.textContent = t('loadFailed', { error: error.message });
       }
     }
 
@@ -867,9 +953,9 @@
     copyBtn.addEventListener('click', () => {
       const deviceId = deviceIdEl.textContent;
       clipboard.writeText(deviceId);
-      copyBtn.textContent = '已复制!';
+      copyBtn.textContent = t('copied');
       setTimeout(() => {
-        copyBtn.textContent = '复制';
+        copyBtn.textContent = t('copiedDefault');
       }, 2000);
     });
 
@@ -878,30 +964,30 @@
       const licenseKey = licenseKeyEl.value.trim();
 
       if (!licenseKey) {
-        showMessage('✗ 请输入授权码', 'error');
+        showMessage(t('noLicense'), 'error');
         return;
       }
 
       activateBtn.disabled = true;
-      activateBtn.textContent = '激活中...';
+      activateBtn.textContent = t('activating');
 
       try {
         const result = await ipcRenderer.invoke('activate-license', licenseKey);
 
         if (result.success) {
-          showMessage('✓ 激活成功！专业版功能已解锁', 'success');
+          showMessage(t('activateSuccess'), 'success');
           setTimeout(() => {
             window.close();
           }, 1500);
         } else {
-          showMessage('✗ ' + (result.error || '激活失败'), 'error');
+          showMessage('✗ ' + (result.error || t('activateFailed')), 'error');
           activateBtn.disabled = false;
-          activateBtn.textContent = '激活';
+          activateBtn.textContent = t('activate');
         }
       } catch (error) {
-        showMessage('✗ 激活出错: ' + error.message, 'error');
+        showMessage('✗ ' + t('activateError', { error: error.message }), 'error');
         activateBtn.disabled = false;
-        activateBtn.textContent = '激活';
+        activateBtn.textContent = t('activate');
       }
     });
 
@@ -915,6 +1001,14 @@
       window.close();
     });
 
+    ipcRenderer.on('language-changed', (event, lang) => {
+      if (window.i18nHelpers && window.i18nHelpers.setLanguage) {
+        window.i18nHelpers.setLanguage(lang);
+      }
+      applyActivationI18n();
+      checkActivationStatus();
+    });
+
     // 显示消息
     function showMessage(text, type) {
       messageEl.textContent = text;
@@ -924,6 +1018,7 @@
 
     // 初始化
     console.log('页面加载完成，开始初始化...');
+    applyActivationI18n(false);
     checkActivationStatus();
   </script>
 </body>

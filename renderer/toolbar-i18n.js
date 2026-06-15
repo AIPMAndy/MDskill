@@ -22,7 +22,10 @@ const toolbarTexts = {
     insertLink: 'Insert Link (Cmd+K)',
     selectTheme: 'Select Theme',
     exportPDF: 'Export PDF (Cmd+E)',
-    copyToWechat: 'Copy to WeChat Official Account (Cmd+Shift+W)'
+    copyToWechat: 'Copy to WeChat Official Account (Cmd+Shift+W)',
+    copyToBlog: 'Copy to Blog (Cmd+Shift+C)',
+    copyHTMLSource: 'Copy HTML Source (Cmd+Shift+H)',
+    togglePreview: 'Toggle Preview (Cmd+P)'
   },
   zh: {
     toggleSidebar: '切换侧边栏 (Cmd+Shift+B)',
@@ -39,7 +42,10 @@ const toolbarTexts = {
     insertLink: '插入链接 (Cmd+K)',
     selectTheme: '选择主题',
     exportPDF: '导出 PDF (Cmd+E)',
-    copyToWechat: '复制到微信公众号 (Cmd+Shift+W)'
+    copyToWechat: '复制到微信公众号 (Cmd+Shift+W)',
+    copyToBlog: '复制到博客 (Cmd+Shift+C)',
+    copyHTMLSource: '复制HTML源码 (Cmd+Shift+H)',
+    togglePreview: '切换预览 (Cmd+P)'
   }
 };
 
@@ -63,7 +69,10 @@ function updateToolbarTooltips(lang) {
     'linkBtn': 'insertLink',
     'templateSelect': 'selectTheme',
     'exportPdfBtn': 'exportPDF',
-    'copyWeChatBtn': 'copyToWechat'
+    'copyWeChatBtn': 'copyToWechat',
+    'copyBlogBtn': 'copyToBlog',
+    'copyHTMLBtn': 'copyHTMLSource',
+    'togglePreviewBtn': 'togglePreview'
   };
 
   Object.keys(buttonMap).forEach(btnId => {
@@ -76,7 +85,8 @@ function updateToolbarTooltips(lang) {
 }
 
 // 初始化时更新一次
-function initToolbarI18n() {
+function initToolbarI18n(lang = currentLang) {
+  currentLang = lang;
   updateToolbarTooltips(currentLang);
 }
 

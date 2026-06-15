@@ -13,6 +13,28 @@ class Sidebar {
     this.init();
   }
 
+  t(key, params = {}) {
+    if (window.i18nHelpers) {
+      return window.i18nHelpers.t(`sidebar.${key}`, params);
+    }
+    const fallback = {
+      openFolder: 'Open Folder',
+      searchPlaceholder: 'Search files...',
+      recentOpen: 'Recent Files',
+      noRecentFiles: 'No recent files',
+      currentFolder: 'Current Folder',
+      noFolder: 'No folder open',
+      openFolderFirst: 'Open a folder first',
+      noMarkdownFiles: 'No Markdown files in this folder',
+      noMatchingFiles: 'No matching files'
+    };
+    let value = fallback[key] || key;
+    Object.keys(params).forEach(paramKey => {
+      value = value.replace(`{${paramKey}}`, params[paramKey]);
+    });
+    return value;
+  }
+
   init() {
     this.createSidebarHTML();
     this.attachEventListeners();
@@ -36,27 +58,27 @@ class Sidebar {
     const sidebarHTML = `
       <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
-          <button class="sidebar-btn" id="openFolderBtn" title="打开文件夹">
+          <button class="sidebar-btn" id="openFolderBtn" title="${this.t('openFolder')}">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
               <path d="M.54 3.87.5 3a2 2 0 0 1 2-2h3.672a2 2 0 0 1 1.414.586l.828.828A2 2 0 0 0 9.828 3h3.982a2 2 0 0 1 1.992 2.181l-.637 7A2 2 0 0 1 13.174 14H2.826a2 2 0 0 1-1.991-1.819l-.637-7a1.99 1.99 0 0 1 .342-1.31zM2.19 4a1 1 0 0 0-.996 1.09l.637 7a1 1 0 0 0 .995.91h10.348a1 1 0 0 0 .995-.91l.637-7A1 1 0 0 0 13.81 4H2.19zm4.69-1.707A1 1 0 0 0 6.172 2H2.5a1 1 0 0 0-1 .981l.006.139C1.72 3.042 1.95 3 2.19 3h5.396l-.707-.707z"/>
             </svg>
-            <span>打开文件夹</span>
+            <span data-i18n="openFolder">${this.t('openFolder')}</span>
           </button>
-          <input type="text" class="sidebar-search" id="sidebarSearch" placeholder="🔍 搜索文件...">
+          <input type="text" class="sidebar-search" id="sidebarSearch" placeholder="🔍 ${this.t('searchPlaceholder')}">
         </div>
 
         <div class="sidebar-section">
-          <div class="sidebar-section-title">最近打开</div>
+          <div class="sidebar-section-title" data-i18n="recentOpen">${this.t('recentOpen')}</div>
           <div class="sidebar-file-list" id="recentFilesList">
-            <div class="sidebar-empty">暂无最近文件</div>
+            <div class="sidebar-empty">${this.t('noRecentFiles')}</div>
           </div>
         </div>
 
         <div class="sidebar-section">
-          <div class="sidebar-section-title">当前文件夹</div>
-          <div class="sidebar-folder-path" id="folderPath">未打开文件夹</div>
+          <div class="sidebar-section-title" data-i18n="currentFolder">${this.t('currentFolder')}</div>
+          <div class="sidebar-folder-path" id="folderPath">${this.t('noFolder')}</div>
           <div class="sidebar-file-list" id="currentFilesList">
-            <div class="sidebar-empty">请先打开一个文件夹</div>
+            <div class="sidebar-empty">${this.t('openFolderFirst')}</div>
           </div>
         </div>
 
@@ -88,6 +110,12 @@ class Sidebar {
     // 侧边栏拖拽调整大小
     this.initResize();
 
+    if (typeof require !== 'undefined') {
+      require('electron').ipcRenderer.on('language-changed', () => {
+        this.refreshI18n();
+      });
+    }
+
     // 监听来自主进程的文件夹数据
     ipcRenderer.on('folder-opened', (event, data) => {
       this.handleFolderOpened(data);
@@ -97,6 +125,30 @@ class Sidebar {
     ipcRenderer.on('file-switched', (event, filePath) => {
       this.handleFileSwitched(filePath);
     });
+  }
+
+  refreshI18n() {
+    const openFolderBtn = document.getElementById('openFolderBtn');
+    if (openFolderBtn) {
+      openFolderBtn.title = this.t('openFolder');
+    }
+
+    const searchInput = document.getElementById('sidebarSearch');
+    if (searchInput) {
+      searchInput.placeholder = `🔍 ${this.t('searchPlaceholder')}`;
+    }
+
+    document.querySelectorAll('[data-i18n]').forEach((element) => {
+      element.textContent = this.t(element.dataset.i18n);
+    });
+
+    const folderPath = document.getElementById('folderPath');
+    if (folderPath && !this.currentFolder) {
+      folderPath.textContent = this.t('noFolder');
+    }
+
+    this.renderRecentFiles();
+    this.renderCurrentFiles();
   }
 
   async openFolder() {
@@ -127,9 +179,15 @@ class Sidebar {
     const filesList = document.getElementById('currentFilesList');
     const folderPath = document.getElementById('folderPath');
 
-    if (!this.currentFolder || this.files.length === 0) {
-      filesList.innerHTML = '<div class="sidebar-empty">此文件夹中没有 Markdown 文件</div>';
-      folderPath.textContent = '未打开文件夹';
+    if (!this.currentFolder) {
+      filesList.innerHTML = `<div class="sidebar-empty">${this.t('openFolderFirst')}</div>`;
+      folderPath.textContent = this.t('noFolder');
+      return;
+    }
+
+    if (this.files.length === 0) {
+      filesList.innerHTML = `<div class="sidebar-empty">${this.t('noMarkdownFiles')}</div>`;
+      folderPath.textContent = this.currentFolder;
       return;
     }
 
@@ -169,7 +227,7 @@ class Sidebar {
     const recentList = document.getElementById('recentFilesList');
 
     if (this.recentFiles.length === 0) {
-      recentList.innerHTML = '<div class="sidebar-empty">暂无最近文件</div>';
+      recentList.innerHTML = `<div class="sidebar-empty">${this.t('noRecentFiles')}</div>`;
       return;
     }
 
@@ -245,7 +303,7 @@ class Sidebar {
 
     const filesList = document.getElementById('currentFilesList');
     if (filtered.length === 0) {
-      filesList.innerHTML = '<div class="sidebar-empty">未找到匹配的文件</div>';
+      filesList.innerHTML = `<div class="sidebar-empty">${this.t('noMatchingFiles')}</div>`;
       return;
     }
 

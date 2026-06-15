@@ -1,7 +1,7 @@
 // renderer.js 消息辅助函数
 // Message helper functions for renderer.js
 
-const { t, getCurrentLanguage } = require('../i18n/locales');
+const { t, getCurrentLanguage, setLanguage } = require('../i18n/locales');
 
 // 显示本地化的 alert
 function showAlert(key, params = {}) {
@@ -20,12 +20,21 @@ function getMessage(key, params = {}) {
   return t(key, params);
 }
 
+function markI18nReady() {
+  if (typeof document === 'undefined' || !document.body) {
+    return;
+  }
+
+  document.body.classList.remove('i18n-loading');
+  document.body.classList.add('i18n-ready');
+}
+
 // 导出
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { showAlert, showConfirm, getMessage };
+  module.exports = { showAlert, showConfirm, getMessage, getCurrentLanguage, setLanguage, t, markI18nReady };
 }
 
 // 也挂载到 window 供其他脚本使用
 if (typeof window !== 'undefined') {
-  window.i18nHelpers = { showAlert, showConfirm, getMessage, t };
+  window.i18nHelpers = { showAlert, showConfirm, getMessage, getCurrentLanguage, setLanguage, t, markI18nReady };
 }

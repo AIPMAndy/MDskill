@@ -45,6 +45,7 @@ const baseDarkTheme = {
   codeBg: '#1e1e1e',
   codeColor: '#ce9178',
   codeBlockBg: '#1e1e1e',
+  codeBlockColor: '#d4d4d4',
   codeBlockBorder: '#3e3e42',
   tableBorderColor: '#3e3e42',
   tableHeaderBg: '#1e1e1e',
@@ -73,6 +74,7 @@ const baseLightTheme = {
   codeBg: '#f6f8fa',
   codeColor: '#d73a49',
   codeBlockBg: '#f6f8fa',
+  codeBlockColor: '#24292f',
   codeBlockBorder: '#d0d7de',
   tableBorderColor: '#d0d7de',
   tableHeaderBg: '#f6f8fa',
@@ -1308,7 +1310,7 @@ const templates = {
   // 纽约时报
   'wechat-nyt': {
     id: 'wechat-nyt',
-    name: '纽约时报',
+    name: '公众号·纽约时报',
     description: '纽约时报经典风格 - 黑白衬线',
     category: 'business',
     icon: '🗞️',
@@ -1389,7 +1391,7 @@ const templates = {
   // Medium 长文
   'wechat-medium': {
     id: 'wechat-medium',
-    name: 'Medium 长文',
+    name: '公众号·Medium',
     description: 'Medium 平台风格 - 优雅阅读',
     category: 'business',
     icon: '✍️',
@@ -1458,6 +1460,7 @@ const templates = {
       codeBg: 'rgba(193, 95, 60, 0.08)',
       codeColor: '#C15F3C',
       codeBlockBg: '#2b2b2b',
+      codeBlockColor: '#f7f7f8',
       tableHeaderColor: '#2b2b2b',
       hrColor: 'rgba(193, 95, 60, 0.3)',
       strongColor: '#C15F3C',
@@ -1467,8 +1470,8 @@ const templates = {
   },
 
   // 优雅简约
-  'wechat-elegant': {
-    id: 'wechat-elegant',
+  'wechat-elegant-minimal': {
+    id: 'wechat-elegant-minimal',
     name: '优雅简约',
     description: '宋体衬线 + 极简风格',
     category: 'creative',
@@ -1539,6 +1542,7 @@ const templates = {
       codeBg: '#ffe6e6',
       codeColor: '#d63031',
       codeBlockBg: '#1e1e1e',
+      codeBlockColor: '#f8fafc',
       tableHeaderBg: '#0066cc',
       tableHeaderColor: '#fff',
       hrColor: '#0066cc',
@@ -1621,6 +1625,7 @@ const templates = {
       codeBg: '#f6f6f6',
       codeColor: '#C70000',
       codeBlockBg: '#052962',
+      codeBlockColor: '#ffffff',
       tableHeaderBg: '#052962',
       tableHeaderColor: '#fff',
       hrColor: '#052962',
@@ -1673,13 +1678,170 @@ const templates = {
 
 };
 
+Object.values(templates).forEach(theme => {
+  theme.isPremium = theme.isPro;
+});
+
 // 导出函数到全局作用域
 function getAllTemplates() {
   return Object.values(templates);
 }
 
 function getTemplateById(id) {
-  return templates[id] || null;
+  const aliases = {
+    'github-dark': 'default',
+  };
+  const normalizedId = aliases[id] || id || 'default';
+
+  return Object.values(templates).find(template => template.id === normalizedId)
+    || templates[normalizedId]
+    || templates.default;
+}
+
+function generateTemplateCSS(styles) {
+  return `
+    .markdown-body {
+      background: ${styles.backgroundColor} !important;
+      color: ${styles.bodyColor} !important;
+      max-width: ${styles.maxWidth};
+      margin: 0 auto;
+      padding: ${styles.padding};
+      font-family: ${styles.bodyFont};
+      font-size: ${styles.bodySize};
+      line-height: ${styles.bodyLineHeight};
+    }
+
+    .markdown-body h1 {
+      font-family: ${styles.titleFont};
+      font-size: ${styles.titleSize};
+      font-weight: ${styles.titleWeight};
+      color: ${styles.titleColor} !important;
+      margin-bottom: ${styles.titleMarginBottom};
+      border-bottom: 2px solid ${styles.h2BorderColor} !important;
+      padding-bottom: 12px;
+    }
+
+    .markdown-body h2 {
+      font-family: ${styles.h2Font};
+      font-size: ${styles.h2Size};
+      font-weight: ${styles.h2Weight};
+      color: ${styles.h2Color} !important;
+      margin-top: ${styles.h2MarginTop};
+      margin-bottom: ${styles.h2MarginBottom};
+      border-bottom: 1px solid ${styles.h2BorderColor} !important;
+      padding-bottom: 8px;
+    }
+
+    .markdown-body h3 {
+      font-size: ${styles.h3Size};
+      font-weight: ${styles.h3Weight};
+      color: ${styles.h3Color} !important;
+    }
+
+    .markdown-body p {
+      margin-top: 0;
+      margin-bottom: ${styles.paragraphSpacing};
+    }
+
+    .markdown-body a {
+      color: ${styles.linkColor} !important;
+      text-decoration: none;
+    }
+
+    .markdown-body a:hover {
+      color: ${styles.linkHoverColor} !important;
+      text-decoration: underline;
+    }
+
+    .markdown-body blockquote {
+      border-left: 4px solid ${styles.blockquoteBorderColor} !important;
+      background: ${styles.blockquoteBg} !important;
+      color: ${styles.blockquoteColor} !important;
+      padding: 12px 20px;
+      margin: 16px 0;
+    }
+
+    .markdown-body code {
+      background: ${styles.codeBg} !important;
+      color: ${styles.codeColor} !important;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: 'Monaco', 'Menlo', monospace;
+    }
+
+    .markdown-body pre {
+      background: ${styles.codeBlockBg} !important;
+      color: ${styles.codeBlockColor} !important;
+      border: 1px solid ${styles.codeBlockBorder} !important;
+      border-radius: 6px;
+      padding: 16px;
+      overflow-x: auto;
+    }
+
+    .markdown-body pre code {
+      background: transparent !important;
+      color: ${styles.codeBlockColor} !important;
+      padding: 0;
+    }
+
+    .markdown-body table {
+      border-collapse: collapse;
+      width: 100%;
+      margin: 16px 0;
+    }
+
+    .markdown-body table th,
+    .markdown-body table td {
+      border: 1px solid ${styles.tableBorderColor} !important;
+      padding: 8px 12px;
+    }
+
+    .markdown-body table tbody tr {
+      background: ${styles.backgroundColor} !important;
+      color: ${styles.bodyColor} !important;
+    }
+
+    .markdown-body table th {
+      background: ${styles.tableHeaderBg} !important;
+      color: ${styles.tableHeaderColor} !important;
+      font-weight: 600;
+    }
+
+    .markdown-body table tbody tr:nth-child(2n) {
+      background: ${styles.tableStripeBg} !important;
+    }
+
+    .markdown-body hr {
+      background-color: ${styles.hrColor} !important;
+      border: none;
+      height: 1px;
+      margin: 24px 0;
+    }
+
+    .markdown-body strong {
+      color: ${styles.strongColor} !important;
+      font-weight: 600;
+    }
+
+    .markdown-body em {
+      color: ${styles.emColor} !important;
+    }
+
+    .markdown-body ul,
+    .markdown-body ol {
+      padding-left: 24px;
+    }
+
+    .markdown-body li::marker {
+      color: ${styles.listMarkerColor} !important;
+    }
+
+    .markdown-body img {
+      max-width: 100%;
+      border-radius: 8px;
+      margin: 16px 0;
+    }
+  `;
 }
 
 // 暴露到 window 对象供其他模块使用
@@ -1687,6 +1849,7 @@ if (typeof window !== 'undefined') {
   window.templates = templates;
   window.getAllTemplates = getAllTemplates;
   window.getTemplateById = getTemplateById;
+  window.generateTemplateCSS = generateTemplateCSS;
 }
 
 // Node.js 环境支持
@@ -1695,5 +1858,6 @@ if (typeof module !== 'undefined' && module.exports) {
     templates,
     getAllTemplates,
     getTemplateById,
+    generateTemplateCSS,
   };
 }

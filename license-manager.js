@@ -135,38 +135,8 @@ async function activateLicenseOnline(licenseKey) {
   }
 }
 
-    const result = await apiRequest('/api/activate', 'POST', {
-      licenseKey,
-      deviceId,
-      deviceInfo
-    });
-
-    if (result.success) {
-      store.set('license', {
-        key: licenseKey,
-        token: result.data.token,
-        expiresIn: result.data.expiresIn,
-        activatedAt: Date.now(),
-        lastVerifiedAt: Date.now(),
-        license: result.data.license
-      });
-
-      return { success: true };
-    } else {
-      return { success: false, error: result.error };
-    }
-
-  } catch (error) {
-    console.error('激活失败:', error);
-    return {
-      success: false,
-      error: '网络错误，无法连接到授权服务器'
-    };
-  }
-}
-
 /**
- * 在线验证授权
+ * 验证授权状态（离线优先）
  */
 async function verifyLicenseOnline(featureName = null) {
   try {

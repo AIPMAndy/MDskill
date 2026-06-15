@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title data-i18n="activateTitle">激活专业版 - MDSKILL</title>
+  <title>Upgrade to Pro - MDSKILL</title>
   <style>
     * {
       margin: 0;
@@ -12,113 +12,320 @@
     }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", "Helvetica Neue", Arial, "Noto Sans CJK SC", sans-serif;
-      background: #f5f5f7;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       display: flex;
       align-items: center;
       justify-content: center;
       min-height: 100vh;
-      padding: 20px;
+      padding: 40px 20px;
       color: #1d1d1f;
     }
 
     .container {
       background: white;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
       width: 100%;
-      max-width: 500px;
+      max-width: 700px;
       overflow: hidden;
     }
 
-    /* 头部 */
+    /* Header with value proposition */
     .header {
-      padding: 32px 24px 24px;
+      padding: 40px 32px 32px;
       text-align: center;
-      border-bottom: 1px solid #e5e5e7;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
     }
 
     .header-icon {
-      font-size: 64px;
+      font-size: 56px;
       margin-bottom: 16px;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
     }
 
     .header-title {
-      font-size: 24px;
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      letter-spacing: -0.5px;
+    }
+
+    .header-subtitle {
+      font-size: 16px;
+      opacity: 0.95;
+      line-height: 1.5;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    /* Pricing section */
+    .pricing-section {
+      padding: 32px;
+      background: #f8f9fa;
+      border-bottom: 1px solid #e5e5e7;
+    }
+
+    .pricing-cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .pricing-card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      border: 2px solid #e5e5e7;
+      transition: all 0.3s;
+    }
+
+    .pricing-card.recommended {
+      border-color: #667eea;
+      box-shadow: 0 4px 16px rgba(102, 126, 234, 0.2);
+      transform: scale(1.02);
+    }
+
+    .pricing-badge {
+      display: inline-block;
+      background: #667eea;
+      color: white;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 12px;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .pricing-name {
+      font-size: 18px;
       font-weight: 600;
       color: #1d1d1f;
       margin-bottom: 8px;
     }
 
-    .header-subtitle {
-      font-size: 15px;
+    .pricing-price {
+      font-size: 32px;
+      font-weight: 700;
+      color: #667eea;
+      margin-bottom: 4px;
+    }
+
+    .pricing-price-unit {
+      font-size: 14px;
       color: #86868b;
-      line-height: 1.5;
     }
 
-    /* 隐私信息区域 - NEW */
-    .privacy-section {
-      padding: 16px 24px;
-      background: #f0f8ff;
-      border-bottom: 1px solid #e5e5e7;
-    }
-
-    .privacy-title {
-      font-size: 13px;
-      font-weight: 600;
-      color: #0078D2;
-      margin-bottom: 8px;
-      display: flex;
-      align-items: center;
-    }
-
-    .privacy-icon {
-      margin-right: 6px;
-    }
-
-    .privacy-content {
+    .pricing-save {
       font-size: 12px;
-      color: #555;
-      line-height: 1.6;
+      color: #34c759;
+      font-weight: 600;
+      margin-top: 4px;
     }
 
-    .privacy-list {
-      margin: 8px 0;
-      padding-left: 16px;
-    }
-
-    .privacy-list li {
-      margin: 4px 0;
-    }
-
-    .privacy-links {
+    .pricing-daily {
+      font-size: 13px;
+      color: #86868b;
       margin-top: 8px;
-      font-size: 11px;
     }
 
-    .privacy-links a {
-      color: #0078D2;
-      text-decoration: none;
-      margin-right: 12px;
-    }
-
-    .privacy-links a:hover {
-      text-decoration: underline;
-    }
-
-    /* 设备ID区域 */
-    .device-section {
-      padding: 20px 24px;
+    /* Feature comparison */
+    .comparison-section {
+      padding: 32px;
       border-bottom: 1px solid #e5e5e7;
     }
 
     .section-title {
-      font-size: 13px;
+      font-size: 18px;
+      font-weight: 600;
+      color: #1d1d1f;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .comparison-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .comparison-table th {
+      font-size: 12px;
       font-weight: 600;
       color: #86868b;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      padding: 12px 8px;
+      text-align: center;
+      border-bottom: 2px solid #e5e5e7;
+    }
+
+    .comparison-table td {
+      padding: 12px 8px;
+      border-bottom: 1px solid #f5f5f7;
+      font-size: 14px;
+    }
+
+    .comparison-table td:first-child {
+      font-weight: 500;
+      color: #1d1d1f;
+    }
+
+    .comparison-table td:not(:first-child) {
+      text-align: center;
+    }
+
+    .check-mark {
+      color: #34c759;
+      font-size: 18px;
+    }
+
+    .cross-mark {
+      color: #ff3b30;
+      font-size: 18px;
+      opacity: 0.3;
+    }
+
+    /* Trial info */
+    .trial-section {
+      padding: 24px 32px;
+      background: #f0f8ff;
+      text-align: center;
+      border-bottom: 1px solid #e5e5e7;
+    }
+
+    .trial-text {
+      font-size: 16px;
+      color: #0078D2;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .trial-desc {
+      font-size: 13px;
+      color: #555;
+      line-height: 1.6;
+    }
+
+    /* Contact section */
+    .contact-section {
+      padding: 32px;
+      text-align: center;
+    }
+
+    .contact-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1d1d1f;
       margin-bottom: 12px;
+    }
+
+    .contact-desc {
+      font-size: 14px;
+      color: #86868b;
+      margin-bottom: 20px;
+      line-height: 1.6;
+    }
+
+    .contact-info {
+      background: #f5f5f7;
+      border-radius: 8px;
+      padding: 16px;
+      font-size: 14px;
+      color: #1d1d1f;
+      margin-bottom: 20px;
+    }
+
+    .contact-method {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin: 8px 0;
+    }
+
+    .contact-icon {
+      font-size: 18px;
+    }
+
+    .contact-value {
+      font-weight: 500;
+    }
+
+    /* Buttons */
+    .actions-section {
+      padding: 0 32px 32px;
+      display: flex;
+      gap: 12px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 14px 24px;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-secondary {
+      background: #f5f5f7;
+      color: #1d1d1f;
+    }
+
+    .btn-secondary:hover {
+      background: #e5e5e7;
+    }
+
+    /* Device ID section (collapsible) */
+    .device-section {
+      padding: 20px 32px;
+      background: #fafafa;
+      border-top: 1px solid #e5e5e7;
+    }
+
+    .device-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      padding: 8px 0;
+    }
+
+    .device-toggle-text {
+      font-size: 13px;
+      color: #86868b;
+    }
+
+    .device-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+
+    .device-content.show {
+      max-height: 200px;
+      padding-top: 12px;
     }
 
     .device-id-container {
@@ -130,9 +337,10 @@
     .device-id {
       flex: 1;
       padding: 10px 12px;
-      background: #f5f5f7;
+      background: white;
       border-radius: 6px;
-      font-family: 'SF Mono', Monaco, Consolas, monospace;
+      border: 1px solid #e5e5e7;
+      font-family: 'SF Mono', Monaco, monospace;
       font-size: 12px;
       color: #1d1d1f;
       word-break: break-all;
@@ -141,210 +349,104 @@
 
     .copy-btn-small {
       padding: 8px 12px;
-      background: #0078D2;
+      background: #667eea;
       color: white;
       border: none;
       border-radius: 6px;
       font-size: 12px;
       cursor: pointer;
-      white-space: nowrap;
-      transition: background 0.2s;
     }
 
     .copy-btn-small:hover {
-      background: #006bb3;
-    }
-
-    .device-hint {
-      font-size: 11px;
-      color: #86868b;
-      margin-top: 8px;
-      line-height: 1.5;
-    }
-
-    /* 激活码输入 */
-    .activation-section {
-      padding: 20px 24px;
-      border-bottom: 1px solid #e5e5e7;
-    }
-
-    .input-label {
-      font-size: 14px;
-      font-weight: 500;
-      color: #1d1d1f;
-      margin-bottom: 8px;
-    }
-
-    .input-field {
-      width: 100%;
-      padding: 12px;
-      border: 1px solid #d1d1d6;
-      border-radius: 8px;
-      font-size: 14px;
-      font-family: 'SF Mono', Monaco, monospace;
-      transition: border-color 0.2s;
-    }
-
-    .input-field:focus {
-      outline: none;
-      border-color: #0078D2;
-    }
-
-    .input-hint {
-      font-size: 12px;
-      color: #86868b;
-      margin-top: 6px;
-    }
-
-    /* 按钮区域 */
-    .actions-section {
-      padding: 20px 24px;
-    }
-
-    .btn {
-      width: 100%;
-      padding: 12px 20px;
-      border: none;
-      border-radius: 8px;
-      font-size: 15px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.2s;
-      margin-bottom: 12px;
-    }
-
-    .btn:last-child {
-      margin-bottom: 0;
-    }
-
-    .btn-primary {
-      background: #0078D2;
-      color: white;
-    }
-
-    .btn-primary:hover {
-      background: #006bb3;
-    }
-
-    .btn-primary:disabled {
-      background: #d1d1d6;
-      cursor: not-allowed;
-    }
-
-    .btn-text {
-      background: transparent;
-      color: #0078D2;
-      padding: 8px 20px;
-    }
-
-    .btn-text:hover {
-      background: #f5f5f7;
-    }
-
-    /* 联系方式区域 */
-    .contact-section {
-      padding: 20px 24px;
-      background: #fafafa;
-      border-top: 1px solid #e5e5e7;
-      text-align: center;
-    }
-
-    .contact-note {
-      font-size: 13px;
-      color: #86868b;
-      margin-bottom: 8px;
-    }
-
-    .contact-info {
-      font-size: 14px;
-      color: #0078D2;
-      font-weight: 500;
-    }
-
-    /* 加载状态 */
-    .loading {
-      opacity: 0.6;
-      pointer-events: none;
+      background: #5568d3;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <!-- 头部 -->
+    <!-- Header -->
     <div class="header">
-      <div class="header-icon">🎉</div>
-      <div class="header-title" data-i18n="activateTitle">Upgrade to Pro</div>
-      <div class="header-subtitle" data-i18n="activateSubtitle">
-        Unlock all premium features
-      </div>
+      <div class="header-icon">✨</div>
+      <h1 class="header-title" id="headerTitle">Upgrade to Pro</h1>
+      <p class="header-subtitle" id="headerSubtitle">Unlock all premium features and supercharge your Markdown editing</p>
     </div>
 
-    <!-- 隐私信息 -->
-    <div class="privacy-section">
-      <div class="privacy-title">
-        <span class="privacy-icon">🔒</span>
-        <span data-i18n="privacyTitle">Privacy & Data Collection</span>
-      </div>
-      <div class="privacy-content">
-        <div data-i18n="whatWeCollect"><strong>What we collect:</strong></div>
-        <ul class="privacy-list" id="collectList">
-          <li>Device hostname (hashed for privacy)</li>
-          <li>Operating system type</li>
-          <li>CPU architecture</li>
-          <li>Application version</li>
-        </ul>
-        <div data-i18n="whatWeDoNotCollect"><strong>What we do NOT collect:</strong></div>
-        <ul class="privacy-list" id="doNotCollectList">
-          <li>Your documents or file contents</li>
-          <li>Browsing history or usage patterns</li>
-          <li>Location data or IP address</li>
-          <li>Personal information</li>
-        </ul>
-        <div class="privacy-links">
-          <a href="#" data-i18n="privacyPolicy">Privacy Policy</a>
-          <a href="#" data-i18n="termsOfService">Terms of Service</a>
+    <!-- Pricing -->
+    <div class="pricing-section">
+      <div class="pricing-cards">
+        <div class="pricing-card">
+          <div class="pricing-name" id="monthlyName">Monthly</div>
+          <div class="pricing-price" id="monthlyPrice">¥19<span class="pricing-price-unit">/month</span></div>
+          <div class="pricing-daily" id="monthlyDaily">Less than ¥0.7 per day</div>
+        </div>
+        <div class="pricing-card recommended">
+          <div class="pricing-badge" id="recommendedBadge">BEST VALUE</div>
+          <div class="pricing-name" id="yearlyName">Yearly</div>
+          <div class="pricing-price" id="yearlyPrice">¥168<span class="pricing-price-unit">/year</span></div>
+          <div class="pricing-save" id="yearlySave">Save ¥60 (Get 14 months for 12)</div>
+          <div class="pricing-daily" id="yearlyDaily">Less than ¥0.5 per day</div>
         </div>
       </div>
     </div>
 
-    <!-- 设备ID -->
-    <div class="device-section">
-      <div class="section-title" data-i18n="deviceFingerprint">Device ID</div>
-      <div class="device-id-container">
-        <div class="device-id" id="deviceId">Loading...</div>
-        <button class="copy-btn-small" id="copyBtn" data-i18n="copyDeviceId">Copy</button>
-      </div>
-      <div class="device-hint" data-i18n="deviceHint">
-        This ID is generated from your hardware information and does not contain any personal data. It is used only for license verification.
-      </div>
+    <!-- Feature comparison -->
+    <div class="comparison-section">
+      <h2 class="section-title" id="comparisonTitle">What You Get with Pro</h2>
+      <table class="comparison-table">
+        <thead>
+          <tr>
+            <th id="featureCol">Feature</th>
+            <th id="freeCol">Free</th>
+            <th id="proCol">Pro</th>
+          </tr>
+        </thead>
+        <tbody id="comparisonBody">
+          <!-- Will be populated by JS -->
+        </tbody>
+      </table>
     </div>
 
-    <!-- 激活码输入 -->
-    <div class="activation-section">
-      <div class="input-label" data-i18n="licenseKey">License Key</div>
-      <input
-        type="text"
-        class="input-field"
-        id="licenseKeyInput"
-        placeholder="eyJ1-c2Vy-SWQi-...|df52-b5e6-..."
-      />
-      <div class="input-hint" data-i18n="helpText">
-        Copy your Device ID and email us to get your license key.
-      </div>
+    <!-- Trial info -->
+    <div class="trial-section">
+      <div class="trial-text" id="trialText">🎁 7-Day Free Trial</div>
+      <div class="trial-desc" id="trialDesc">Try all Pro features risk-free. No credit card required. Cancel anytime.</div>
     </div>
 
-    <!-- 操作按钮 -->
-    <div class="actions-section">
-      <button class="btn btn-primary" id="activateBtn" data-i18n="activate">Activate</button>
-      <button class="btn btn-text" id="laterBtn" data-i18n="cancel">Cancel</button>
-    </div>
-
-    <!-- 联系方式 -->
+    <!-- Contact section -->
     <div class="contact-section">
-      <div class="section-title" data-i18n="getKey">Get License Key</div>
-      <div class="contact-note" data-i18n="contactNote">Please contact us to purchase a license key</div>
-      <div class="contact-info" id="contactInfo">
-        Email: support@mdskill.io
+      <h3 class="contact-title" id="contactTitle">Ready to Upgrade?</h3>
+      <div class="contact-desc" id="contactDesc">Contact us to get your license key and start your free trial</div>
+      <div class="contact-info">
+        <div class="contact-method">
+          <span class="contact-icon">💬</span>
+          <span id="wechatLabel">WeChat:</span>
+          <span class="contact-value">AIPMAndy</span>
+        </div>
+        <div class="contact-method">
+          <span class="contact-icon">📧</span>
+          <span id="emailLabel">Email:</span>
+          <span class="contact-value">supera6@qq.com</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action buttons -->
+    <div class="actions-section">
+      <button class="btn btn-primary" id="contactBtn">Contact to Purchase</button>
+      <button class="btn btn-secondary" id="laterBtn">Maybe Later</button>
+    </div>
+
+    <!-- Device ID (collapsible) -->
+    <div class="device-section">
+      <div class="device-toggle" id="deviceToggle">
+        <span class="device-toggle-text" id="deviceToggleText">Show Device ID for Activation</span>
+        <span id="toggleIcon">▼</span>
+      </div>
+      <div class="device-content" id="deviceContent">
+        <div class="device-id-container">
+          <div class="device-id" id="deviceId">Loading...</div>
+          <button class="copy-btn-small" id="copyBtn">Copy</button>
+        </div>
       </div>
     </div>
   </div>
@@ -354,139 +456,148 @@
     const ipcRenderer = window.electron?.ipcRenderer;
     let currentLang = 'en';
 
-    // 加载语言配置
-    async function loadLanguage() {
+    // Feature comparison data
+    const features = {
+      en: [
+        { name: 'Markdown Editing', free: true, pro: true },
+        { name: 'Live Preview', free: true, pro: true },
+        { name: '13+ Premium Themes', free: false, pro: true },
+        { name: 'WeChat Export', free: false, pro: true },
+        { name: 'Blog Platform Export', free: false, pro: true },
+        { name: 'Professional PDF Export', free: false, pro: true },
+        { name: 'HTML Source Copy', free: false, pro: true },
+        { name: 'AI Smart Formatting', free: false, pro: true },
+        { name: 'Priority Support', free: false, pro: true }
+      ],
+      zh: [
+        { name: 'Markdown 编辑', free: true, pro: true },
+        { name: '实时预览', free: true, pro: true },
+        { name: '13+ 精美主题', free: false, pro: true },
+        { name: '微信公众号导出', free: false, pro: true },
+        { name: '博客平台导出', free: false, pro: true },
+        { name: '专业 PDF 导出', free: false, pro: true },
+        { name: 'HTML 源码复制', free: false, pro: true },
+        { name: 'AI 智能排版', free: false, pro: true },
+        { name: '优先技术支持', free: false, pro: true }
+      ]
+    };
+
+    // Load language and initialize
+    async function init() {
       currentLang = getCurrentLanguage();
       updateUIText();
+      loadDeviceId();
+      bindEvents();
     }
 
-    // 更新界面文本
+    // Update UI text based on language
     function updateUIText() {
-      // 更新所有带 data-i18n 属性的元素
-      document.querySelectorAll('[data-i18n]').forEach(el => {
-        const key = el.getAttribute('data-i18n');
-        el.textContent = t(key, currentLang);
+      const t = (key) => window.t ? window.t(key, currentLang) : key;
+
+      // Update all text elements
+      if (currentLang === 'zh') {
+        document.getElementById('headerTitle').textContent = '升级专业版';
+        document.getElementById('headerSubtitle').textContent = '解锁所有高级功能，让 Markdown 编辑更高效';
+        document.getElementById('monthlyName').textContent = '月度会员';
+        document.getElementById('monthlyDaily').textContent = '每天不到 ¥0.7';
+        document.getElementById('recommendedBadge').textContent = '最划算';
+        document.getElementById('yearlyName').textContent = '年度会员';
+        document.getElementById('yearlySave').textContent = '省 ¥60（相当于 14 个月价格）';
+        document.getElementById('yearlyDaily').textContent = '每天不到 ¥0.5';
+        document.getElementById('comparisonTitle').textContent = '专业版功能一览';
+        document.getElementById('featureCol').textContent = '功能';
+        document.getElementById('freeCol').textContent = '免费版';
+        document.getElementById('proCol').textContent = '专业版';
+        document.getElementById('trialText').textContent = '🎁 7天免费试用';
+        document.getElementById('trialDesc').textContent = '零风险试用所有专业功能。无需信用卡，随时取消。';
+        document.getElementById('contactTitle').textContent = '准备升级？';
+        document.getElementById('contactDesc').textContent = '联系我们获取授权码，立即开始免费试用';
+        document.getElementById('wechatLabel').textContent = '微信：';
+        document.getElementById('emailLabel').textContent = '邮箱：';
+        document.getElementById('contactBtn').textContent = '联系购买';
+        document.getElementById('laterBtn').textContent = '稍后再说';
+        document.getElementById('deviceToggleText').textContent = '显示设备ID（用于激活）';
+        document.getElementById('copyBtn').textContent = '复制';
+      }
+
+      // Render feature comparison table
+      renderComparisonTable();
+    }
+
+    // Render comparison table
+    function renderComparisonTable() {
+      const tbody = document.getElementById('comparisonBody');
+      const featureList = features[currentLang] || features.en;
+
+      tbody.innerHTML = featureList.map(feature => `
+        <tr>
+          <td>${feature.name}</td>
+          <td>${feature.free ? '<span class="check-mark">✓</span>' : '<span class="cross-mark">✗</span>'}</td>
+          <td>${feature.pro ? '<span class="check-mark">✓</span>' : '<span class="cross-mark">✗</span>'}</td>
+        </tr>
+      `).join('');
+    }
+
+    // Load device ID
+    async function loadDeviceId() {
+      if (ipcRenderer) {
+        const deviceId = await ipcRenderer.invoke('get-device-fingerprint');
+        document.getElementById('deviceId').textContent = deviceId;
+      } else {
+        document.getElementById('deviceId').textContent = 'N/A';
+      }
+    }
+
+    // Bind events
+    function bindEvents() {
+      // Device ID toggle
+      document.getElementById('deviceToggle').addEventListener('click', () => {
+        const content = document.getElementById('deviceContent');
+        const icon = document.getElementById('toggleIcon');
+        content.classList.toggle('show');
+        icon.textContent = content.classList.contains('show') ? '▲' : '▼';
       });
 
-      // 更新 title
-      document.title = t('activatePro', currentLang);
-
-      // 更新列表项
-      const collectList = document.getElementById('collectList');
-      const doNotCollectList = document.getElementById('doNotCollectList');
-
-      const locale = currentLang === 'zh' ? locales.zh : locales.en;
-
-      collectList.innerHTML = locale.collectList.map(item => `<li>${item}</li>`).join('');
-      doNotCollectList.innerHTML = locale.doNotCollectList.map(item => `<li>${item}</li>`).join('');
-
-      // 更新联系方式
-      const contactInfo = document.getElementById('contactInfo');
-      contactInfo.innerHTML = t('contactInfo', currentLang);
-
-      // 更新输入框 placeholder
-      const input = document.getElementById('licenseKeyInput');
-      if (input) {
-        input.placeholder = currentLang === 'zh'
-          ? 'eyJ1-c2Vy-SWQi-...|df52-b5e6-...'
-          : 'eyJ1-c2Vy-SWQi-...|df52-b5e6-...';
-      }
-    }
-
-    // 加载设备指纹
-    async function loadDeviceFingerprint() {
-      if (!ipcRenderer) return;
-
-      try {
-        const fingerprint = await ipcRenderer.invoke('get-device-fingerprint');
-        document.getElementById('deviceId').textContent = fingerprint;
-      } catch (error) {
-        console.error('Failed to load device fingerprint:', error);
-        document.getElementById('deviceId').textContent = 'Error loading';
-      }
-    }
-
-    // 复制设备ID
-    document.getElementById('copyBtn').addEventListener('click', async () => {
-      const deviceId = document.getElementById('deviceId').textContent;
-
-      if (navigator.clipboard) {
-        try {
+      // Copy device ID
+      document.getElementById('copyBtn').addEventListener('click', async () => {
+        const deviceId = document.getElementById('deviceId').textContent;
+        if (navigator.clipboard) {
           await navigator.clipboard.writeText(deviceId);
           const btn = document.getElementById('copyBtn');
           const originalText = btn.textContent;
-          btn.textContent = currentLang === 'zh' ? '已复制!' : 'Copied!';
+          btn.textContent = currentLang === 'zh' ? '已复制！' : 'Copied!';
           setTimeout(() => {
             btn.textContent = originalText;
           }, 2000);
-        } catch (err) {
-          console.error('Failed to copy:', err);
         }
-      }
-    });
+      });
 
-    // 激活按钮
-    document.getElementById('activateBtn').addEventListener('click', async () => {
-      const licenseKey = document.getElementById('licenseKeyInput').value.trim();
-
-      if (!licenseKey) {
-        alert(currentLang === 'zh' ? '请输入授权码' : 'Please enter license key');
-        return;
-      }
-
-      if (!ipcRenderer) {
-        alert(currentLang === 'zh' ? 'IPC 通信不可用' : 'IPC communication unavailable');
-        return;
-      }
-
-      const btn = document.getElementById('activateBtn');
-      btn.disabled = true;
-      btn.textContent = t('activating', currentLang);
-
-      try {
-        const result = await ipcRenderer.invoke('activate-license', licenseKey);
-
-        if (result.success) {
-          alert(t('activationSuccess', currentLang));
-          window.close();
+      // Contact button
+      document.getElementById('contactBtn').addEventListener('click', () => {
+        // Open email client or show contact info
+        if (currentLang === 'zh') {
+          alert('请添加微信 AIPMAndy 或发送邮件至 supera6@qq.com 购买授权码');
         } else {
-          // 显示友好的错误消息
-          const errorKey = result.errorCode || 'networkError';
-          const errorMsg = locales[currentLang].errors[errorKey];
-
-          if (errorMsg) {
-            const message = `${errorMsg.title}\n\n${errorMsg.message}\n\n${errorMsg.suggestions.map((s, i) => `${i + 1}. ${s}`).join('\n')}`;
-            alert(message);
-          } else {
-            alert(result.message || t('activationFailed', currentLang));
-          }
+          alert('Please add WeChat AIPMAndy or email supera6@qq.com to purchase a license key');
         }
-      } catch (error) {
-        console.error('Activation error:', error);
-        alert(t('errors.serverError.message', currentLang));
-      } finally {
-        btn.disabled = false;
-        btn.textContent = t('activate', currentLang);
-      }
-    });
+      });
 
-    // 取消按钮
-    document.getElementById('laterBtn').addEventListener('click', () => {
-      window.close();
-    });
-
-    // 监听语言切换
-    if (ipcRenderer) {
-      ipcRenderer.on('language-changed', (event, lang) => {
-        currentLang = lang;
-        setLanguage(lang);
-        updateUIText();
+      // Later button
+      document.getElementById('laterBtn').addEventListener('click', () => {
+        if (ipcRenderer) {
+          ipcRenderer.send('close-activation-window');
+        } else {
+          window.close();
+        }
       });
     }
 
-    // 页面加载时初始化
-    loadLanguage();
-    loadDeviceFingerprint();
+    // Initialize on load
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
   </script>
 </body>
 </html>

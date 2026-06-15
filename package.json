@@ -1,6 +1,6 @@
 {
   "name": "mdskill",
-  "version": "1.6.0",
+  "version": "1.7.1",
   "description": "Modern Markdown Editor for Mac - AI-powered editing and beautiful rendering with multiple themes",
   "main": "main.js",
   "scripts": {
@@ -21,6 +21,7 @@
   "author": "AI酋长Andy <AIPMAndy>",
   "license": "GPL-3.0",
   "dependencies": {
+    "chokidar": "^5.0.0",
     "electron-store": "^8.1.0",
     "github-markdown-css": "^5.5.1",
     "highlight.js": "^11.9.0",
@@ -132,6 +133,7 @@
       "license-public-key.pem",
       "renderer/**/*",
       "assets/**/*",
+      "i18n/**/*",
       "node_modules/**/*",
       "subscription-manager.js",
       "activation-code-generator.js",

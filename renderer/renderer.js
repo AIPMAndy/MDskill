@@ -5,11 +5,11 @@ const katex = require('katex');
 const licenseManager = require('../license-manager');
 
 // 模板函数包装 - 从全局 window 对象获取
-function getAllTemplates() {
+function getRegisteredTemplates() {
   return window.getAllTemplates ? window.getAllTemplates() : [];
 }
 
-function getTemplateById(id) {
+function getRegisteredTemplateById(id) {
   return window.getTemplateById ? window.getTemplateById(id) : null;
 }
 
@@ -141,11 +141,11 @@ async function init() {
     const savedTemplateId = localStorage.getItem('mdskill_template') || 'github-dark';
 
     try {
-      currentTemplate = getTemplateById(savedTemplateId);
+      currentTemplate = getRegisteredTemplateById(savedTemplateId);
 
       // 如果保存的模板是专业版但用户不是专业版，回退到免费主题
       if (currentTemplate.isPremium && !isPro) {
-        currentTemplate = getTemplateById('github-dark');
+        currentTemplate = getRegisteredTemplateById('github-dark');
         localStorage.setItem('mdskill_template', 'github-dark');
       }
 
@@ -448,7 +448,7 @@ function registerDOMListeners() {
   if (templateSelect) {
     templateSelect.addEventListener('change', (e) => {
       const templateId = e.target.value;
-      const template = getTemplateById(templateId);
+      const template = getRegisteredTemplateById(templateId);
       const isPro = licenseManager.isPro();
 
       if (template.isPremium && !isPro) {
@@ -468,7 +468,7 @@ function registerDOMListeners() {
   // 主题选择器（下拉列表）
   const themeSelector = document.getElementById('themeSelector');
   if (themeSelector) {
-    const templates = getAllTemplates();
+    const templates = getRegisteredTemplates();
     templates.forEach(template => {
       const option = document.createElement('option');
       option.value = template.id;
@@ -483,7 +483,7 @@ function registerDOMListeners() {
       const templateId = e.target.value;
       if (!templateId) return;
 
-      const template = getTemplateById(templateId);
+      const template = getRegisteredTemplateById(templateId);
 
       if (template.isPremium) {
         const hasAccess = await checkFeatureAccess('premium_themes');
@@ -1475,7 +1475,7 @@ function updateThemeSelector(isPro) {
     return;
   }
 
-  const allTemplates = getAllTemplates();
+  const allTemplates = getRegisteredTemplates();
 
   // 清空现有选项
   select.innerHTML = '';

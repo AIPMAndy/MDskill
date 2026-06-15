@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>帮助 - MDSKILL</title>
+  <title>Help - MDSKILL</title>
   <style>
     * {
       margin: 0;
@@ -15,6 +15,10 @@
       font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
       background: #f5f5f7;
       color: #1d1d1f;
+    }
+
+    body.i18n-loading {
+      visibility: hidden;
     }
 
     .container {
@@ -296,7 +300,7 @@
     }
   </style>
 </head>
-<body>
+<body class="i18n-loading">
   <div class="container">
     <!-- 头部 -->
     <div class="header">
@@ -607,5 +611,7 @@
       }
     }
   </script>
+  <script src="i18n-helpers.js"></script>
+  <script src="help-i18n.js"></script>
 </body>
 </html>

@@ -278,6 +278,38 @@ body {
   transition: none; /* 移除代码块过渡 */
 }
 
+/* Code block with line numbers */
+.markdown-body pre.code-block-with-lines {
+  padding-left: 0;
+  position: relative;
+}
+
+.markdown-body pre.code-block-with-lines code {
+  display: block;
+  padding-left: 0;
+}
+
+.markdown-body .code-line {
+  display: block;
+  padding-left: 3.5em;
+  position: relative;
+}
+
+.markdown-body .line-number {
+  position: absolute;
+  left: 0;
+  width: 3em;
+  text-align: right;
+  padding-right: 1em;
+  color: #858585;
+  user-select: none;
+  font-size: 0.9em;
+}
+
+.markdown-body .code-line:hover .line-number {
+  color: #b4b4b4;
+}
+
 .markdown-body blockquote {
   transition: none; /* 移除引用块过渡 */
 }
@@ -614,4 +646,30 @@ body.pdf-export-mode #preview {
 #editor::-moz-selection {
   background-color: var(--selection-bg, #264f78);
   color: #ffffff;
+}
+
+/* 状态栏 */
+.status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 16px;
+  padding: 6px 16px;
+  background: #252526;
+  border-top: 1px solid #3e3e42;
+  font-size: 12px;
+  color: #999;
+  height: 28px;
+  flex-shrink: 0;
+}
+
+.status-item {
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  padding: 0 8px;
+}
+
+.status-item:hover {
+  color: #d4d4d4;
 }

@@ -19,6 +19,10 @@
       line-height: 1.6;
     }
 
+    body.i18n-loading {
+      visibility: hidden;
+    }
+
     .container {
       max-width: 500px;
       margin: 0 auto;
@@ -169,64 +173,130 @@
       color: #6366f1;
       border-bottom-color: #6366f1;
     }
+
+    .warning-box {
+      background: #fef3c7;
+      border: 1px solid #fbbf24;
+      border-radius: 6px;
+      padding: 16px;
+      margin-bottom: 24px;
+      display: flex;
+      gap: 12px;
+    }
+
+    .warning-icon {
+      font-size: 20px;
+      flex-shrink: 0;
+      line-height: 1.4;
+    }
+
+    .warning-content {
+      flex: 1;
+    }
+
+    .warning-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #92400e;
+      margin-bottom: 6px;
+    }
+
+    .warning-text {
+      font-size: 13px;
+      color: #78350f;
+      line-height: 1.6;
+    }
+
+    .warning-text a {
+      color: #92400e;
+      text-decoration: underline;
+    }
+
+    .recommendation-box {
+      background: #f0fdf4;
+      border: 1px solid #86efac;
+      border-radius: 6px;
+      padding: 12px;
+      margin-bottom: 16px;
+      font-size: 13px;
+      color: #166534;
+    }
+
+    .recommendation-box strong {
+      font-weight: 600;
+    }
   </style>
 </head>
-<body>
+<body class="i18n-loading">
   <div class="container">
     <div class="card">
-      <h2>AI API 配置</h2>
-      <p class="description">配置 AI API 后，可以一键将文本转换为格式化的 Markdown</p>
+      <h2>AI API Settings</h2>
+      <p class="description">Configure AI API to convert text into formatted Markdown</p>
+
+      <div class="warning-box">
+        <div class="warning-icon">⚠️</div>
+        <div class="warning-content">
+          <div class="warning-title">Your Own API Key Required</div>
+          <div class="warning-text">
+            This feature requires your own AI service API Key.
+            <br><br>
+            <strong>Recommended: DeepSeek</strong>: Fast, affordable, excellent.
+            <br>
+            <a href="https://platform.deepseek.com/api_keys" target="_blank">→ Get DeepSeek API Key</a>
+          </div>
+        </div>
+      </div>
 
       <div class="config-mode-tabs">
-        <button type="button" class="tab-btn active" data-mode="ui">界面配置</button>
-        <button type="button" class="tab-btn" data-mode="json">JSON 配置</button>
+        <button type="button" class="tab-btn active" data-mode="ui">UI Config</button>
+        <button type="button" class="tab-btn" data-mode="json">JSON Config</button>
       </div>
 
       <div id="uiConfigMode">
         <form id="aiConfigForm">
         <div class="form-group">
-          <label for="provider">AI 服务商</label>
+          <label for="provider">AI Provider</label>
           <select id="provider" required>
-            <option value="">请选择服务商</option>
+            <option value="">Please select provider</option>
             <option value="openai">OpenAI</option>
             <option value="anthropic">Anthropic</option>
-            <option value="deepseek">DeepSeek (国内)</option>
-            <option value="zhipu">智谱 AI</option>
-            <option value="moonshot">月之暗面</option>
-            <option value="custom">自定义 API</option>
+            <option value="deepseek">DeepSeek (China)</option>
+            <option value="zhipu">Zhipu AI</option>
+            <option value="moonshot">Moonshot</option>
+            <option value="custom">Custom API</option>
           </select>
         </div>
 
         <div class="form-group">
           <label for="apiKey">API Key</label>
           <input type="text" id="apiKey" placeholder="sk-..." required>
-          <p class="hint">您的 API Key 将安全存储在本地</p>
+          <p class="hint">Your API Key will be securely stored locally</p>
         </div>
 
         <div class="form-group" id="modelGroup" style="display: none;">
-          <label for="model">模型名称</label>
-          <input type="text" id="model" placeholder="例如: gpt-4o">
-          <p class="hint" id="modelHint">请填写模型的完整名称</p>
+          <label for="model">Model Name</label>
+          <input type="text" id="model" placeholder="e.g.: gpt-4o">
+          <p class="hint" id="modelHint">Please enter the complete model name</p>
         </div>
 
         <div class="form-group" id="endpointGroup" style="display: none;">
-          <label for="endpoint">API 端点</label>
+          <label for="endpoint">API Endpoint</label>
           <input type="text" id="endpoint" placeholder="https://api.example.com/v1/chat/completions">
         </div>
 
         <div id="providerInfo"></div>
 
         <div class="button-group">
-          <button type="button" class="btn-secondary" id="cancelBtn">取消</button>
-          <button type="submit" class="btn-primary">保存并转换</button>
+          <button type="button" class="btn-secondary" id="cancelBtn">Cancel</button>
+          <button type="submit" class="btn-primary">Save and Convert</button>
         </div>
       </form>
       </div>
 
       <div id="jsonConfigMode" style="display: none;">
         <div class="form-group">
-          <label for="jsonConfig">JSON 配置</label>
-          <textarea id="jsonConfig" rows="15" placeholder='示例配置：
+          <label for="jsonConfig">JSON Configuration</label>
+          <textarea id="jsonConfig" rows="15" placeholder='Example config:
 {
   "provider": "deepseek",
   "apiKey": "sk-xxx",
@@ -234,20 +304,21 @@
   "endpoint": "https://api.deepseek.com/v1/chat/completions",
   "temperature": 0.3,
   "maxTokens": 4096,
-  "systemPrompt": "你是一个 Markdown 格式化专家...",
+  "systemPrompt": "You are a Markdown formatting expert...",
   "customHeaders": {}
 }'></textarea>
-          <p class="hint">支持自定义所有参数，包括 headers、temperature 等</p>
+          <p class="hint">Supports all custom parameters including headers, temperature, etc.</p>
         </div>
 
         <div class="button-group">
-          <button type="button" class="btn-secondary" id="cancelJsonBtn">取消</button>
-          <button type="button" class="btn-primary" id="saveJsonBtn">保存并转换</button>
+          <button type="button" class="btn-secondary" id="cancelJsonBtn">Cancel</button>
+          <button type="button" class="btn-primary" id="saveJsonBtn">Save and Convert</button>
         </div>
       </div>
     </div>
   </div>
 
+  <script src="i18n-helpers.js"></script>
   <script>
     const { ipcRenderer } = require('electron');
 
@@ -258,6 +329,8 @@
     const uiConfigMode = document.getElementById('uiConfigMode');
     const jsonConfigMode = document.getElementById('jsonConfigMode');
     const jsonConfigTextarea = document.getElementById('jsonConfig');
+    const i18n = () => window.i18nHelpers;
+    const tr = (key, params = {}) => i18n() ? i18n().t(key, params) : key;
 
     // Tab 切换
     document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -287,7 +360,7 @@
         endpoint: document.getElementById('endpoint').value,
         temperature: 0.3,
         maxTokens: 4096,
-        systemPrompt: '你是一个 Markdown 格式化专家。将用户提供的文本转换为格式良好的 Markdown 文档。保持原意，优化排版，添加适当的标题、列表、强调等格式。只返回格式化后的 Markdown 文本，不要添加任何解释。',
+        systemPrompt: tr('aiConfigPage.defaultSystemPrompt'),
         customHeaders: {}
       };
       jsonConfigTextarea.value = JSON.stringify(config, null, 2);
@@ -321,65 +394,43 @@
 
       if (provider === 'openai') {
         modelGroup.style.display = 'block';
-        modelInput.placeholder = '例如: gpt-4o, gpt-4o-mini, o1';
-        modelHint.textContent = '请填写 OpenAI 模型名称';
-        providerInfo.innerHTML = `
-          <div class="provider-info">
-            获取 API Key: <a href="https://platform.openai.com/api-keys" target="_blank">OpenAI Platform</a>
-          </div>
-        `;
+        modelInput.placeholder = tr('aiConfigPage.modelPlaceholderOpenAI');
+        modelHint.textContent = tr('aiConfigPage.modelHintOpenAI');
+        providerInfo.innerHTML = `<div class="provider-info">${tr('aiConfigPage.providerInfoOpenAI')}</div>`;
       } else if (provider === 'anthropic') {
         modelGroup.style.display = 'block';
-        modelInput.placeholder = '例如: claude-opus-4-20250514';
-        modelHint.textContent = '请填写 Claude 模型名称';
-        providerInfo.innerHTML = `
-          <div class="provider-info">
-            获取 API Key: <a href="https://console.anthropic.com/settings/keys" target="_blank">Anthropic Console</a>
-          </div>
-        `;
+        modelInput.placeholder = tr('aiConfigPage.modelPlaceholderAnthropic');
+        modelHint.textContent = tr('aiConfigPage.modelHintAnthropic');
+        providerInfo.innerHTML = `<div class="provider-info">${tr('aiConfigPage.providerInfoAnthropic')}</div>`;
       } else if (provider === 'deepseek') {
         modelGroup.style.display = 'block';
         endpointGroup.style.display = 'block';
         document.getElementById('endpoint').value = 'https://api.deepseek.com/v1/chat/completions';
-        modelInput.placeholder = '例如: deepseek-chat, deepseek-reasoner';
-        modelHint.textContent = '请填写 DeepSeek 模型名称';
-        providerInfo.innerHTML = `
-          <div class="provider-info">
-            获取 API Key: <a href="https://platform.deepseek.com/api_keys" target="_blank">DeepSeek 平台</a><br>
-            国内访问，价格低廉，性能优秀
-          </div>
-        `;
+        modelInput.placeholder = tr('aiConfigPage.modelPlaceholderDeepSeek');
+        modelHint.textContent = tr('aiConfigPage.modelHintDeepSeek');
+        providerInfo.innerHTML = `<div class="provider-info">${tr('aiConfigPage.providerInfoDeepSeek')}</div>`;
       } else if (provider === 'zhipu') {
         modelGroup.style.display = 'block';
         endpointGroup.style.display = 'block';
         document.getElementById('endpoint').value = 'https://open.bigmodel.cn/api/paas/v4/chat/completions';
-        modelInput.placeholder = '例如: glm-4-plus, glm-4-air';
-        modelHint.textContent = '请填写智谱 AI 模型名称';
-        providerInfo.innerHTML = `
-          <div class="provider-info">
-            获取 API Key: <a href="https://open.bigmodel.cn/usercenter/apikeys" target="_blank">智谱 AI 开放平台</a><br>
-            国内访问，支持长文本
-          </div>
-        `;
+        modelInput.placeholder = tr('aiConfigPage.modelPlaceholderZhipu');
+        modelHint.textContent = tr('aiConfigPage.modelHintZhipu');
+        providerInfo.innerHTML = `<div class="provider-info">${tr('aiConfigPage.providerInfoZhipu')}</div>`;
       } else if (provider === 'moonshot') {
         modelGroup.style.display = 'block';
         endpointGroup.style.display = 'block';
         document.getElementById('endpoint').value = 'https://api.moonshot.cn/v1/chat/completions';
-        modelInput.placeholder = '例如: moonshot-v1-32k, moonshot-v1-128k';
-        modelHint.textContent = '请填写 Kimi 模型名称';
-        providerInfo.innerHTML = `
-          <div class="provider-info">
-            获取 API Key: <a href="https://platform.moonshot.cn/console/api-keys" target="_blank">月之暗面平台</a><br>
-            国内访问，超长上下文
-          </div>
-        `;
+        modelInput.placeholder = tr('aiConfigPage.modelPlaceholderMoonshot');
+        modelHint.textContent = tr('aiConfigPage.modelHintMoonshot');
+        providerInfo.innerHTML = `<div class="provider-info">${tr('aiConfigPage.providerInfoMoonshot')}</div>`;
       } else if (provider === 'custom') {
         modelGroup.style.display = 'block';
         endpointGroup.style.display = 'block';
-        modelInput.placeholder = '例如: your-model-name';
-        modelHint.textContent = '请填写自定义模型名称';
+        modelInput.placeholder = tr('aiConfigPage.modelPlaceholderCustom');
+        modelHint.textContent = tr('aiConfigPage.modelHintCustom');
       }
     }
+    window.updateProviderUI = updateProviderUI;
 
     document.getElementById('cancelBtn').addEventListener('click', () => {
       ipcRenderer.send('close-ai-config');
@@ -399,12 +450,12 @@
 
       // 验证必填字段
       if (!apiKey) {
-        alert('请填写 API Key');
+        alert(window.aiConfigAlerts ? window.aiConfigAlerts.fillApiKey() : tr('aiConfigPage.alertFillApiKey'));
         return;
       }
 
       if (provider !== 'custom' && !model) {
-        alert('请填写模型名称');
+        alert(window.aiConfigAlerts ? window.aiConfigAlerts.fillModel() : tr('aiConfigPage.alertFillModel'));
         return;
       }
 
@@ -415,7 +466,7 @@
         endpoint,
         temperature: 0.3,
         maxTokens: 4096,
-        systemPrompt: '你是一个 Markdown 格式化专家。将用户提供的文本转换为格式良好的 Markdown 文档。保持原意，优化排版，添加适当的标题、列表、强调等格式。只返回格式化后的 Markdown 文本，不要添加任何解释。',
+        systemPrompt: tr('aiConfigPage.defaultSystemPrompt'),
         customHeaders: {}
       };
 
@@ -432,7 +483,7 @@
 
         // 验证必需字段
         if (!config.apiKey) {
-          alert('配置错误：缺少 apiKey 字段');
+          alert(window.aiConfigAlerts ? window.aiConfigAlerts.jsonMissingApiKey() : tr('aiConfigPage.alertJsonMissingApiKey'));
           return;
         }
 
@@ -442,9 +493,10 @@
         // 关闭窗口并触发格式化
         ipcRenderer.send('ai-config-saved');
       } catch (error) {
-        alert('JSON 格式错误：' + error.message);
+        alert(window.aiConfigAlerts ? window.aiConfigAlerts.jsonError(error.message) : tr('aiConfigPage.alertJsonError', { error: error.message }));
       }
     });
   </script>
+  <script src="ai-config-i18n.js"></script>
 </body>
 </html>

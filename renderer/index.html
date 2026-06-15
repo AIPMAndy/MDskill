@@ -469,6 +469,7 @@
   <script src="wechat-preview-modal.js"></script>
   <script src="trial-reminder.js"></script>
   <script src="theme-preview.js"></script>
+  <script src="debug-theme.js"></script>
   <script src="document-search.js"></script>
   <script src="find-replace.js"></script>
   <script src="line-numbers.js"></script>
@@ -476,5 +477,28 @@
   <script src="command-palette.js"></script>
   <!-- <script src="sidebar.js"></script> -->
   <!-- <script src="search-modal.js"></script> -->
+
+  <!-- 测试按钮 -->
+  <button id="testThemeBtn" style="position: fixed; bottom: 20px; right: 20px; z-index: 9999; padding: 10px 20px; background: #ff0000; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px;">
+    测试主题
+  </button>
+  <script>
+    setTimeout(() => {
+      document.getElementById('testThemeBtn').addEventListener('click', () => {
+        console.log('测试按钮点击');
+        console.log('window.themePreview:', window.themePreview);
+        console.log('window.getAllTemplates:', window.getAllTemplates);
+        console.log('currentTemplate:', window.currentTemplate);
+        
+        if (window.themePreview && window.themePreview.openThemePreview) {
+          window.themePreview.openThemePreview(window.currentTemplate?.id || 'github-dark');
+          console.log('已调用 openThemePreview');
+        } else {
+          alert('themePreview 未加载！');
+        }
+      });
+    }, 1000);
+  </script>
+
 </body>
 </html>

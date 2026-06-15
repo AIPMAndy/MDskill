@@ -6,11 +6,11 @@
 
   // 主题分类
   const themeCategories = [
-    { id: 'all', name: '全部主题', icon: '🎨' },
-    { id: 'tech', name: '技术', icon: '💻' },
-    { id: 'minimal', name: '极简', icon: '✨' },
-    { id: 'creative', name: '创意', icon: '🎭' },
-    { id: 'business', name: '商务', icon: '💼' },
+    { id: 'all', name: window.i18nHelpers ? window.i18nHelpers.t('themeSelector.categoryAll') : 'All', icon: '🎨' },
+    { id: 'tech', name: 'Tech', icon: '💻' },
+    { id: 'minimal', name: 'Minimal', icon: '✨' },
+    { id: 'creative', name: 'Creative', icon: '🎭' },
+    { id: 'business', name: 'Business', icon: '💼' },
   ];
 
   // 示例 Markdown 内容（用于预览）
@@ -143,10 +143,9 @@ function renderThemeGrid(category) {
 
     return `
       <div
-        class="theme-card ${isSelected ? 'selected' : ''} ${isLocked ? 'pro-locked' : ''}"
+        class="theme-card ${isSelected ? 'selected' : ''}"
         data-theme-id="${theme.id}"
       >
-        ${isLocked ? '<div class="pro-lock-overlay">🔒</div>' : ''}
         <div class="theme-preview" id="preview-${theme.id}">
           <!-- 预览内容将由 JavaScript 渲染 -->
         </div>
@@ -265,7 +264,7 @@ function applyThemeToPreview(container, styles) {
  * 选择主题
  * @param {string} themeId - 主题 ID
  */
-function selectTheme(themeId) {
+async function selectTheme(themeId) {
   const theme = window.getTemplateById ? window.getTemplateById(themeId) : null;
 
   if (!theme) {
@@ -273,11 +272,28 @@ function selectTheme(themeId) {
     return;
   }
 
-  // 检查专业版授权（使用全局 licenseManager）
-  const licenseManager = window.licenseManager || require('../license-manager');
-  if (theme.isPremium && !licenseManager.isPro()) {
-    showToast('此主题需要专业版授权 🔒', 'error');
-    return;
+  // 检查专业版授权 - 只在应用主题时检查，预览不需要授权
+  if (theme.isPremium) {
+    const result = await window.electron.ipcRenderer.invoke('check-feature-access', 'premium_themes');
+
+    if (!result.hasAccess) {
+      // 显示试用提示，而不是直接拒绝
+      const status = result.status;
+      let message;
+
+      if (status.status === 'trial') {
+        message = window.i18nHelpers.t('toast.themeProOnlyTrial', {days: status.daysLeft}) ||
+                  `🔒 This is a Pro theme\n\nYou have ${status.daysLeft} days left in your trial. Upgrade to continue using Pro themes after trial ends.`;
+      } else if (status.status === 'expired') {
+        message = window.i18nHelpers.t('toast.themeProOnlyExpired') ||
+                  '🔒 This is a Pro theme\n\nYour trial has expired. Please upgrade to Pro to use this theme.';
+      } else {
+        message = window.i18nHelpers.t('toast.themeProOnly');
+      }
+
+      showToast(message, 'error');
+      return;
+    }
   }
 
   // 应用主题到编辑器（使用全局函数）
@@ -297,7 +313,7 @@ function selectTheme(themeId) {
   closeThemePreview();
 
   // 显示成功提示
-  showToast(`已切换到「${theme.name}」主题 ✨`, 'success');
+  showToast(window.i18nHelpers.t('toast.themeSwitched', {name: theme.name}), 'success');
 }
 
 /**

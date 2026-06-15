@@ -67,7 +67,7 @@ window.wechatRenderer = {
     renderer.code = (code, language) => {
       const bgColor = styles.codeBlockBg || '#f6f8fa';
       const borderColor = styles.codeBlockBorder || '#e1e4e8';
-      const textColor = styles.codeColor || '#24292e';
+      const textColor = styles.codeBlockColor || styles.codeColor || '#24292e';
       return `<section style="display: block; clear: both; margin: 20px 0;"><pre style="background: ${bgColor}; border: 1px solid ${borderColor}; border-radius: 6px; padding: 16px; overflow-x: auto; margin: 0;"><code style="font-family: 'Consolas', 'Monaco', monospace; font-size: 14px; color: ${textColor}; line-height: 1.6; display: block;">${this.escapeHtml(code)}</code></pre></section>`;
     };
 

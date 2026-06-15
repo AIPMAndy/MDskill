@@ -17,17 +17,41 @@ class DocumentSearch {
     this.createPanelHTML();
     this.attachEventListeners();
     this.bindKeyboardShortcuts();
+    this.setupLanguageListener();
+  }
+
+  setupLanguageListener() {
+    // Listen for language changes
+    if (window.ipcRenderer) {
+      window.ipcRenderer.on('language-changed', () => {
+        if (typeof refreshDocSearchI18n === 'function') {
+          refreshDocSearchI18n();
+        }
+      });
+    }
   }
 
   createPanelHTML() {
+    const texts = window.getDocSearchTexts ? window.getDocSearchTexts() : {
+      tabSearch: '🔍 Search',
+      tabOutline: '📋 Outline',
+      placeholder: 'Search in document...',
+      emptyHint: 'Enter keywords to search',
+      prevMatch: 'Previous (Shift+Enter)',
+      nextMatch: 'Next (Enter)',
+      caseSensitive: 'Case sensitive',
+      regex: 'Regular expression',
+      closeTooltip: 'Close'
+    };
+
     const panelHTML = `
       <div class="doc-search-panel" id="docSearchPanel">
         <div class="doc-search-header">
           <div class="doc-search-tabs">
-            <button class="doc-search-tab active" data-tab="search">🔍 搜索</button>
-            <button class="doc-search-tab" data-tab="outline">📋 大纲</button>
+            <button class="doc-search-tab active" data-tab="search">${texts.tabSearch}</button>
+            <button class="doc-search-tab" data-tab="outline">${texts.tabOutline}</button>
           </div>
-          <button class="doc-search-close" id="docSearchClose">
+          <button class="doc-search-close" id="docSearchClose" title="${texts.closeTooltip}">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
               <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/>
             </svg>
@@ -40,14 +64,14 @@ class DocumentSearch {
               type="text"
               class="doc-search-input"
               id="docSearchInput"
-              placeholder="搜索内容..."
+              placeholder="${texts.placeholder}"
             />
-            <button class="doc-search-nav-btn" id="docSearchPrev" title="上一个 (Shift+Enter)">
+            <button class="doc-search-nav-btn" id="docSearchPrev" title="${texts.prevMatch}">
               <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor">
                 <path d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
               </svg>
             </button>
-            <button class="doc-search-nav-btn" id="docSearchNext" title="下一个 (Enter)">
+            <button class="doc-search-nav-btn" id="docSearchNext" title="${texts.nextMatch}">
               <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor">
                 <path d="M7.247 4.86l-4.796 5.481c-.566.647-.106 1.659.753 1.659h9.592a1 1 0 0 0 .753-1.659l-4.796-5.48a1 1 0 0 0-1.506 0z"/>
               </svg>
@@ -55,13 +79,13 @@ class DocumentSearch {
             <div class="doc-search-counter" id="docSearchCounter">0/0</div>
           </div>
           <div class="doc-search-options">
-            <button class="doc-search-option-btn" id="docSearchCaseSensitive" title="区分大小写">Aa</button>
-            <button class="doc-search-option-btn" id="docSearchRegex" title="正则表达式">.*</button>
+            <button class="doc-search-option-btn" id="docSearchCaseSensitive" title="${texts.caseSensitive}">Aa</button>
+            <button class="doc-search-option-btn" id="docSearchRegex" title="${texts.regex}">.*</button>
           </div>
         </div>
 
         <div class="doc-search-content" id="docSearchContent">
-          <div class="doc-search-empty">输入关键词开始搜索</div>
+          <div class="doc-search-empty">${texts.emptyHint}</div>
         </div>
       </div>
     `;
@@ -222,7 +246,8 @@ class DocumentSearch {
       if (this.searchQuery) {
         this.performSearch();
       } else {
-        this.showEmptyState('输入关键词开始搜索');
+        const texts = window.getDocSearchTexts ? window.getDocSearchTexts() : {emptyHint: 'Enter keywords to search'};
+        this.showEmptyState(texts.emptyHint);
       }
     } else if (tabName === 'outline') {
       document.querySelector('.doc-search-input-wrapper').style.display = 'none';
@@ -235,7 +260,8 @@ class DocumentSearch {
     if (!editor || !this.searchQuery) {
       this.clearHighlights();
       if (!this.searchQuery) {
-        this.showEmptyState('输入关键词开始搜索\n\n支持正则表达式，试试：\n\\b\\w{5}\\b (匹配5个字母的单词)');
+        const texts = window.getDocSearchTexts ? window.getDocSearchTexts() : {emptyHintWithTip: 'Enter keywords to search'};
+        this.showEmptyState(texts.emptyHintWithTip);
       }
       this.updateCounter();
       return;
@@ -245,7 +271,8 @@ class DocumentSearch {
     this.matches = this.findMatches(text, this.searchQuery);
 
     if (this.matches.length === 0) {
-      this.showEmptyState('未找到匹配项\n\n试试：\n• 检查拼写\n• 使用不同的关键词\n• 关闭"区分大小写"选项');
+      const texts = window.getDocSearchTexts ? window.getDocSearchTexts() : {noResults: 'No results found'};
+      this.showEmptyState(texts.noResults);
       this.clearHighlights();
     } else {
       this.currentMatchIndex = 0;
