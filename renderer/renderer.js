@@ -472,7 +472,7 @@ function registerDOMListeners() {
     templates.forEach(template => {
       const option = document.createElement('option');
       option.value = template.id;
-      option.textContent = template.name + (template.isPremium ? ' 🔒' : '');
+      option.textContent = template.name;
       if (template.id === currentTemplate.id) {
         option.selected = true;
       }
@@ -1485,14 +1485,11 @@ function updateThemeSelector(isPro) {
     const option = document.createElement('option');
     option.value = template.id;
 
-    if (template.isPremium) {
-      option.textContent = `${template.icon} ${template.name} 🔒`;
-      if (!isPro) {
-        option.disabled = true;
-        option.style.color = '#888';
-      }
-    } else {
-      option.textContent = `${template.icon} ${template.name}`;
+    option.textContent = `${template.icon} ${template.name}`;
+
+    if (template.isPremium && !isPro) {
+      option.disabled = true;
+      option.style.color = '#888';
     }
 
     select.appendChild(option);
