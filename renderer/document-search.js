@@ -117,10 +117,25 @@ class DocumentSearch {
       this.hide();
     });
 
-    // 搜索输入
-    input.addEventListener('input', (e) => {
+    // 搜索输入 - 支持中文输入法
+    let isComposing = false;
+
+    input.addEventListener('compositionstart', () => {
+      isComposing = true;
+    });
+
+    input.addEventListener('compositionend', (e) => {
+      isComposing = false;
       this.searchQuery = e.target.value;
       this.performSearch();
+    });
+
+    input.addEventListener('input', (e) => {
+      // 中文输入法组合中不触发搜索
+      if (!isComposing) {
+        this.searchQuery = e.target.value;
+        this.performSearch();
+      }
     });
 
     // 键盘导航
@@ -360,20 +375,6 @@ class DocumentSearch {
     }).join('');
 
     content.innerHTML = resultsHTML;
-
-    // 绑定点击事件 - 使用事件委托
-    content.querySelectorAll('.doc-outline-item').forEach((item) => {
-      item.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        const index = parseInt(item.dataset.index);
-        if (!isNaN(index) && index >= 0 && index < this.matches.length) {
-          this.currentMatchIndex = index;
-          this.jumpToMatch(index);
-          this.showSearchResults(); // 更新高亮
-        }
-      });
-    });
   }
 
   jumpToMatch(index) {
@@ -398,11 +399,73 @@ class DocumentSearch {
     // 添加视觉高亮提示
     this.addVisualHighlight(editor, match);
 
+    // 同时滚动预览面板到对应位置
+    this.scrollPreviewToMatch(match, editor);
+
     // 如果搜索框之前有焦点，延迟恢复焦点
     if (hadSearchFocus && searchInput) {
       setTimeout(() => {
         searchInput.focus();
       }, 100);
+    }
+  }
+
+  scrollPreviewToMatch(match, editor) {
+    const preview = document.getElementById('preview');
+    if (!preview) return;
+
+    try {
+      // 获取匹配文本
+      const matchText = editor.value.substring(match.index, match.index + match.length);
+
+      // 获取匹配位置所在的行内容（用于更精确的定位）
+      const textBeforeMatch = editor.value.substring(0, match.index);
+      const lastNewlineIndex = textBeforeMatch.lastIndexOf('\n');
+      const lineStart = lastNewlineIndex === -1 ? 0 : lastNewlineIndex + 1;
+      const lineEnd = editor.value.indexOf('\n', match.index);
+      const lineText = editor.value.substring(lineStart, lineEnd === -1 ? editor.value.length : lineEnd);
+
+      // 在预览HTML中查找包含匹配文本的元素
+      const allElements = preview.querySelectorAll('section, p, h1, h2, h3, h4, h5, h6, li, td, th, blockquote, code, pre');
+
+      let targetElement = null;
+      let bestMatch = { element: null, score: 0 };
+
+      for (const element of allElements) {
+        const elementText = element.textContent || '';
+
+        // 优先匹配包含完整行文本的元素
+        if (elementText.includes(lineText.trim())) {
+          targetElement = element;
+          break;
+        }
+
+        // 次优：匹配包含搜索关键词的元素
+        if (elementText.includes(matchText)) {
+          const score = elementText.length > 0 ? matchText.length / elementText.length : 0;
+          if (score > bestMatch.score) {
+            bestMatch = { element, score };
+          }
+        }
+      }
+
+      // 使用最佳匹配
+      if (!targetElement && bestMatch.element) {
+        targetElement = bestMatch.element;
+      }
+
+      if (targetElement) {
+        // 滚动到目标元素，使其位于视口中央
+        targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+        // 添加临时高亮效果
+        targetElement.classList.add('preview-search-highlight');
+        setTimeout(() => {
+          targetElement.classList.remove('preview-search-highlight');
+        }, 2000);
+      }
+    } catch (error) {
+      console.error('Preview scroll error:', error);
     }
   }
 
