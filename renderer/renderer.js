@@ -4,6 +4,11 @@ const hljs = require('highlight.js');
 const katex = require('katex');
 const licenseManager = require('../license-manager');
 
+// Debug mode - 生产环境自动禁用日志
+const DEBUG = process.env.NODE_ENV === 'development';
+const log = DEBUG ? console.log.bind(console) : () => {};
+const warn = DEBUG ? console.warn.bind(console) : () => {};
+
 // 模板函数包装 - 从全局 window 对象获取
 function getRegisteredTemplates() {
   return window.getAllTemplates ? window.getAllTemplates() : [];
@@ -167,23 +172,13 @@ async function init() {
       console.error('主题预览初始化失败:', error);
     }
 
-      // 初始化侧边栏 - 已完全移除
-    // try {
-    //   if (typeof Sidebar !== 'undefined') {
-    //     window.sidebar = new Sidebar();
-    //     console.log('侧边栏初始化成功');
-    //   }
-    // } catch (error) {
-    //   console.error('侧边栏初始化失败:', error);
-    // }
-
     // 验证 editor 元素是否仍然有效
-    console.log('[Init] editor element:', editor);
-    console.log('[Init] editor is null?', editor === null);
+    log('[Init] editor element:', editor);
+    log('[Init] editor is null?', editor === null);
     if (!editor) {
       console.error('[CRITICAL] editor element lost!');
       editor = document.getElementById('editor');
-      console.log('[CRITICAL] Re-fetched editor:', editor);
+      log('[CRITICAL] Re-fetched editor:', editor);
       if (!editor) {
         const msg = window.i18nHelpers ? window.i18nHelpers.t('messages.editorLost') : 'Editor element lost';
         if (window.toast) {
@@ -194,16 +189,6 @@ async function init() {
         return;
       }
     }
-
-    // 初始化搜索模块 - 已移除
-    // try {
-    //   if (typeof SearchModal !== 'undefined') {
-    //     window.searchModal = new SearchModal();
-    //     console.log('搜索模块初始化成功');
-    //   }
-    // } catch (error) {
-    //   console.error('搜索模块初始化失败:', error);
-    // }
 
     // 更新主题选择器，标记专业版主题
     try {
@@ -234,7 +219,7 @@ async function init() {
     // 注册 DOM 事件监听器
     try {
       registerDOMListeners();
-      console.log('DOM 事件监听器注册成功');
+      log('DOM 事件监听器注册成功');
     } catch (error) {
       console.error('DOM 事件监听器注册失败:', error);
     }
@@ -254,7 +239,7 @@ async function init() {
     // 初始化查找/替换功能
     if (typeof FindReplace !== 'undefined') {
       window.findReplace = new FindReplace(editor);
-      console.log('查找/替换功能初始化成功');
+      log('查找/替换功能初始化成功');
     }
 
     // 初始化行号功能
@@ -262,13 +247,13 @@ async function init() {
       const editorPane = document.querySelector('.editor-pane');
       window.lineNumbers = new LineNumbers(editor, editorPane);
       window.lineNumbers.restore();
-      console.log('行号功能初始化成功');
+      log('行号功能初始化成功');
     }
 
     // 初始化命令面板
     if (typeof CommandPalette !== 'undefined') {
       window.commandPalette = new CommandPalette();
-      console.log('命令面板初始化成功');
+      log('命令面板初始化成功');
     }
 
     // 恢复代码块行号设置
@@ -284,7 +269,7 @@ async function init() {
     initStatusBar();
 
     // 通知主进程渲染进程已完全就绪
-    console.log('[init] Renderer is ready, notifying main process');
+    log('[init] Renderer is ready, notifying main process');
     const windowId = await ipcRenderer.invoke('get-window-id');
     ipcRenderer.send(`renderer-ready-${windowId}`);
   } catch (error) {
@@ -340,22 +325,6 @@ function registerDOMListeners() {
   editor.addEventListener('scroll', saveEditorState);
 
   // 工具栏按钮
-  // 侧边栏切换按钮 - 已移除
-  // const toggleSidebarBtn = document.getElementById('toggleSidebarBtn');
-  // if (toggleSidebarBtn) {
-  //   toggleSidebarBtn.addEventListener('click', () => {
-  //     console.log('Toggle sidebar button clicked');
-  //     if (window.sidebar) {
-  //       console.log('Calling sidebar.toggle()');
-  //       window.sidebar.toggle();
-  //     } else {
-  //       console.error('window.sidebar is not defined');
-  //     }
-  //   });
-  // } else {
-  //   console.error('toggleSidebarBtn not found');
-  // }
-
   document.getElementById('newBtn').addEventListener('click', () => {
     ipcRenderer.send('new-window');
   });
@@ -889,10 +858,10 @@ function registerIPCListeners() {
   });
 
   ipcRenderer.on('file-opened', (event, { path, content }) => {
-    console.log('[file-opened] Event received');
-    console.log('[file-opened] path:', path);
-    console.log('[file-opened] content length:', content?.length);
-    console.log('[file-opened] editor element:', editor);
+    log('[file-opened] Event received');
+    log('[file-opened] path:', path);
+    log('[file-opened] content length:', content?.length);
+    log('[file-opened] editor element:', editor);
 
     if (!editor) {
       console.error('ERROR: editor element is null!');
@@ -931,7 +900,7 @@ function registerIPCListeners() {
       }
     }
 
-    console.log('[file-opened] File loaded successfully');
+    log('[file-opened] File loaded successfully');
 
     // 开始监听文件外部修改
     ipcRenderer.send('start-watching-file', path);
@@ -954,7 +923,7 @@ function registerIPCListeners() {
 
   // 文件外部修改通知
   ipcRenderer.on('file-changed-externally', (event, { path, content }) => {
-    console.log('[file-changed-externally] File changed:', path);
+    log('[file-changed-externally] File changed:', path);
 
     // 如果当前文件有未保存的修改，询问用户
     if (isModified) {
@@ -1004,13 +973,13 @@ function registerIPCListeners() {
         window.toast.info(message, { duration: 3000 });
       }
 
-      console.log('[file-changed-externally] File reloaded automatically');
+      log('[file-changed-externally] File reloaded automatically');
     }
   });
 
   // 文件外部删除通知
   ipcRenderer.on('file-deleted-externally', (event, { path }) => {
-    console.log('[file-deleted-externally] File deleted:', path);
+    log('[file-deleted-externally] File deleted:', path);
 
     const message = window.i18nHelpers?.t('messages.fileDeleted') || 'The file has been deleted externally';
 
@@ -1093,7 +1062,7 @@ async function checkSubscriptionStatus() {
     const result = await ipcRenderer.invoke('get-subscription-status');
     if (result.success) {
       const status = result.data;
-      console.log('[Subscription] Status:', status);
+      log('[Subscription] Status:', status);
 
       // 检查是否需要显示续费提醒
       const shouldRemind = await ipcRenderer.invoke('should-show-renewal-reminder');
@@ -1294,7 +1263,7 @@ async function formatWithAI(config) {
     }
   } catch (error) {
     if (error.name === 'AbortError') {
-      console.log('AI 格式化已取消');
+      log('AI 格式化已取消');
     } else {
       console.error('AI 格式化失败:', error);
       if (window.toast) {
@@ -1611,7 +1580,7 @@ function insertMarkdown(before, after, placeholder) {
 
 // 导出 PDF 函数
 async function exportToPDF() {
-  console.log('PDF export triggered');
+  log('PDF export triggered');
 
   let progressOverlay = null;
 
@@ -1627,7 +1596,7 @@ async function exportToPDF() {
       const fileName = currentFilePath.split('/').pop().replace(/\.(md|markdown|txt)$/i, '');
       defaultName = `${fileName}.pdf`;
     }
-    console.log('Default PDF name:', defaultName);
+    log('Default PDF name:', defaultName);
 
     // 显示进度覆盖层
     if (typeof PDFExportProgress !== 'undefined') {
@@ -1726,17 +1695,17 @@ async function exportToPDF() {
 </html>
     `;
 
-    console.log('HTML content prepared, length:', htmlContent.length);
+    log('HTML content prepared, length:', htmlContent.length);
 
     // 调用主进程导出 PDF
     const result = await ipcRenderer.invoke('export-pdf', {
       defaultPath: defaultName,
       htmlContent: htmlContent
     });
-    console.log('Export result:', result);
+    log('Export result:', result);
 
     if (result.success) {
-      console.log('PDF exported successfully:', result.filePath);
+      log('PDF exported successfully:', result.filePath);
       const msg = window.i18nHelpers
         ? window.i18nHelpers.t('messages.pdfExportSuccess', { path: result.filePath })
         : `PDF exported successfully!\nSaved to: ${result.filePath}`;
@@ -1746,7 +1715,7 @@ async function exportToPDF() {
         alert(msg);
       }
     } else if (result.canceled) {
-      console.log('PDF export canceled by user');
+      log('PDF export canceled by user');
     } else {
       console.error('Failed to export PDF:', result.error);
       const msg = window.i18nHelpers
@@ -2036,7 +2005,7 @@ function updateLocalizedChrome(lang) {
 
 // 监听语言切换事件
 ipcRenderer.on('language-changed', (event, lang) => {
-  console.log('Language changed to:', lang);
+  log('Language changed to:', lang);
 
   if (window.i18nHelpers && window.i18nHelpers.setLanguage) {
     window.i18nHelpers.setLanguage(lang);

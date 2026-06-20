@@ -4,6 +4,10 @@
  * 支持主题样式配置
  */
 
+// Debug mode
+const DEBUG = process.env.NODE_ENV === 'development';
+const log = DEBUG ? console.log.bind(console) : () => {};
+
 window.wechatRenderer = {
   /**
    * 将 Markdown 渲染为微信公众号专用 HTML
@@ -23,8 +27,8 @@ window.wechatRenderer = {
 
     const styles = template?.styles || {};
 
-    console.log('[WeChatRenderer] Using template:', template?.name || 'default');
-    console.log('[WeChatRenderer] Markdown length:', markdown.length);
+    log('[WeChatRenderer] Using template:', template?.name || 'default');
+    log('[WeChatRenderer] Markdown length:', markdown.length);
 
     // 配置 marked 渲染器
     const renderer = new marked.Renderer();
@@ -148,8 +152,8 @@ window.wechatRenderer = {
     // 渲染 Markdown
     const html = marked.parse(markdown);
 
-    console.log('[WeChatRenderer] Rendered HTML length:', html.length);
-    console.log('[WeChatRenderer] HTML sample:', html.substring(0, 300));
+    log('[WeChatRenderer] Rendered HTML length:', html.length);
+    log('[WeChatRenderer] HTML sample:', html.substring(0, 300));
 
     return html;
   },
@@ -169,4 +173,4 @@ window.wechatRenderer = {
   }
 };
 
-console.log('[WeChatRenderer] Module loaded');
+log('[WeChatRenderer] Module loaded');

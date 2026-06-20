@@ -10,6 +10,10 @@
  * @module copy-utils
  */
 
+// Debug mode
+const DEBUG = process.env.NODE_ENV === 'development';
+const log = DEBUG ? console.log.bind(console) : () => {};
+
 // ============================================================================
 // 常量定义
 // ============================================================================
@@ -633,7 +637,7 @@ async function copyForWeChat(source, themeName = 'default') {
 
     // 调试：输出前几个元素的样式
     const firstElements = styledElement.querySelectorAll('p, h1, h2, h3, li');
-    console.log('[Copy] First 3 elements styles:');
+    log('[Copy] First 3 elements styles:');
     Array.from(firstElements).slice(0, 3).forEach((el, i) => {
       console.log(`  [${i}] ${el.tagName}:`, el.getAttribute('style'));
     });
