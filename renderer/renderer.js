@@ -799,14 +799,24 @@ function registerDOMListeners() {
       e.preventDefault();
     });
 
+    // 双击 resize handle 重置为 50:50
+    resizeHandle.addEventListener('dblclick', (e) => {
+      e.preventDefault();
+      editorPane.style.width = '50%';
+      resizeHandle.style.left = '50%';
+      localStorage.setItem('mdskill_editor_width', '50');
+    });
+
     document.addEventListener('mousemove', (e) => {
       if (!isResizing) return;
 
       const deltaX = e.clientX - startX;
       const newWidth = startWidth + deltaX;
       const containerWidth = container.offsetWidth;
-      const minWidth = 200;
-      const maxWidth = containerWidth - 200;
+
+      // 设置更合理的边界：最小 20%（或 200px），最大 80%
+      const minWidth = Math.max(200, containerWidth * 0.2);
+      const maxWidth = containerWidth * 0.8;
 
       if (newWidth >= minWidth && newWidth <= maxWidth) {
         const percentage = (newWidth / containerWidth) * 100;
@@ -831,8 +841,12 @@ function registerDOMListeners() {
     // 加载保存的编辑器宽度
     const savedWidth = localStorage.getItem('mdskill_editor_width');
     if (savedWidth) {
-      editorPane.style.width = savedWidth + '%';
-      resizeHandle.style.left = savedWidth + '%';
+      const width = parseFloat(savedWidth);
+      // 确保加载的宽度也在合理范围内
+      if (width >= 20 && width <= 80) {
+        editorPane.style.width = width + '%';
+        resizeHandle.style.left = width + '%';
+      }
     }
   }
 }
@@ -1590,13 +1604,33 @@ async function exportToPDF() {
   pdfBtn.disabled = true;
 
   try {
+    // 获取预览内容（提前获取用于文件名提取）
+    const preview = document.getElementById('preview');
+    if (!preview) {
+      throw new Error('Preview element not found');
+    }
+
     // 获取当前文件名作为默认 PDF 名称
     let defaultName = 'document.pdf';
-    if (currentFilePath) {
+
+    // 优先从预览内容的第一个标题提取文件名
+    const firstHeading = preview.querySelector('h1');
+    if (firstHeading && firstHeading.textContent.trim()) {
+      // 清理标题文本，移除特殊字符
+      const headingText = firstHeading.textContent.trim()
+        .replace(/[\/\\:*?"<>|]/g, '-')  // 替换文件名非法字符
+        .replace(/\s+/g, '_')            // 空格替换为下划线
+        .substring(0, 100);              // 限制长度
+      defaultName = `${headingText}.pdf`;
+      log('Using H1 as PDF name:', defaultName);
+    } else if (currentFilePath) {
+      // 如果没有 H1，使用当前文件名
       const fileName = currentFilePath.split('/').pop().replace(/\.(md|markdown|txt)$/i, '');
       defaultName = `${fileName}.pdf`;
+      log('Using file name as PDF name:', defaultName);
+    } else {
+      log('Using default PDF name:', defaultName);
     }
-    log('Default PDF name:', defaultName);
 
     // 显示进度覆盖层
     if (typeof PDFExportProgress !== 'undefined') {
@@ -1604,25 +1638,43 @@ async function exportToPDF() {
       progressOverlay.show(defaultName);
     }
 
-    // 获取预览内容
-    const preview = document.getElementById('preview');
-    if (!preview) {
-      throw new Error('Preview element not found');
-    }
-
     // 获取当前主题的 CSS
     const themeStyle = document.getElementById('theme-style');
     const themeCSS = themeStyle ? themeStyle.textContent : '';
 
-    // 获取 github-markdown.css 的内容
-    const markdownStyleLink = document.querySelector('link[href*="github-markdown"]');
-    let markdownCSS = '';
-    if (markdownStyleLink) {
+    // 获取所有必要的 CSS 文件
+    const cssLinks = [
+      { selector: 'link[href*="github-markdown"]', name: 'GitHub Markdown' },
+      { selector: 'link[href*="highlight.js"]', name: 'Highlight.js' },
+      { selector: 'link[href*="katex"]', name: 'KaTeX' }
+    ];
+
+    let allCSS = '';
+
+    for (const { selector, name } of cssLinks) {
+      const link = document.querySelector(selector);
+      if (link) {
+        try {
+          const response = await fetch(link.href);
+          const css = await response.text();
+          allCSS += `\n/* ${name} CSS */\n${css}\n`;
+          log(`Loaded ${name} CSS`);
+        } catch (e) {
+          console.warn(`Failed to load ${name} CSS:`, e);
+        }
+      }
+    }
+
+    // 获取代码块行号样式
+    const codeBlockLinesStyle = document.querySelector('link[href*="code-block-lines"]');
+    if (codeBlockLinesStyle) {
       try {
-        const response = await fetch(markdownStyleLink.href);
-        markdownCSS = await response.text();
+        const response = await fetch(codeBlockLinesStyle.href);
+        const css = await response.text();
+        allCSS += `\n/* Code Block Lines CSS */\n${css}\n`;
+        log('Loaded code block lines CSS');
       } catch (e) {
-        console.warn('Failed to load markdown CSS:', e);
+        console.warn('Failed to load code block lines CSS:', e);
       }
     }
 
@@ -1633,13 +1685,13 @@ async function exportToPDF() {
 <head>
   <meta charset="UTF-8">
   <style>
-    /* GitHub Markdown CSS */
-    ${markdownCSS}
+    /* Base Styles */
+    ${allCSS}
 
-    /* 主题样式 */
+    /* Theme Styles */
     ${themeCSS}
 
-    /* PDF 打印样式 */
+    /* PDF Export Optimizations */
     * {
       margin: 0;
       padding: 0;
@@ -1653,20 +1705,20 @@ async function exportToPDF() {
     }
 
     .markdown-body {
-      padding: 0;
+      padding: 40px;
       max-width: 100%;
       overflow: visible;
     }
 
-    /* 分页控制 */
-    h1, h2, h3 {
+    /* Page Break Control */
+    h1, h2, h3, h4, h5, h6 {
       page-break-after: avoid;
       break-after: avoid;
       page-break-inside: avoid;
       break-inside: avoid;
     }
 
-    pre, table, img, blockquote {
+    pre, table, img, blockquote, .math-block {
       page-break-inside: avoid;
       break-inside: avoid;
     }
@@ -1681,9 +1733,58 @@ async function exportToPDF() {
       break-inside: avoid;
     }
 
+    /* Code Block Formatting */
+    pre {
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+    }
+
     pre code {
       white-space: pre-wrap;
       word-wrap: break-word;
+    }
+
+    /* Line Numbers for PDF */
+    .code-line {
+      display: block;
+    }
+
+    .line-number {
+      display: inline-block;
+      min-width: 2.5em;
+      padding-right: 1em;
+      text-align: right;
+      user-select: none;
+      opacity: 0.5;
+    }
+
+    /* Ensure syntax highlighting works */
+    .hljs {
+      display: block;
+      overflow-x: visible;
+    }
+
+    /* KaTeX in PDF */
+    .katex {
+      font-size: 1em;
+    }
+
+    .math-block {
+      margin: 1em 0;
+      text-align: center;
+    }
+
+    /* Table styling */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    /* Images */
+    img {
+      max-width: 100%;
+      height: auto;
     }
   </style>
 </head>

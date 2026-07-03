@@ -205,10 +205,25 @@ class DocumentSearch {
         e.preventDefault();
         this.show('outline');
       }
+
+      // Cmd/Ctrl + G - 下一个匹配（全局快捷键）
+      if ((e.metaKey || e.ctrlKey) && e.key === 'g' && !e.shiftKey && this.isVisible && this.currentTab === 'search') {
+        e.preventDefault();
+        this.goToNextMatch();
+      }
+
+      // Cmd/Ctrl + Shift + G - 上一个匹配（全局快捷键）
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === 'G') {
+        e.preventDefault();
+        if (this.isVisible && this.currentTab === 'search') {
+          this.goToPrevMatch();
+        }
+      }
     });
   }
 
   show(tab = 'search') {
+    const wasVisible = this.isVisible;
     this.isVisible = true;
     this.currentTab = tab;
 
@@ -219,19 +234,29 @@ class DocumentSearch {
 
     if (tab === 'search') {
       const input = document.getElementById('docSearchInput');
-      // 如果编辑器有选中文本，自动填充到搜索框
-      const editor = document.getElementById('editor');
-      if (editor) {
-        const selectedText = editor.value.substring(
-          editor.selectionStart,
-          editor.selectionEnd
-        );
-        if (selectedText && selectedText.length > 0 && selectedText.length < 100) {
-          input.value = selectedText;
-          this.searchQuery = selectedText;
-          this.performSearch();
+
+      // 如果搜索面板已经打开，再次按 Cmd+F 应该清空并重新聚焦
+      if (wasVisible) {
+        input.value = '';
+        this.searchQuery = '';
+        this.clearHighlights();
+        this.performSearch();
+      } else {
+        // 首次打开：如果编辑器有选中文本，自动填充到搜索框
+        const editor = document.getElementById('editor');
+        if (editor) {
+          const selectedText = editor.value.substring(
+            editor.selectionStart,
+            editor.selectionEnd
+          );
+          if (selectedText && selectedText.length > 0 && selectedText.length < 100) {
+            input.value = selectedText;
+            this.searchQuery = selectedText;
+            this.performSearch();
+          }
         }
       }
+
       input.focus();
       input.select();
     } else if (tab === 'outline') {
@@ -328,12 +353,39 @@ class DocumentSearch {
           index += query.length;
         }
       }
+
+      // 清除错误状态
+      this.clearRegexError();
     } catch (e) {
-      // Invalid regex
+      // 正则表达式错误
       console.error('Search error:', e);
+      this.showRegexError(e.message);
     }
 
     return matches;
+  }
+
+  showRegexError(message) {
+    const input = document.getElementById('docSearchInput');
+    const content = document.getElementById('docSearchContent');
+
+    // 添加错误样式
+    input.classList.add('regex-error');
+
+    // 显示错误提示
+    const errorHtml = `
+      <div class="doc-search-error">
+        <div class="doc-search-error-icon">⚠️</div>
+        <div class="doc-search-error-title">正则表达式错误</div>
+        <div class="doc-search-error-message">${this.escapeHtml(message)}</div>
+      </div>
+    `;
+    content.innerHTML = errorHtml;
+  }
+
+  clearRegexError() {
+    const input = document.getElementById('docSearchInput');
+    input.classList.remove('regex-error');
   }
 
   getLineFromIndex(text, index) {
@@ -383,17 +435,10 @@ class DocumentSearch {
     const match = this.matches[index];
     const editor = document.getElementById('editor');
 
-    // 先保存当前搜索框的焦点状态
-    const searchInput = document.getElementById('docSearchInput');
-    const hadSearchFocus = searchInput && document.activeElement === searchInput;
-
     // 设置编辑器选区（高亮显示）
     editor.setSelectionRange(match.index, match.index + match.length);
 
-    // 强制聚焦到编辑器，让选区可见
-    editor.focus();
-
-    // 滚动到可见区域
+    // 滚动到可见区域（不改变焦点）
     this.scrollToSelection(editor);
 
     // 添加视觉高亮提示
@@ -402,11 +447,10 @@ class DocumentSearch {
     // 同时滚动预览面板到对应位置
     this.scrollPreviewToMatch(match, editor);
 
-    // 如果搜索框之前有焦点，延迟恢复焦点
-    if (hadSearchFocus && searchInput) {
-      setTimeout(() => {
-        searchInput.focus();
-      }, 100);
+    // 保持焦点在搜索框（不要让编辑器抢走焦点）
+    const searchInput = document.getElementById('docSearchInput');
+    if (searchInput && this.isVisible) {
+      searchInput.focus();
     }
   }
 
@@ -418,45 +462,88 @@ class DocumentSearch {
       // 获取匹配文本
       const matchText = editor.value.substring(match.index, match.index + match.length);
 
-      // 获取匹配位置所在的行内容（用于更精确的定位）
+      // 获取匹配位置所在的完整段落或块内容
       const textBeforeMatch = editor.value.substring(0, match.index);
+      const textAfterMatch = editor.value.substring(match.index + match.length);
+
+      // 找到匹配所在的段落（通过前后双换行符分隔）
+      const paragraphStartIndex = textBeforeMatch.lastIndexOf('\n\n');
+      const paragraphEndIndex = textAfterMatch.indexOf('\n\n');
+
+      const blockStart = paragraphStartIndex === -1 ? 0 : paragraphStartIndex + 2;
+      const blockEnd = match.index + match.length + (paragraphEndIndex === -1 ? textAfterMatch.length : paragraphEndIndex);
+      const blockText = editor.value.substring(blockStart, blockEnd).trim();
+
+      // 获取单行文本（用于二级匹配）
       const lastNewlineIndex = textBeforeMatch.lastIndexOf('\n');
       const lineStart = lastNewlineIndex === -1 ? 0 : lastNewlineIndex + 1;
       const lineEnd = editor.value.indexOf('\n', match.index);
-      const lineText = editor.value.substring(lineStart, lineEnd === -1 ? editor.value.length : lineEnd);
+      const lineText = editor.value.substring(lineStart, lineEnd === -1 ? editor.value.length : lineEnd).trim();
 
       // 在预览HTML中查找包含匹配文本的元素
-      const allElements = preview.querySelectorAll('section, p, h1, h2, h3, h4, h5, h6, li, td, th, blockquote, code, pre');
+      const allElements = preview.querySelectorAll('p, h1, h2, h3, h4, h5, h6, li, td, th, blockquote, pre, div.math-block, section');
 
       let targetElement = null;
-      let bestMatch = { element: null, score: 0 };
+      let bestMatch = { element: null, score: 0, method: '' };
 
       for (const element of allElements) {
-        const elementText = element.textContent || '';
+        const elementText = (element.textContent || '').trim();
 
-        // 优先匹配包含完整行文本的元素
-        if (elementText.includes(lineText.trim())) {
+        // 跳过空元素
+        if (!elementText) continue;
+
+        // 方法1：精确匹配完整段落/块文本（最高优先级）
+        if (blockText && elementText === blockText) {
           targetElement = element;
           break;
         }
 
-        // 次优：匹配包含搜索关键词的元素
-        if (elementText.includes(matchText)) {
-          const score = elementText.length > 0 ? matchText.length / elementText.length : 0;
+        // 方法2：匹配包含完整块文本的元素
+        if (blockText && elementText.includes(blockText)) {
+          const score = blockText.length / elementText.length;
           if (score > bestMatch.score) {
-            bestMatch = { element, score };
+            bestMatch = { element, score, method: 'block' };
+          }
+        }
+
+        // 方法3：匹配完整行文本
+        if (lineText && elementText === lineText) {
+          const score = 0.8; // 稍低于块匹配
+          if (score > bestMatch.score) {
+            bestMatch = { element, score, method: 'line-exact' };
+          }
+        }
+
+        // 方法4：匹配包含行文本的元素
+        if (lineText && elementText.includes(lineText)) {
+          const score = (lineText.length / elementText.length) * 0.7;
+          if (score > bestMatch.score) {
+            bestMatch = { element, score, method: 'line' };
+          }
+        }
+
+        // 方法5：匹配包含搜索关键词的元素（最低优先级）
+        if (matchText && elementText.includes(matchText)) {
+          const score = (matchText.length / elementText.length) * 0.5;
+          if (score > bestMatch.score) {
+            bestMatch = { element, score, method: 'keyword' };
           }
         }
       }
 
       // 使用最佳匹配
-      if (!targetElement && bestMatch.element) {
+      if (!targetElement && bestMatch.element && bestMatch.score > 0.3) {
         targetElement = bestMatch.element;
       }
 
       if (targetElement) {
-        // 滚动到目标元素，使其位于视口中央
+        // 确保元素可见
         targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+        // 移除之前的高亮
+        preview.querySelectorAll('.preview-search-highlight').forEach(el => {
+          el.classList.remove('preview-search-highlight');
+        });
 
         // 添加临时高亮效果
         targetElement.classList.add('preview-search-highlight');
