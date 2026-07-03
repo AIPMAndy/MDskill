@@ -269,6 +269,7 @@ class DocumentSearch {
     const panel = document.getElementById('docSearchPanel');
     panel.classList.remove('active');
     this.clearHighlights();
+    this.removeVisualHighlight(); // 关闭搜索面板时移除高亮
   }
 
   switchTab(tabName) {
@@ -560,14 +561,14 @@ class DocumentSearch {
     // 移除之前的高亮
     this.removeVisualHighlight();
 
-    // 简化方案：不用覆盖层，直接用编辑器的选中颜色
-    // 添加临时 CSS 类来增强选中效果
+    // 添加高亮 CSS 类来增强选中效果（持续显示，直到跳转到下一个或关闭搜索）
     editor.classList.add('search-highlight-active');
 
-    // 3秒后移除
-    setTimeout(() => {
-      this.removeVisualHighlight();
-    }, 3000);
+    // 不再自动移除，让高亮持续显示
+    // 高亮会在以下情况被移除：
+    // 1. 跳转到下一个匹配项时
+    // 2. 关闭搜索面板时
+    // 3. 开始新搜索时
   }
 
   removeVisualHighlight() {
