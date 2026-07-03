@@ -1696,18 +1696,28 @@ async function exportToPDF() {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
+      /* Force color printing for all elements */
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+      color-adjust: exact !important;
     }
 
     body {
       margin: 0;
       padding: 0;
-      background: white;
     }
 
     .markdown-body {
       padding: 40px;
       max-width: 100%;
       overflow: visible;
+    }
+
+    /* Ensure code blocks preserve colors */
+    pre, code, .hljs {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+      color-adjust: exact !important;
     }
 
     /* Page Break Control */
