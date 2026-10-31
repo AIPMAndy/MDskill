@@ -3,6 +3,7 @@
  * 直接从 Markdown 源文本渲染成带完整内联样式的 HTML
  * 支持主题样式配置
  */
+(function() {
 
 // Debug mode
 const DEBUG = process.env.NODE_ENV === 'development';
@@ -174,3 +175,4 @@ window.wechatRenderer = {
 };
 
 log('[WeChatRenderer] Module loaded');
+})();

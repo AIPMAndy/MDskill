@@ -673,3 +673,38 @@ body.pdf-export-mode #preview {
 .status-item:hover {
   color: #d4d4d4;
 }
+
+/* 搜索预览高亮 */
+.preview-search-highlight {
+  background-color: rgba(251, 191, 36, 0.24) !important;
+  box-shadow: inset 3px 0 0 #f59e0b;
+  outline: 1px solid rgba(245, 158, 11, 0.35);
+  outline-offset: 2px;
+  scroll-margin: 96px;
+  transition: all 0.3s ease !important;
+  animation: pulse-highlight 0.5s ease-in-out;
+}
+
+.markdown-body .code-line.preview-search-highlight {
+  display: block;
+}
+
+@keyframes pulse-highlight {
+  0%, 100% {
+    background-color: rgba(251, 191, 36, 0.24);
+  }
+  50% {
+    background-color: rgba(251, 191, 36, 0.42);
+  }
+}
+
+/* 编辑器搜索高亮激活状态 */
+#editor.search-highlight-active::selection {
+  background-color: #fbbf24 !important;
+  color: #000 !important;
+}
+
+#editor.search-highlight-active::-moz-selection {
+  background-color: #fbbf24 !important;
+  color: #000 !important;
+}

@@ -165,6 +165,47 @@ if (!wechatRendererSource.includes('styles.codeBlockColor || styles.codeColor'))
   fail('wechat-renderer.js code blocks do not use codeBlockColor fallback');
 }
 
+const browserScriptFiles = [
+  'renderer/renderer.js',
+  'renderer/wechat-renderer.js',
+  'renderer/copy-utils.js',
+];
+
+function getTopLevelDeclarationNames(source) {
+  const names = [];
+  const declarationRegex = /(?:^|\n)(const|let|class|function)\s+([A-Za-z_$][\w$]*)/g;
+
+  for (const match of source.matchAll(declarationRegex)) {
+    let depth = 0;
+    for (let index = 0; index < match.index; index += 1) {
+      const char = source[index];
+      if (char === '{') {
+        depth += 1;
+      } else if (char === '}') {
+        depth = Math.max(0, depth - 1);
+      }
+    }
+
+    if (depth === 0) {
+      names.push(match[2]);
+    }
+  }
+
+  return names;
+}
+
+const topLevelDeclarations = new Map();
+for (const relativePath of browserScriptFiles) {
+  const source = fs.readFileSync(path.join(rootDir, relativePath), 'utf8');
+  for (const name of getTopLevelDeclarationNames(source)) {
+    if (topLevelDeclarations.has(name)) {
+      fail(`browser scripts redeclare top-level "${name}" in ${topLevelDeclarations.get(name)} and ${relativePath}`);
+    } else {
+      topLevelDeclarations.set(name, relativePath);
+    }
+  }
+}
+
 if (process.exitCode) {
   process.exit(process.exitCode);
 }

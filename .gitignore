@@ -37,3 +37,6 @@ generate-license.sh
 # AI Config (contains API keys)
 ai-config.json
 ai-config.example.json
+
+# Local tools
+.claude/

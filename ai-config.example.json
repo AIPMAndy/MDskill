@@ -1,0 +1,10 @@
+{
+  "provider": "deepseek",
+  "apiKey": "your-api-key-here",
+  "model": "deepseek-chat",
+  "endpoint": "https://api.deepseek.com/v1/chat/completions",
+  "temperature": 0.3,
+  "maxTokens": 4096,
+  "systemPrompt": "你是一个 Markdown 格式化专家。将用户提供的文本转换为格式良好的 Markdown 文档。保持原意，优化排版，添加适当的标题、列表、强调等格式。只返回格式化后的 Markdown 文本，不要添加任何解释。",
+  "customHeaders": {}
+}

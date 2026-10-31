@@ -1358,3 +1358,84 @@ app.on('activate', () => {
     createWindow();
   }
 });
+
+// ============================================
+// 发布功能 IPC 处理
+// ============================================
+
+const { getInstance: getPublishManager } = require('./modules/publish-manager');
+let publishManager = null;
+let publishWindow = null;
+let publishContentCache = null;
+
+// 初始化发布管理器
+app.whenReady().then(() => {
+  publishManager = getPublishManager();
+});
+
+// 打开发布窗口
+ipcMain.handle('open-publish-window', async (event, content) => {
+  // 缓存要发布的内容
+  publishContentCache = content;
+
+  if (publishWindow && !publishWindow.isDestroyed()) {
+    publishWindow.focus();
+    return;
+  }
+
+  publishWindow = new BrowserWindow({
+    width: 900,
+    height: 700,
+    title: t('publishToPlat forms'),
+    webPreferences: {
+      nodeIntegration: true,
+      contextIsolation: false
+    },
+    parent: BrowserWindow.getFocusedWindow(),
+    modal: true
+  });
+
+  publishWindow.loadFile(path.join(__dirname, 'renderer/publish/publish-manager.html'));
+
+  publishWindow.on('closed', () => {
+    publishWindow = null;
+    publishContentCache = null;
+  });
+});
+
+// 获取发布内容
+ipcMain.handle('get-publish-content', async () => {
+  return publishContentCache;
+});
+
+// 获取平台列表
+ipcMain.handle('get-platforms', async () => {
+  if (!publishManager) {
+    publishManager = getPublishManager();
+  }
+  return publishManager.getPlatforms();
+});
+
+// 发布内容
+ipcMain.handle('publish-content', async (event, { platformIds, content }) => {
+  if (!publishManager) {
+    publishManager = getPublishManager();
+  }
+
+  return await publishManager.publishToMultiple(platformIds, content);
+});
+
+// 获取发布历史
+ipcMain.handle('get-publish-history', async (event, limit) => {
+  if (!publishManager) {
+    publishManager = getPublishManager();
+  }
+  return publishManager.getHistory(limit);
+});
+
+// 清理资源
+app.on('before-quit', () => {
+  if (publishManager) {
+    publishManager.closeAll();
+  }
+});

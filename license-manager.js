@@ -12,8 +12,8 @@ const store = new Store();
 
 // 配置
 const CONFIG = {
-  API_BASE_URL: 'http://124.222.208.117:3000',
-  API_SECRET: '73b5eb4f89888c4637814ad108197981e7bcc88bdbb8724c0e34af1cad3dbc8f',
+  API_BASE_URL: 'http://YOUR_LICENSE_SERVER_HOST:3000',
+  API_SECRET: 'YOUR_LICENSE_API_SECRET',
   OFFLINE_GRACE_DAYS: 5,
 };
 

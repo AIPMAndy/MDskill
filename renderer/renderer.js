@@ -535,6 +535,43 @@ function registerDOMListeners() {
     insertMarkdown('[', '](url)', 'link text');
   });
 
+  // 发布按钮
+  document.getElementById('publishBtn')?.addEventListener('click', async () => {
+    const markdown = editor.value;
+    if (!markdown || markdown.trim() === '') {
+      if (window.toast) {
+        toast.error('编辑器内容为空');
+      } else {
+        alert('编辑器内容为空');
+      }
+      return;
+    }
+
+    // 尝试从第一行提取标题
+    const lines = markdown.split('\n');
+    let title = '未命名文档';
+    if (lines[0].startsWith('#')) {
+      title = lines[0].replace(/^#+\s*/, '').trim();
+    } else if (currentFilePath) {
+      const path = require('path');
+      title = path.basename(currentFilePath, '.md');
+    }
+
+    try {
+      await ipcRenderer.invoke('open-publish-window', {
+        title,
+        markdown
+      });
+    } catch (error) {
+      console.error('Failed to open publish window:', error);
+      if (window.toast) {
+        toast.error('打开发布窗口失败：' + error.message);
+      } else {
+        alert('打开发布窗口失败：' + error.message);
+      }
+    }
+  });
+
   // 导出 PDF 按钮
   document.getElementById('exportPdfBtn').addEventListener('click', async () => {
     const hasAccess = await checkFeatureAccess('pdf_export');
@@ -1187,22 +1224,25 @@ window.currentTemplate = currentTemplate;
 // 更新预览（性能优化）
 let lastMarkdown = '';
 function updatePreview() {
-  let markdown = editor.value;
+  const sourceMarkdown = editor.value;
 
   // 性能优化：如果内容未变化，直接返回
-  if (markdown === lastMarkdown) {
+  if (sourceMarkdown === lastMarkdown) {
     return;
   }
-  lastMarkdown = markdown;
+  lastMarkdown = sourceMarkdown;
 
   // 预处理：压缩连续的空行为单个空行（保持段落分隔）
-  markdown = markdown.replace(/\n\s*\n\s*\n+/g, '\n\n');
+  const markdown = sourceMarkdown.replace(/\n\s*\n\s*\n+/g, '\n\n');
 
   const html = marked.parse(markdown);
 
   // 使用 requestAnimationFrame 优化 DOM 更新
   requestAnimationFrame(() => {
     preview.innerHTML = html;
+    if (window.MarkdownSourceMap) {
+      window.MarkdownSourceMap.annotatePreviewSourceBlocks(preview, sourceMarkdown);
+    }
   });
 }
 
@@ -1638,173 +1678,27 @@ async function exportToPDF() {
       progressOverlay.show(defaultName);
     }
 
-    // 获取当前主题的 CSS
-    const themeStyle = document.getElementById('theme-style');
+    if (!window.PDFExportBuilder) {
+      throw new Error('PDF export builder is not loaded');
+    }
+
+    const themeStyle = document.getElementById('dynamicStyles');
     const themeCSS = themeStyle ? themeStyle.textContent : '';
+    const assetCSS = await PDFExportBuilder.collectStylesheetText([
+      { selector: 'link[href*="github-markdown"]', name: 'GitHub Markdown CSS' },
+      { selector: 'link[href*="highlight.js"]', name: 'Highlight.js CSS' },
+      { selector: 'link[href*="katex"]', name: 'KaTeX CSS' },
+      { selector: 'link[href*="code-block-lines"]', name: 'Code Block Line CSS' },
+    ], document);
 
-    // 获取所有必要的 CSS 文件
-    const cssLinks = [
-      { selector: 'link[href*="github-markdown"]', name: 'GitHub Markdown' },
-      { selector: 'link[href*="highlight.js"]', name: 'Highlight.js' },
-      { selector: 'link[href*="katex"]', name: 'KaTeX' }
-    ];
-
-    let allCSS = '';
-
-    for (const { selector, name } of cssLinks) {
-      const link = document.querySelector(selector);
-      if (link) {
-        try {
-          const response = await fetch(link.href);
-          const css = await response.text();
-          allCSS += `\n/* ${name} CSS */\n${css}\n`;
-          log(`Loaded ${name} CSS`);
-        } catch (e) {
-          console.warn(`Failed to load ${name} CSS:`, e);
-        }
-      }
-    }
-
-    // 获取代码块行号样式
-    const codeBlockLinesStyle = document.querySelector('link[href*="code-block-lines"]');
-    if (codeBlockLinesStyle) {
-      try {
-        const response = await fetch(codeBlockLinesStyle.href);
-        const css = await response.text();
-        allCSS += `\n/* Code Block Lines CSS */\n${css}\n`;
-        log('Loaded code block lines CSS');
-      } catch (e) {
-        console.warn('Failed to load code block lines CSS:', e);
-      }
-    }
-
-    // 构建完整的 HTML 文档
-    const htmlContent = `
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <style>
-    /* Base Styles */
-    ${allCSS}
-
-    /* Theme Styles */
-    ${themeCSS}
-
-    /* PDF Export Optimizations */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      /* Force color printing for all elements */
-      -webkit-print-color-adjust: exact !important;
-      print-color-adjust: exact !important;
-      color-adjust: exact !important;
-    }
-
-    body {
-      margin: 0;
-      padding: 0;
-    }
-
-    .markdown-body {
-      padding: 40px;
-      max-width: 100%;
-      overflow: visible;
-    }
-
-    /* Ensure code blocks preserve colors */
-    pre, code, .hljs {
-      -webkit-print-color-adjust: exact !important;
-      print-color-adjust: exact !important;
-      color-adjust: exact !important;
-    }
-
-    /* Page Break Control */
-    h1, h2, h3, h4, h5, h6 {
-      page-break-after: avoid;
-      break-after: avoid;
-      page-break-inside: avoid;
-      break-inside: avoid;
-    }
-
-    pre, table, img, blockquote, .math-block {
-      page-break-inside: avoid;
-      break-inside: avoid;
-    }
-
-    p {
-      orphans: 3;
-      widows: 3;
-    }
-
-    li {
-      page-break-inside: avoid;
-      break-inside: avoid;
-    }
-
-    /* Code Block Formatting */
-    pre {
-      white-space: pre-wrap;
-      word-wrap: break-word;
-      overflow-wrap: break-word;
-    }
-
-    pre code {
-      white-space: pre-wrap;
-      word-wrap: break-word;
-    }
-
-    /* Line Numbers for PDF */
-    .code-line {
-      display: block;
-    }
-
-    .line-number {
-      display: inline-block;
-      min-width: 2.5em;
-      padding-right: 1em;
-      text-align: right;
-      user-select: none;
-      opacity: 0.5;
-    }
-
-    /* Ensure syntax highlighting works */
-    .hljs {
-      display: block;
-      overflow-x: visible;
-    }
-
-    /* KaTeX in PDF */
-    .katex {
-      font-size: 1em;
-    }
-
-    .math-block {
-      margin: 1em 0;
-      text-align: center;
-    }
-
-    /* Table styling */
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-
-    /* Images */
-    img {
-      max-width: 100%;
-      height: auto;
-    }
-  </style>
-</head>
-<body>
-  <div class="markdown-body">
-    ${preview.innerHTML}
-  </div>
-</body>
-</html>
-    `;
+    const htmlContent = PDFExportBuilder.buildPDFExportHTML({
+      title: defaultName.replace(/\.pdf$/i, ''),
+      contentHTML: preview.innerHTML,
+      assetCSS,
+      themeCSS,
+      baseHref: window.location.href,
+      templateStyles: currentTemplate ? currentTemplate.styles : null,
+    });
 
     log('HTML content prepared, length:', htmlContent.length);
 

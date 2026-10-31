@@ -460,6 +460,14 @@ class DocumentSearch {
     if (!preview) return;
 
     try {
+      if (window.MarkdownSourceMap) {
+        const mappedElement = window.MarkdownSourceMap.findPreviewElementForLine(preview, match.line);
+        if (mappedElement) {
+          this.revealPreviewElement(preview, mappedElement);
+          return;
+        }
+      }
+
       // 获取匹配文本
       const matchText = editor.value.substring(match.index, match.index + match.length);
 
@@ -538,23 +546,44 @@ class DocumentSearch {
       }
 
       if (targetElement) {
-        // 确保元素可见
-        targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-        // 移除之前的高亮
-        preview.querySelectorAll('.preview-search-highlight').forEach(el => {
-          el.classList.remove('preview-search-highlight');
-        });
-
-        // 添加临时高亮效果
-        targetElement.classList.add('preview-search-highlight');
-        setTimeout(() => {
-          targetElement.classList.remove('preview-search-highlight');
-        }, 2000);
+        this.revealPreviewElement(preview, targetElement);
       }
     } catch (error) {
       console.error('Preview scroll error:', error);
     }
+  }
+
+  scrollPreviewToLine(line) {
+    const preview = document.getElementById('preview');
+    if (!preview || !window.MarkdownSourceMap) return;
+
+    const targetElement = window.MarkdownSourceMap.findPreviewElementForLine(preview, line);
+    if (targetElement) {
+      this.revealPreviewElement(preview, targetElement);
+    }
+  }
+
+  revealPreviewElement(preview, targetElement) {
+    const previewPane = document.getElementById('previewPane');
+
+    if (previewPane && typeof previewPane.scrollTo === 'function') {
+      const targetTop = targetElement.offsetTop - previewPane.clientHeight / 2 + targetElement.clientHeight / 2;
+      previewPane.scrollTo({
+        top: Math.max(0, targetTop),
+        behavior: 'smooth',
+      });
+    } else {
+      targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    preview.querySelectorAll('.preview-search-highlight').forEach(el => {
+      el.classList.remove('preview-search-highlight');
+    });
+
+    targetElement.classList.add('preview-search-highlight');
+    setTimeout(() => {
+      targetElement.classList.remove('preview-search-highlight');
+    }, 2000);
   }
 
   addVisualHighlight(editor, match) {
@@ -688,6 +717,7 @@ class DocumentSearch {
     // 设置选区但不夺取焦点
     editor.setSelectionRange(index, index);
     this.scrollToSelection(editor);
+    this.scrollPreviewToLine(line);
 
     // 刷新大纲高亮
     if (this.currentTab === 'outline') {
